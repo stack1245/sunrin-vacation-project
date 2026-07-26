@@ -142,7 +142,9 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
           </p>
         ) : (
           <span className="text-stone-500">
-            {isLocked ? "이전 스테이지를 먼저 완료하세요." : "준비가 되면 입장하세요."}
+            {isLocked
+              ? "이전 스테이지를 완료하면 입장할 수 있습니다."
+              : "스테이지에 입장할 수 있습니다."}
           </span>
         )}
 
@@ -198,7 +200,7 @@ export function StagesView() {
       : {
           status: "error",
           message:
-            "Supabase 연결 정보가 설정되지 않았습니다. 환경변수를 확인해 주세요.",
+            "현재 스테이지 정보를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.",
         },
   );
 
@@ -293,7 +295,7 @@ export function StagesView() {
             stages,
           },
         });
-      } catch (error) {
+      } catch {
         if (!isMounted) {
           return;
         }
@@ -301,9 +303,7 @@ export function StagesView() {
         setState({
           status: "error",
           message:
-            error instanceof Error
-              ? error.message
-              : "스테이지 정보를 불러오지 못했습니다.",
+            "스테이지 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
         });
       }
     })();
@@ -360,7 +360,7 @@ export function StagesView() {
           onClick={() => setReloadKey((current) => current + 1)}
           className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md border border-white/40 bg-white/10 px-5 text-sm font-medium text-white transition-colors hover:border-white/70 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
         >
-          다시 시도
+          다시 시도하기
         </button>
       </div>
     );

@@ -34,7 +34,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
       : {
           status: "error",
           message:
-            "Supabase 연결 정보가 설정되지 않았습니다. 환경변수를 확인해 주세요.",
+            "현재 스테이지에 입장할 수 없습니다. 잠시 후 다시 시도해 주세요.",
         },
   );
 
@@ -79,7 +79,13 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
         }
 
         if (!stage) {
-          throw new Error("요청한 스테이지를 찾을 수 없습니다.");
+          if (isMounted) {
+            setState({
+              status: "error",
+              message: "요청하신 스테이지를 찾을 수 없습니다.",
+            });
+          }
+          return;
         }
 
         const { data: progress, error: progressError } = await supabase
@@ -113,7 +119,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           progressStatus:
             progress.status === "unlocked" ? "in_progress" : progress.status,
         });
-      } catch (error) {
+      } catch {
         if (!isMounted) {
           return;
         }
@@ -121,9 +127,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
         setState({
           status: "error",
           message:
-            error instanceof Error
-              ? error.message
-              : "스테이지에 입장하지 못했습니다.",
+            "스테이지에 입장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
         });
       }
     })();
@@ -172,9 +176,9 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
         {state.title}
       </h1>
       <p className="mt-5 text-sm leading-6 text-stone-400">
-        입장 기록과 마지막 플레이 시각이 저장되었습니다.
+        스테이지 입장이 완료되었습니다.
         <br />
-        실제 퍼즐 콘텐츠는 아직 연결되지 않았습니다.
+        퍼즐 콘텐츠는 현재 준비 중입니다.
       </p>
       <p className="mt-5 text-xs text-stone-500">
         현재 상태:{" "}

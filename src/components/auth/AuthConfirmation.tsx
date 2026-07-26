@@ -54,7 +54,7 @@ export function AuthConfirmation() {
       : {
           status: "error",
           message:
-            "Supabase 연결 정보가 설정되지 않았습니다. 환경변수를 먼저 설정해 주세요.",
+            "현재 이메일 인증 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
         },
   );
 

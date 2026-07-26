@@ -53,7 +53,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       setNotice({
         kind: "error",
         message:
-          "Supabase 연결 정보가 설정되지 않았습니다. 환경변수를 먼저 설정해 주세요.",
+          "현재 회원 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
       });
       return;
     }
@@ -195,8 +195,8 @@ export function AuthForm({ mode }: AuthFormProps) {
           role="alert"
           className="mb-5 rounded-md border border-amber-200/20 bg-amber-200/10 px-4 py-3 text-sm leading-6 text-amber-100"
         >
-          Supabase 연결 정보가 아직 설정되지 않았습니다. 프로젝트 URL과
-          publishable key를 환경변수에 추가해 주세요.
+          현재 회원 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해
+          주세요.
         </p>
       )}
 

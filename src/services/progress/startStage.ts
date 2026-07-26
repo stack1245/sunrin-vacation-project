@@ -2,13 +2,15 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export async function startStage(stageId: number): Promise<void> {
   if (!Number.isInteger(stageId) || stageId <= 0) {
-    throw new Error("올바른 스테이지 ID가 필요합니다.");
+    throw new Error("스테이지 정보를 확인할 수 없습니다.");
   }
 
   const supabase = getSupabaseBrowserClient();
 
   if (!supabase) {
-    throw new Error("Supabase 연결 정보가 설정되지 않았습니다.");
+    throw new Error(
+      "게임 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+    );
   }
 
   const {
@@ -17,7 +19,7 @@ export async function startStage(stageId: number): Promise<void> {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    throw new Error("로그인이 필요합니다.");
+    throw new Error("로그인 후 이용해 주세요.");
   }
 
   const { error } = await supabase.rpc("start_stage", {
@@ -25,6 +27,8 @@ export async function startStage(stageId: number): Promise<void> {
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(
+      "스테이지 진행 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    );
   }
 }
