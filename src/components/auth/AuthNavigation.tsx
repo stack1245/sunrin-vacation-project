@@ -13,7 +13,7 @@ const focusStyles =
 
 export function AuthNavigation() {
   const configured = isSupabaseConfigured();
-  const [email, setEmail] = useState<string | null>(null);
+  const [nickname, setNickname] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(configured);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
@@ -25,30 +25,72 @@ export function AuthNavigation() {
       return;
     }
 
+    const client = supabase;
     let isMounted = true;
+    let profileRequestId = 0;
+    let authChangeTimer: ReturnType<typeof setTimeout> | null = null;
 
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!isMounted) {
+    async function loadProfile(
+      user: { id: string; email?: string | null } | null,
+    ) {
+      const requestId = ++profileRequestId;
+
+      if (!user) {
+        if (isMounted && requestId === profileRequestId) {
+          setNickname(null);
+          setIsLoading(false);
+        }
         return;
       }
 
-      setEmail(data.user?.email ?? null);
+      if (isMounted) {
+        setIsLoading(true);
+      }
+
+      const fallbackNickname =
+        user.email?.split("@")[0]?.trim() || "플레이어";
+
+      await client.rpc("ensure_user_setup");
+
+      const { data } = await client
+        .from("profiles")
+        .select("nickname")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!isMounted || requestId !== profileRequestId) {
+        return;
+      }
+
+      setNickname(data?.nickname ?? fallbackNickname);
       setIsLoading(false);
+    }
+
+    void client.auth.getUser().then(({ data }) => {
+      void loadProfile(data.user);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = client.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) {
         return;
       }
 
-      setEmail(session?.user.email ?? null);
-      setIsLoading(false);
+      if (authChangeTimer) {
+        clearTimeout(authChangeTimer);
+      }
+
+      authChangeTimer = setTimeout(() => {
+        void loadProfile(session?.user ?? null);
+      }, 0);
     });
 
     return () => {
       isMounted = false;
+      if (authChangeTimer) {
+        clearTimeout(authChangeTimer);
+      }
       subscription.unsubscribe();
     };
   }, []);
@@ -71,7 +113,7 @@ export function AuthNavigation() {
       return;
     }
 
-    setEmail(null);
+    setNickname(null);
     setIsSigningOut(false);
   }
 
@@ -86,15 +128,15 @@ export function AuthNavigation() {
     );
   }
 
-  if (email) {
+  if (nickname) {
     return (
       <nav aria-label="회원 메뉴" className="ml-4">
         <div className="flex items-center gap-2 text-xs sm:gap-4 sm:text-sm">
           <span
             className="max-w-24 truncate text-stone-400 sm:max-w-52"
-            title={email}
+            title={nickname}
           >
-            {email}
+            {nickname}
           </span>
           <button
             type="button"
@@ -135,4 +177,3 @@ export function AuthNavigation() {
     </nav>
   );
 }
-

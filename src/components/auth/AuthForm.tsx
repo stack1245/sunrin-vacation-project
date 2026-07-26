@@ -51,6 +51,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const nickname = String(formData.get("nickname") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const passwordConfirmation = String(
@@ -58,6 +59,14 @@ export function AuthForm({ mode }: AuthFormProps) {
     );
 
     setNotice(null);
+
+    if (isSignup && (nickname.length < 2 || nickname.length > 24)) {
+      setNotice({
+        kind: "error",
+        message: "닉네임은 공백을 제외하고 2자 이상 24자 이하로 입력해 주세요.",
+      });
+      return;
+    }
 
     if (password.length < 8) {
       setNotice({
@@ -82,6 +91,9 @@ export function AuthForm({ mode }: AuthFormProps) {
         email,
         password,
         options: {
+          data: {
+            nickname,
+          },
           emailRedirectTo: `${window.location.origin}/auth/confirm`,
         },
       });
@@ -148,6 +160,28 @@ export function AuthForm({ mode }: AuthFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5" noValidate={false}>
+        {isSignup && (
+          <div>
+            <label
+              htmlFor={`${mode}-nickname`}
+              className="text-sm font-medium text-stone-200"
+            >
+              닉네임
+            </label>
+            <input
+              id={`${mode}-nickname`}
+              name="nickname"
+              type="text"
+              autoComplete="nickname"
+              required
+              minLength={2}
+              maxLength={24}
+              placeholder="2~24자"
+              className={inputStyles}
+            />
+          </div>
+        )}
+
         <div>
           <label
             htmlFor={`${mode}-email`}
@@ -252,4 +286,3 @@ export function AuthForm({ mode }: AuthFormProps) {
     </>
   );
 }
-
