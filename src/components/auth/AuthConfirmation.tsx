@@ -87,7 +87,7 @@ export function AuthConfirmation() {
             setState({
               status: "success",
               message:
-                "이메일 인증과 로그인이 완료됐어. 이제 게임을 시작할 수 있어.",
+                "이메일 인증과 로그인이 완료되었습니다. 이제 게임을 시작할 수 있습니다.",
             });
           }
           return;
@@ -100,12 +100,12 @@ export function AuthConfirmation() {
                 ? {
                     status: "expired",
                     message:
-                      "인증 링크가 만료됐어. 인증 메일을 다시 요청해 줘.",
+                      "인증 링크가 만료되었습니다. 인증 메일을 다시 요청해 주세요.",
                   }
                 : {
                     status: "error",
                     message:
-                      "이미 처리된 인증 링크이거나 올바르지 않은 링크야.",
+                      "이미 처리되었거나 올바르지 않은 인증 링크입니다.",
                   },
             );
           }
@@ -117,7 +117,7 @@ export function AuthConfirmation() {
             setState({
               status: "error",
               message:
-                "유효한 인증 정보를 찾을 수 없어. 이메일의 인증 링크를 다시 확인해 줘.",
+                "유효한 인증 정보를 찾을 수 없습니다. 이메일의 인증 링크를 다시 확인해 주세요.",
             });
           }
           return;
@@ -135,13 +135,13 @@ export function AuthConfirmation() {
               ? {
                   status: "expired",
                   message:
-                    "인증 링크가 만료됐어. 인증 메일을 다시 요청해 줘.",
+                    "인증 링크가 만료되었습니다. 인증 메일을 다시 요청해 주세요.",
                 }
               : {
                   status: "error",
                   message: getAuthErrorMessage(
                     error,
-                    "이미 처리된 인증 링크이거나 올바르지 않은 링크야.",
+                    "이미 처리되었거나 올바르지 않은 인증 링크입니다.",
                   ),
                 },
           );
@@ -152,14 +152,14 @@ export function AuthConfirmation() {
         setState({
           status: "success",
           message:
-            "이메일 인증과 로그인이 완료됐어. 이제 게임을 시작할 수 있어.",
+            "이메일 인증과 로그인이 완료되었습니다. 이제 게임을 시작할 수 있습니다.",
         });
       } catch {
         if (isMounted) {
           setState({
             status: "error",
             message:
-              "네트워크 연결을 확인한 뒤 인증 링크를 다시 열어 줘.",
+              "네트워크 연결을 확인한 뒤 인증 링크를 다시 열어 주세요.",
           });
         }
       }

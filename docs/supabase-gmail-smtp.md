@@ -74,16 +74,16 @@ Redirect URL: https://<production-domain>/auth/confirm
 권장 제목은 다음과 같다.
 
 ```text
-[OutOfBounds] 이메일 인증을 완료해 줘
+[OutOfBounds] 이메일 인증을 완료해 주세요
 ```
 
 권장 HTML 본문 예시는 다음과 같다.
 
 ```html
 <h2>OutOfBounds 회원가입 요청</h2>
-<p>아래 버튼을 눌러 이메일 인증을 완료해 줘.</p>
+<p>아래 버튼을 눌러 이메일 인증을 완료해 주세요.</p>
 <p><a href="{{ .ConfirmationURL }}">이메일 인증하기</a></p>
-<p>본인이 요청하지 않았다면 이 메일을 무시해도 돼.</p>
+<p>본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.</p>
 ```
 
 `{{ .ConfirmationURL }}`은 Supabase가 생성하는 인증 URL이므로 철자,

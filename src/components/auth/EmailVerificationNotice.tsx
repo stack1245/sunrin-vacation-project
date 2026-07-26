@@ -57,7 +57,7 @@ export function EmailVerificationNotice({
       setNotice({
         kind: "error",
         message:
-          "인증 메일을 보내지 못했어. 잠시 후 다시 시도해 줘.",
+          "인증 메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
       });
       return;
     }
@@ -79,7 +79,7 @@ export function EmailVerificationNotice({
           kind: "error",
           message: getAuthErrorMessage(
             error,
-            "인증 메일을 보내지 못했어. 잠시 후 다시 시도해 줘.",
+            "인증 메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
           ),
         });
         return;
@@ -89,13 +89,13 @@ export function EmailVerificationNotice({
       setNotice({
         kind: "success",
         message:
-          "인증 메일을 다시 보냈어. 메일함과 스팸함을 확인해 줘.",
+          "인증 메일을 다시 보냈습니다. 메일함과 스팸함을 확인해 주세요.",
       });
     } catch {
       setNotice({
         kind: "error",
         message:
-          "네트워크 연결을 확인한 뒤 인증 메일을 다시 요청해 줘.",
+          "네트워크 연결을 확인한 뒤 인증 메일을 다시 요청해 주세요.",
       });
     } finally {
       setIsResending(false);
@@ -115,11 +115,11 @@ export function EmailVerificationNotice({
 
       <p className="mt-5 text-sm font-medium leading-6 text-stone-100">
         {reason === "signup"
-          ? "인증 메일을 보냈어."
-          : "이메일 인증이 아직 완료되지 않았어."}
+          ? "인증 메일을 보냈습니다."
+          : "이메일 인증이 아직 완료되지 않았습니다."}
       </p>
       <p className="mt-2 text-sm leading-6 text-stone-400">
-        메일함에서 인증 링크를 눌러 회원가입을 완료해 줘.
+        메일함에서 인증 링크를 눌러 회원가입을 완료해 주세요.
       </p>
 
       <p className="mt-4 break-all rounded-md border border-white/10 bg-black/25 px-4 py-3 text-sm text-stone-200">
@@ -127,9 +127,9 @@ export function EmailVerificationNotice({
       </p>
 
       <ul className="mt-5 space-y-1.5 text-left text-xs leading-5 text-stone-500">
-        <li>· 메일이 없다면 스팸함을 확인해 줘.</li>
-        <li>· 위 이메일 주소가 맞는지 확인해 줘.</li>
-        <li>· 메일 도착까지 잠시 시간이 걸릴 수 있어.</li>
+        <li>· 메일이 보이지 않으면 스팸함도 확인해 주세요.</li>
+        <li>· 위 이메일 주소가 정확한지 확인해 주세요.</li>
+        <li>· 메일 도착까지 잠시 시간이 걸릴 수 있습니다.</li>
       </ul>
 
       {notice && (

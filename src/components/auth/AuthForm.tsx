@@ -113,7 +113,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             kind: "error",
             message: getAuthErrorMessage(
               error,
-              "인증 메일을 보내지 못했어. 잠시 후 다시 시도해 줘.",
+              "인증 메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
             ),
           });
           setIsSubmitting(false);
@@ -168,7 +168,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       setNotice({
         kind: "error",
         message: isSignup
-          ? "네트워크 연결을 확인한 뒤 회원가입을 다시 시도해 줘."
+          ? "네트워크 연결을 확인한 뒤 회원가입을 다시 시도해 주세요."
           : "네트워크 연결을 확인한 뒤 로그인을 다시 시도해 주세요.",
       });
       setIsSubmitting(false);
