@@ -1,9 +1,5 @@
-import Link from "next/link";
-
 import { SiteHeader } from "@/components/common/SiteHeader";
-
-const focusStyles =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030708]";
+import { StartButton } from "@/components/home/StartButton";
 
 export default function Home() {
   return (
@@ -26,12 +22,7 @@ export default function Home() {
             경계 밖으로 나아가시겠습니까?
           </h1>
 
-          <Link
-            href="/stages"
-            className={`mt-9 inline-flex min-h-13 min-w-40 items-center justify-center rounded-md border border-white/65 bg-black/25 px-9 py-3 text-sm font-semibold tracking-[0.24em] text-white backdrop-blur-[2px] transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white/12 active:translate-y-0 active:scale-[0.98] sm:mt-11 sm:min-h-14 sm:min-w-44 ${focusStyles}`}
-          >
-            START
-          </Link>
+          <StartButton />
         </section>
       </main>
     </div>
