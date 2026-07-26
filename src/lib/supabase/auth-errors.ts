@@ -2,9 +2,9 @@ import type { AuthError } from "@supabase/supabase-js";
 
 const errorMessages: Readonly<Record<string, string>> = {
   bad_code_verifier:
-    "이미 처리되었거나 올바르지 않은 인증 링크입니다.",
+    "올바르지 않거나 이미 처리된 인증 링크입니다. 다시 회원가입해 주세요.",
   bad_oauth_callback:
-    "이미 처리되었거나 올바르지 않은 인증 링크입니다.",
+    "올바르지 않거나 이미 처리된 인증 링크입니다. 다시 회원가입해 주세요.",
   bad_oauth_state:
     "인증 요청을 확인할 수 없습니다. 회원가입부터 다시 진행해 주세요.",
   email_address_invalid: "사용할 수 없는 이메일 주소입니다.",
@@ -16,12 +16,14 @@ const errorMessages: Readonly<Record<string, string>> = {
   email_provider_disabled:
     "현재 이메일 회원가입이 비활성화되어 있습니다. 관리자에게 문의해 주세요.",
   flow_state_expired:
-    "인증 링크가 만료되었습니다. 인증 메일을 다시 요청해 주세요.",
+    "인증 링크가 만료되었거나 회원가입 요청이 삭제되었습니다. 다시 회원가입해 주세요.",
   flow_state_not_found:
-    "이미 처리되었거나 올바르지 않은 인증 링크입니다.",
+    "인증 링크가 만료되었거나 회원가입 요청이 삭제되었습니다. 다시 회원가입해 주세요.",
+  identity_not_found:
+    "인증할 회원가입 요청을 찾을 수 없습니다. 다시 회원가입해 주세요.",
   invalid_credentials: "이메일 또는 비밀번호가 올바르지 않습니다.",
   otp_expired:
-    "인증 링크가 만료되었습니다. 인증 메일을 다시 요청해 주세요.",
+    "인증 링크가 만료되었거나 회원가입 요청이 삭제되었습니다. 다시 회원가입해 주세요.",
   over_email_send_rate_limit:
     "인증 메일 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
   over_request_rate_limit:
@@ -34,6 +36,8 @@ const errorMessages: Readonly<Record<string, string>> = {
   unexpected_failure:
     "인증 요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.",
   user_already_exists: "이미 가입된 이메일입니다. 로그인해 주세요.",
+  user_not_found:
+    "인증할 회원가입 요청을 찾을 수 없습니다. 다시 회원가입해 주세요.",
   validation_failed: "입력한 이메일과 비밀번호를 다시 확인해 주세요.",
   weak_password: "보안 기준을 충족하는 더 강한 비밀번호를 사용해 주세요.",
 };

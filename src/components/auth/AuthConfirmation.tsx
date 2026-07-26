@@ -39,8 +39,14 @@ function exchangeConfirmationCode(
   return codeExchange.promise;
 }
 
-function isExpiredErrorCode(errorCode: string | undefined): boolean {
-  return errorCode === "otp_expired" || errorCode === "flow_state_expired";
+function isStaleSignupErrorCode(errorCode: string | undefined): boolean {
+  return (
+    errorCode === "flow_state_expired" ||
+    errorCode === "flow_state_not_found" ||
+    errorCode === "identity_not_found" ||
+    errorCode === "otp_expired" ||
+    errorCode === "user_not_found"
+  );
 }
 
 export function AuthConfirmation() {
@@ -96,16 +102,16 @@ export function AuthConfirmation() {
         if (callbackError) {
           if (isMounted) {
             setState(
-              isExpiredErrorCode(callbackError)
+              isStaleSignupErrorCode(callbackError)
                 ? {
                     status: "expired",
                     message:
-                      "인증 링크가 만료되었습니다. 인증 메일을 다시 요청해 주세요.",
+                      "인증 링크가 만료되었거나 회원가입 요청이 삭제되었습니다. 다시 회원가입해 주세요.",
                   }
                 : {
                     status: "error",
                     message:
-                      "이미 처리되었거나 올바르지 않은 인증 링크입니다.",
+                      "올바르지 않거나 이미 처리된 인증 링크입니다. 다시 회원가입해 주세요.",
                   },
             );
           }
@@ -117,7 +123,7 @@ export function AuthConfirmation() {
             setState({
               status: "error",
               message:
-                "유효한 인증 정보를 찾을 수 없습니다. 이메일의 인증 링크를 다시 확인해 주세요.",
+                "유효한 인증 정보를 찾을 수 없습니다. 다시 회원가입해 주세요.",
             });
           }
           return;
@@ -131,17 +137,17 @@ export function AuthConfirmation() {
 
         if (error) {
           setState(
-            isExpiredErrorCode(error.code)
+            isStaleSignupErrorCode(error.code)
               ? {
                   status: "expired",
                   message:
-                    "인증 링크가 만료되었습니다. 인증 메일을 다시 요청해 주세요.",
+                    "인증 링크가 만료되었거나 회원가입 요청이 삭제되었습니다. 다시 회원가입해 주세요.",
                 }
               : {
                   status: "error",
                   message: getAuthErrorMessage(
                     error,
-                    "이미 처리되었거나 올바르지 않은 인증 링크입니다.",
+                    "올바르지 않거나 이미 처리된 인증 링크입니다. 다시 회원가입해 주세요.",
                   ),
                 },
           );
@@ -202,7 +208,7 @@ export function AuthConfirmation() {
             href={isSuccess ? "/" : "/signup"}
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/50 bg-white/10 px-5 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
           >
-            {isSuccess ? "메인으로 돌아가기" : "인증 메일 다시 요청하기"}
+            {isSuccess ? "메인으로 돌아가기" : "회원가입 다시 하기"}
           </Link>
           {isFailure && (
             <Link
