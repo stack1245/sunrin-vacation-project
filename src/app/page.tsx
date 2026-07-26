@@ -20,6 +20,7 @@ export default function Home() {
               width={1254}
               height={1254}
               priority
+              unoptimized
               className="size-9 shrink-0 object-contain transition-opacity duration-200 group-hover:opacity-80 sm:size-11"
             />
             <span className="truncate text-sm font-medium tracking-[0.06em] text-stone-100 sm:text-base sm:tracking-[0.09em]">
