@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
+import { EmailVerificationNotice } from "@/components/auth/EmailVerificationNotice";
+import { getEmailConfirmationUrl } from "@/lib/auth/email-redirect";
 import { getAuthErrorMessage } from "@/lib/supabase/auth-errors";
 import {
   getSupabaseBrowserClient,
@@ -21,6 +23,11 @@ interface FormNotice {
   message: string;
 }
 
+interface VerificationRequest {
+  email: string;
+  reason: "signup" | "unconfirmed_login";
+}
+
 const inputStyles =
   "mt-2 min-h-12 w-full rounded-md border border-white/15 bg-black/35 px-4 text-base text-white outline-none transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-stone-600 hover:border-white/25 focus:border-white/60 focus:bg-black/50 focus:ring-2 focus:ring-white/15";
 
@@ -30,6 +37,8 @@ export function AuthForm({ mode }: AuthFormProps) {
   const isSignup = mode === "signup";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState<FormNotice | null>(null);
+  const [verificationRequest, setVerificationRequest] =
+    useState<VerificationRequest | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,65 +95,97 @@ export function AuthForm({ mode }: AuthFormProps) {
 
     setIsSubmitting(true);
 
-    if (isSignup) {
-      const { data, error } = await supabase.auth.signUp({
+    try {
+      if (isSignup) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              nickname,
+            },
+            emailRedirectTo: getEmailConfirmationUrl(),
+          },
+        });
+
+        if (error) {
+          setNotice({
+            kind: "error",
+            message: getAuthErrorMessage(
+              error,
+              "인증 메일을 보내지 못했어. 잠시 후 다시 시도해 줘.",
+            ),
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (data.session) {
+          router.replace("/");
+          router.refresh();
+          return;
+        }
+
+        form.reset();
+        setVerificationRequest({
+          email,
+          reason: "signup",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          data: {
-            nickname,
-          },
-          emailRedirectTo: `${window.location.origin}/auth/confirm`,
-        },
       });
 
       if (error) {
+        if (error.code === "email_not_confirmed") {
+          form.reset();
+          setVerificationRequest({
+            email,
+            reason: "unconfirmed_login",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
         setNotice({
           kind: "error",
           message: getAuthErrorMessage(
             error,
-            "회원가입을 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+            "로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.",
           ),
         });
         setIsSubmitting(false);
         return;
       }
 
-      if (data.session) {
-        router.replace("/");
-        router.refresh();
-        return;
-      }
-
-      form.reset();
-      setNotice({
-        kind: "success",
-        message:
-          "인증 메일을 보냈습니다. 메일의 링크를 눌러 가입을 완료해 주세요.",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
+      router.replace("/");
+      router.refresh();
+    } catch {
       setNotice({
         kind: "error",
-        message: getAuthErrorMessage(
-          error,
-          "로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.",
-        ),
+        message: isSignup
+          ? "네트워크 연결을 확인한 뒤 회원가입을 다시 시도해 줘."
+          : "네트워크 연결을 확인한 뒤 로그인을 다시 시도해 주세요.",
       });
       setIsSubmitting(false);
-      return;
     }
+  }
 
-    router.replace("/");
-    router.refresh();
+  if (verificationRequest) {
+    return (
+      <EmailVerificationNotice
+        email={verificationRequest.email}
+        reason={verificationRequest.reason}
+        onUseDifferentEmail={() => {
+          setVerificationRequest(null);
+          setNotice(null);
+        }}
+      />
+    );
   }
 
   return (

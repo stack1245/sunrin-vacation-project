@@ -7,12 +7,41 @@ import { getAuthErrorMessage } from "@/lib/supabase/auth-errors";
 import {
   getSupabaseBrowserClient,
   isSupabaseConfigured,
+  type SupabaseBrowserClient,
 } from "@/lib/supabase/client";
 
 type ConfirmationState =
   | { status: "checking"; message: string }
   | { status: "error"; message: string }
+  | { status: "expired"; message: string }
   | { status: "success"; message: string };
+
+let codeExchange:
+  | {
+      code: string;
+      promise: ReturnType<
+        SupabaseBrowserClient["auth"]["exchangeCodeForSession"]
+      >;
+    }
+  | null = null;
+
+function exchangeConfirmationCode(
+  supabase: SupabaseBrowserClient,
+  code: string,
+) {
+  if (!codeExchange || codeExchange.code !== code) {
+    codeExchange = {
+      code,
+      promise: supabase.auth.exchangeCodeForSession(code),
+    };
+  }
+
+  return codeExchange.promise;
+}
+
+function isExpiredErrorCode(errorCode: string | undefined): boolean {
+  return errorCode === "otp_expired" || errorCode === "flow_state_expired";
+}
 
 export function AuthConfirmation() {
   const configured = isSupabaseConfigured();
@@ -40,66 +69,100 @@ export function AuthConfirmation() {
 
     void (async () => {
       const parameters = new URLSearchParams(window.location.search);
-      const callbackError = parameters.get("error_code");
-      const code = parameters.get("code");
+      const hashParameters = new URLSearchParams(
+        window.location.hash.replace(/^#/, ""),
+      );
+      const callbackError =
+        parameters.get("error_code") ?? hashParameters.get("error_code");
+      const code = parameters.get("code") ?? hashParameters.get("code");
 
-      if (callbackError) {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          if (isMounted) {
+            window.history.replaceState({}, document.title, "/auth/confirm");
+            setState({
+              status: "success",
+              message:
+                "이메일 인증과 로그인이 완료됐어. 이제 게임을 시작할 수 있어.",
+            });
+          }
+          return;
+        }
+
+        if (callbackError) {
+          if (isMounted) {
+            setState(
+              isExpiredErrorCode(callbackError)
+                ? {
+                    status: "expired",
+                    message:
+                      "인증 링크가 만료됐어. 인증 메일을 다시 요청해 줘.",
+                  }
+                : {
+                    status: "error",
+                    message:
+                      "이미 처리된 인증 링크이거나 올바르지 않은 링크야.",
+                  },
+            );
+          }
+          return;
+        }
+
+        if (!code) {
+          if (isMounted) {
+            setState({
+              status: "error",
+              message:
+                "유효한 인증 정보를 찾을 수 없어. 이메일의 인증 링크를 다시 확인해 줘.",
+            });
+          }
+          return;
+        }
+
+        const { error } = await exchangeConfirmationCode(supabase, code);
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (error) {
+          setState(
+            isExpiredErrorCode(error.code)
+              ? {
+                  status: "expired",
+                  message:
+                    "인증 링크가 만료됐어. 인증 메일을 다시 요청해 줘.",
+                }
+              : {
+                  status: "error",
+                  message: getAuthErrorMessage(
+                    error,
+                    "이미 처리된 인증 링크이거나 올바르지 않은 링크야.",
+                  ),
+                },
+          );
+          return;
+        }
+
+        window.history.replaceState({}, document.title, "/auth/confirm");
+        setState({
+          status: "success",
+          message:
+            "이메일 인증과 로그인이 완료됐어. 이제 게임을 시작할 수 있어.",
+        });
+      } catch {
         if (isMounted) {
           setState({
             status: "error",
             message:
-              callbackError === "otp_expired"
-                ? "인증 링크가 만료되었습니다. 다시 회원가입해 주세요."
-                : "이메일 인증에 실패했습니다. 다시 시도해 주세요.",
+              "네트워크 연결을 확인한 뒤 인증 링크를 다시 열어 줘.",
           });
         }
-        return;
       }
-
-      if (!code) {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (isMounted) {
-          setState(
-            session
-              ? {
-                  status: "success",
-                  message: "이메일 인증이 완료되었습니다.",
-                }
-              : {
-                  status: "error",
-                  message:
-                    "유효한 인증 정보를 찾을 수 없습니다. 이메일의 인증 링크를 다시 확인해 주세요.",
-                },
-          );
-        }
-        return;
-      }
-
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (error) {
-        setState({
-          status: "error",
-          message: getAuthErrorMessage(
-            error,
-            "이메일 인증을 완료하지 못했습니다. 다시 회원가입해 주세요.",
-          ),
-        });
-        return;
-      }
-
-      window.history.replaceState({}, document.title, "/auth/confirm");
-      setState({
-        status: "success",
-        message: "이메일 인증과 로그인이 완료되었습니다.",
-      });
     })();
 
     return () => {
@@ -109,6 +172,7 @@ export function AuthConfirmation() {
 
   const isChecking = state.status === "checking";
   const isSuccess = state.status === "success";
+  const isFailure = state.status === "error" || state.status === "expired";
 
   return (
     <div className="text-center">
@@ -126,26 +190,26 @@ export function AuthConfirmation() {
       </div>
 
       <p
-        role={state.status === "error" ? "alert" : "status"}
+        role={isFailure ? "alert" : "status"}
         className="mt-5 text-sm leading-6 text-stone-300"
       >
         {state.message}
       </p>
 
       {!isChecking && (
-        <div className="mt-7 flex justify-center gap-3">
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link
             href={isSuccess ? "/" : "/signup"}
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/50 bg-white/10 px-5 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
           >
-            {isSuccess ? "홈으로 이동" : "회원가입 다시 하기"}
+            {isSuccess ? "메인으로 돌아가기" : "인증 메일 다시 요청하기"}
           </Link>
-          {!isSuccess && (
+          {isFailure && (
             <Link
               href="/login"
               className="inline-flex min-h-11 items-center justify-center rounded-md px-4 text-sm font-medium text-stone-300 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
             >
-              로그인
+              로그인하기
             </Link>
           )}
         </div>
@@ -153,4 +217,3 @@ export function AuthConfirmation() {
     </div>
   );
 }
-
