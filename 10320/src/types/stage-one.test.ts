@@ -4,6 +4,8 @@ import test from "node:test";
 import {
   createDefaultStageOneSaveState,
   STAGE_ONE_MAX_STATE_BYTES,
+  STAGE_ONE_ROOM_DISPLAY_NAMES,
+  STAGE_ONE_ROOM_IDS,
   validateStageOneSaveInput,
   validateStageOneSaveState,
 } from "./stage-one.ts";
@@ -23,6 +25,23 @@ test("신규 사용자의 Stage 1 기본 상태를 생성한다", () => {
   });
 });
 
+test("안정적인 Room ID를 사용자용 장소 명칭에 매핑한다", () => {
+  assert.deepEqual(STAGE_ONE_ROOM_IDS, [
+    "outside",
+    "entrance",
+    "hallway",
+    "archive",
+    "chemistry-lab",
+    "control-room",
+    "classified-storage",
+  ]);
+  assert.equal(STAGE_ONE_ROOM_DISPLAY_NAMES["chemistry-lab"], "과학 실험실");
+  assert.equal(
+    STAGE_ONE_ROOM_DISPLAY_NAMES["classified-storage"],
+    "문서 보관실",
+  );
+});
+
 const invalidProgressionCases = [
   {
     name: "키카드 없이 입구 해제 상태를 거부한다",
@@ -30,14 +49,14 @@ const invalidProgressionCases = [
     message: /키카드/,
   },
   {
-    name: "자료실 단서 없이 화학 퍼즐 완료 상태를 거부한다",
+    name: "자료실 단서 없이 과학 실험실 퍼즐 완료 상태를 거부한다",
     changes: { chemistryPuzzleSolved: true },
     message: /연구 자료실 단서/,
   },
   {
-    name: "화학 퍼즐 완료 없이 보안실 완료 상태를 거부한다",
+    name: "과학 실험실 퍼즐 완료 없이 보안실 완료 상태를 거부한다",
     changes: { controlRoomSolved: true },
-    message: /화학 퍼즐/,
+    message: /과학 실험실 퍼즐/,
   },
   {
     name: "보안실 완료 없이 문서 보관실 해금 상태를 거부한다",
@@ -45,12 +64,12 @@ const invalidProgressionCases = [
     message: /보안 통제실/,
   },
   {
-    name: "보관실 해금 없이 문서 획득 상태를 거부한다",
+    name: "문서 보관실 해금 없이 기밀 문서 획득 상태를 거부한다",
     changes: { classifiedDocumentObtained: true },
-    message: /기밀 문서 보관실/,
+    message: /문서 보관실/,
   },
   {
-    name: "문서 없이 탈출 상태를 거부한다",
+    name: "기밀 문서 없이 탈출 상태를 거부한다",
     changes: { escaped: true },
     message: /기밀 문서/,
   },

@@ -11,9 +11,9 @@
 | `hasKeycard` | `boolean` | 연구소 외부 키카드 획득 여부 |
 | `entranceUnlocked` | `boolean` | 연구소 입구 잠금 해제 여부 |
 | `archiveClueFound` | `boolean` | 연구 자료실 단서 획득 여부 |
-| `chemistryPuzzleSolved` | `boolean` | 화학 실험실 퍼즐 해결 여부 |
+| `chemistryPuzzleSolved` | `boolean` | 과학 실험실 퍼즐 해결 여부 |
 | `controlRoomSolved` | `boolean` | 보안 통제실 퍼즐 해결 여부 |
-| `classifiedStorageUnlocked` | `boolean` | 기밀 문서 보관실 해금 여부 |
+| `classifiedStorageUnlocked` | `boolean` | 문서 보관실 해금 여부 |
 | `classifiedDocumentObtained` | `boolean` | 기밀 문서 획득 여부 |
 | `escaped` | `boolean` | 기밀 문서를 가진 상태로 연구소 탈출 완료 여부 |
 
@@ -27,11 +27,13 @@
 - `entrance`: 연구소 입구
 - `hallway`: 중앙 복도
 - `archive`: 연구 자료실
-- `chemistry-lab`: 화학 실험실
+- `chemistry-lab`: 과학 실험실
 - `control-room`: 보안 통제실
-- `classified-storage`: 기밀 문서 보관실
+- `classified-storage`: 문서 보관실
 
 다른 문자열은 클라이언트 검증과 DB 검증에서 모두 거부된다.
+
+`chemistry-lab`은 저장 호환성을 위해 유지하는 과학 실험실의 내부 ID이고, `classified-storage`는 저장 호환성을 위해 유지하는 문서 보관실의 내부 ID다. UI, 접근성 라벨과 제목에는 내부 ID를 직접 표시하지 않고 `STAGE_ONE_ROOM_DISPLAY_NAMES`의 사용자용 장소 명칭을 사용한다.
 
 ## 브리지 생성과 시작
 
@@ -88,7 +90,8 @@ try {
 - 방 이동 직후
 - 단서 획득 직후
 - 퍼즐 해결 직후
-- 기밀 문서 획득 직후
+- 문서 보관실 해금 직후
+- 문서 보관실에서 기밀 문서 획득 직후
 - 탈출 플래그 반영 직후
 
 `elapsedTimeMs`는 `0` 이상 `Number.MAX_SAFE_INTEGER` 이하의 안전한 정수이며, Scene을 다시 열었을 때 서버에서 불러온 누적 시간부터 이어서 계산한다. 네트워크 응답 순서가 뒤바뀌어 더 오래된 경과 시간의 요청이 늦게 도착하면 서버는 그 요청을 무해하게 무시한다. 이미 `true`가 된 진행 플래그는 다시 `false`로 저장할 수 없다.

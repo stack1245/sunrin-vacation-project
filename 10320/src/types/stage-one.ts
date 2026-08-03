@@ -17,6 +17,16 @@ export const STAGE_ONE_ROOM_IDS = [
 
 export type StageOneRoomId = (typeof STAGE_ONE_ROOM_IDS)[number];
 
+export const STAGE_ONE_ROOM_DISPLAY_NAMES = {
+  outside: "연구소 외부",
+  entrance: "연구소 입구",
+  hallway: "중앙 복도",
+  archive: "연구 자료실",
+  "chemistry-lab": "과학 실험실",
+  "control-room": "보안 통제실",
+  "classified-storage": "문서 보관실",
+} as const satisfies Record<StageOneRoomId, string>;
+
 export interface StageOneSaveState {
   version: typeof STAGE_ONE_SAVE_VERSION;
   currentRoom: StageOneRoomId;
@@ -162,19 +172,19 @@ function assertProgressionOrder(state: StageOneSaveState): void {
 
   if (state.chemistryPuzzleSolved && !state.archiveClueFound) {
     throw new StageOneStateValidationError(
-      "연구 자료실 단서를 획득하기 전에는 화학 퍼즐을 완료할 수 없습니다.",
+      "연구 자료실 단서를 획득하기 전에는 과학 실험실 퍼즐을 완료할 수 없습니다.",
     );
   }
 
   if (state.controlRoomSolved && !state.chemistryPuzzleSolved) {
     throw new StageOneStateValidationError(
-      "화학 퍼즐을 완료하기 전에는 보안 통제실 퍼즐을 완료할 수 없습니다.",
+      "과학 실험실 퍼즐을 완료하기 전에는 보안 통제실 퍼즐을 완료할 수 없습니다.",
     );
   }
 
   if (state.classifiedStorageUnlocked && !state.controlRoomSolved) {
     throw new StageOneStateValidationError(
-      "보안 통제실 퍼즐을 완료하기 전에는 기밀 문서 보관실을 해제할 수 없습니다.",
+      "보안 통제실 퍼즐을 완료하기 전에는 문서 보관실을 해제할 수 없습니다.",
     );
   }
 
@@ -183,7 +193,7 @@ function assertProgressionOrder(state: StageOneSaveState): void {
     !state.classifiedStorageUnlocked
   ) {
     throw new StageOneStateValidationError(
-      "기밀 문서 보관실을 해제하기 전에는 기밀 문서를 획득할 수 없습니다.",
+      "문서 보관실을 해제하기 전에는 기밀 문서를 획득할 수 없습니다.",
     );
   }
 

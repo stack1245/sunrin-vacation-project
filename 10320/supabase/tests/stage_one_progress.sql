@@ -319,7 +319,7 @@ select extensions.throws_ok(
   $$,
   '22023',
   'Stage 1 save state is invalid: archive clue is required.',
-  '자료실 단서 없이 화학 퍼즐 완료 상태를 거부한다'
+  '자료실 단서 없이 과학 실험실 퍼즐 완료 상태를 거부한다'
 );
 
 select extensions.throws_ok(
@@ -332,7 +332,7 @@ select extensions.throws_ok(
   $$,
   '22023',
   'Stage 1 save state is invalid: chemistry puzzle is required.',
-  '화학 퍼즐 완료 없이 보안실 완료 상태를 거부한다'
+  '과학 실험실 퍼즐 완료 없이 보안실 완료 상태를 거부한다'
 );
 
 select extensions.throws_ok(
@@ -345,7 +345,7 @@ select extensions.throws_ok(
   $$,
   '22023',
   'Stage 1 save state is invalid: control room is required.',
-  '보안실 완료 없이 보관실 해금 상태를 거부한다'
+  '보안실 완료 없이 문서 보관실 해금 상태를 거부한다'
 );
 
 select extensions.throws_ok(
@@ -358,7 +358,7 @@ select extensions.throws_ok(
   $$,
   '22023',
   'Stage 1 save state is invalid: storage unlock is required.',
-  '보관실 해금 없이 문서 획득 상태를 거부한다'
+  '문서 보관실 해금 없이 기밀 문서 획득 상태를 거부한다'
 );
 
 select extensions.throws_ok(
@@ -371,7 +371,7 @@ select extensions.throws_ok(
   $$,
   '22023',
   'Stage 1 save state is invalid: classified document is required.',
-  '문서 없이 탈출 상태를 거부한다'
+  '기밀 문서 없이 탈출 상태를 거부한다'
 );
 
 reset role;
@@ -428,7 +428,7 @@ select extensions.throws_ok(
   $$select public.complete_stage_one()$$,
   '55000',
   'The classified document must be obtained before completion.',
-  '문서 미획득 상태에서 클리어를 거부한다'
+  '기밀 문서 미획득 상태에서 클리어를 거부한다'
 );
 
 select public.save_stage_one_progress(
