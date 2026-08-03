@@ -12,20 +12,20 @@ Stage 1의 **PM 명세 및 Account & Progress 기반은 구현·검증·원격 �
 
 반면 **실제 Phaser 게임은 아직 구현되지 않았다.** 현재 Stage 1 진입 페이지는 접근 권한과 진행 상태만 처리한 뒤 “퍼즐 콘텐츠는 현재 준비 중입니다”라는 플레이스홀더를 보여 준다. 다음 작업의 중심은 기존 진행도 계약을 변경하는 것이 아니라, Phaser Scene·방 이동·퍼즐·연출을 이 계약에 연결하는 것이다.
 
-| 영역 | 상태 | 요약 |
-| --- | --- | --- |
-| Stage 1 기획·진행 순서 | 완료 | 방 구조, 퍼즐 선행 조건, 역할별 책임과 인수 기준 문서화 |
-| Stage 1 저장 타입·런타임 검증 | 완료 | 버전, 방 ID, 정확한 필드, 크기, 경과 시간, 선행 조건 검증 |
-| 브라우저 진행도 서비스 | 완료 | 시작·불러오기·저장·클리어 전용 RPC 연동 및 오류 코드 제공 |
-| Phaser 연동 브리지 | 완료 | 게임 코드가 Supabase를 직접 알지 않도록 4개 메서드로 캡슐화 |
-| Stage 1 진입 처리 | 완료 | Stage 1만 전용 시작 RPC를 사용하고 다른 Stage는 기존 범용 흐름 유지 |
-| Supabase 저장 스키마·RPC·RLS | 완료 | 원격 migration 적용, 권한 최소화, 서버 측 클리어 재검증 |
-| TypeScript 단위 테스트 | 완료 | 현재 재검증 기준 17개 통과 |
-| SQL pgTAP 통합 테스트 | 완료 | 구현 검증 기준 45개 통과 |
-| Phaser Scene·캐릭터·충돌 | 미구현 | `src/game/stage-one`에는 현재 진행도 브리지만 존재 |
-| 방·상호작용·퍼즐 | 미구현 | 실제 게임 플레이와 퍼즐 판정 코드 없음 |
-| 저장 실패 재시도 UI | 미구현 | 서비스 오류 타입만 준비됐으며 게임 UI 연결 필요 |
-| 브라우저 수동 E2E·실사용자 QA | 미완료 | 신규 시작→이어하기→클리어→Stage 2 해금 전체 UI 검증 필요 |
+| 영역                           | 상태   | 요약                                                                |
+| ------------------------------ | ------ | ------------------------------------------------------------------- |
+| Stage 1 기획·진행 순서        | 완료   | 방 구조, 퍼즐 선행 조건, 역할별 책임과 인수 기준 문서화             |
+| Stage 1 저장 타입·런타임 검증 | 완료   | 버전, 방 ID, 정확한 필드, 크기, 경과 시간, 선행 조건 검증           |
+| 브라우저 진행도 서비스         | 완료   | 시작·불러오기·저장·클리어 전용 RPC 연동 및 오류 코드 제공        |
+| Phaser 연동 브리지             | 완료   | 게임 코드가 Supabase를 직접 알지 않도록 4개 메서드로 캡슐화         |
+| Stage 1 진입 처리              | 완료   | Stage 1만 전용 시작 RPC를 사용하고 다른 Stage는 기존 범용 흐름 유지 |
+| Supabase 저장 스키마·RPC·RLS | 완료   | 원격 migration 적용, 권한 최소화, 서버 측 클리어 재검증             |
+| TypeScript 단위 테스트         | 완료   | 현재 재검증 기준 25개 통과                                          |
+| SQL pgTAP 통합 테스트          | 완료   | 버전 2 계약 검증 기준 57개 통과                                     |
+| Phaser Scene·캐릭터·충돌     | 미구현 | `src/game/stage-one`에는 현재 진행도 브리지만 존재                |
+| 방·상호작용·퍼즐             | 미구현 | 실제 게임 플레이와 퍼즐 판정 코드 없음                              |
+| 저장 실패 재시도 UI            | 미구현 | 서비스 오류 타입만 준비됐으며 게임 UI 연결 필요                     |
+| 브라우저 수동 E2E·실사용자 QA | 미완료 | 신규 시작→이어하기→클리어→Stage 2 해금 전체 UI 검증 필요         |
 
 ## 2. 저장소와 외부 연결
 
@@ -47,31 +47,33 @@ Stage 1의 **PM 명세 및 Account & Progress 기반은 구현·검증·원격 �
 - 로컬 Supabase project ID: `main`
 - PostgreSQL major version: `17`
 - 연결 메타데이터: `supabase/.temp/`에 있으며 Git에서 무시됨
-- 원격에 적용된 Stage 1 migration: `20260803010000_add_stage_one_saves.sql`
+- 원격에 적용된 Stage 1 기반 migration: `20260803010000_add_stage_one_saves.sql`
+- 원격에 적용된 저장 버전 2 migration: `20260804011248_rename_stage_one_save_contract.sql`
 
-2026-08-04 재확인 결과 아래 세 migration의 로컬·원격 버전이 모두 일치한다.
+2026-08-04 재확인 결과 아래 네 migration의 로컬·원격 버전이 모두 일치한다.
 
-| Local | Remote | 내용 |
-| --- | --- | --- |
-| `20260727010000` | `20260727010000` | 프로필 및 Stage 진행도 기반 |
-| `20260727030000` | `20260727030000` | 미확인 인증 사용자 정리 |
-| `20260803010000` | `20260803010000` | Stage 1 세부 저장과 전용 RPC |
+| Local              | Remote             | 내용                                  |
+| ------------------ | ------------------ | ------------------------------------- |
+| `20260727010000` | `20260727010000` | 프로필 및 Stage 진행도 기반           |
+| `20260727030000` | `20260727030000` | 미확인 인증 사용자 정리               |
+| `20260803010000` | `20260803010000` | Stage 1 세부 저장과 전용 RPC          |
+| `20260804011248` | `20260804011248` | Stage 1 저장 버전 2 및 내부 명칭 계약 |
 
 원격 migration을 다시 Push할 필요는 없다. 새 SQL 변경이 생긴 경우에만 새 timestamp migration을 추가하고 dry-run 후 적용한다. 이미 적용된 migration 파일을 수정해 원격 이력과 불일치시키지 않는다.
 
 ## 3. 기술 스택
 
-| 구분 | 현재 버전 또는 설정 |
-| --- | --- |
-| Node.js | `>=22.13.0` |
-| Next.js | `16.2.12`, App Router, Turbopack build |
-| React | `19.2.6` |
-| TypeScript | `5.9.3`, strict, noEmit, incremental |
-| Phaser | `4.2.1` |
-| Supabase JS | `2.110.8` |
-| Tailwind CSS | `4.2.1` |
-| ESLint | `9.39.4` |
-| 테스트 | Node 내장 test runner, Supabase pgTAP |
+| 구분         | 현재 버전 또는 설정                      |
+| ------------ | ---------------------------------------- |
+| Node.js      | `>=22.13.0`                            |
+| Next.js      | `16.2.12`, App Router, Turbopack build |
+| React        | `19.2.6`                               |
+| TypeScript   | `5.9.3`, strict, noEmit, incremental   |
+| Phaser       | `4.2.1`                                |
+| Supabase JS  | `2.110.8`                              |
+| Tailwind CSS | `4.2.1`                                |
+| ESLint       | `9.39.4`                               |
+| 테스트       | Node 내장 test runner, Supabase pgTAP    |
 
 Phaser 버전은 기존 합의에 따라 `4.2.1`을 유지한다. 상태 관리 라이브러리나 외부 그래픽 패키지는 아직 추가하지 않았다.
 
@@ -101,33 +103,33 @@ Phaser 버전은 기존 합의에 따라 `4.2.1`을 유지한다. 상태 관리 
 
 ### 허용되는 Room ID
 
-| 값 | 의미 |
-| --- | --- |
-| `outside` | 연구소 외부 및 시작·탈출 지점 |
-| `entrance` | 연구소 입구 |
-| `hallway` | 중앙 복도 |
-| `archive` | 연구 자료실 |
-| `chemistry-lab` | 과학 실험실 |
-| `control-room` | 보안 통제실 |
-| `classified-storage` | 문서 보관실 |
+| 값                   | 의미                           |
+| -------------------- | ------------------------------ |
+| `outside`          | 연구소 외부 및 시작·탈출 지점 |
+| `entrance`         | 연구소 입구                    |
+| `hallway`          | 중앙 복도                      |
+| `archive`          | 연구 자료실                    |
+| `science-lab`      | 과학 실험실                    |
+| `control-room`     | 보안 통제실                    |
+| `document-storage` | 문서 보관실                    |
 
-`chemistry-lab`과 `classified-storage`는 기존 사용자 저장과 원격 DB 호환성을 위해 유지하는 내부 ID다. 사용자에게는 `STAGE_ONE_ROOM_DISPLAY_NAMES`를 통해 각각 `과학 실험실`, `문서 보관실`로 표시한다.
+사용자에게는 `STAGE_ONE_ROOM_DISPLAY_NAMES`를 통해 내부 ID 대신 한국어 장소 명칭을 표시한다.
 
 ### 저장 상태 스키마
 
-저장 버전은 현재 `1`이다. 필드를 추가·삭제하거나 이름을 변경할 때에는 TypeScript, DB 검증 함수, migration, pgTAP, 연동 문서를 한 번에 갱신하고 이전 저장과의 호환 전략을 먼저 정해야 한다.
+저장 버전은 현재 `2`다. 버전 2 migration은 `user_stage_saves`의 Stage 1 행만 초기화했으며 Auth 사용자, 프로필, 전체 Stage 진행도, 클리어 기록, 최고 기록과 Stage 2 해금 상태는 건드리지 않았다. 구버전 상태를 읽거나 변환하는 런타임 호환 계층은 없다.
 
 ```ts
 interface StageOneSaveState {
-  version: 1;
+  version: 2;
   currentRoom: StageOneRoomId;
   hasKeycard: boolean;
   entranceUnlocked: boolean;
   archiveClueFound: boolean;
-  chemistryPuzzleSolved: boolean;
+  scienceLabPuzzleSolved: boolean;
   controlRoomSolved: boolean;
-  classifiedStorageUnlocked: boolean;
-  classifiedDocumentObtained: boolean;
+  documentStorageUnlocked: boolean;
+  confidentialDocumentObtained: boolean;
   escaped: boolean;
 }
 ```
@@ -135,7 +137,7 @@ interface StageOneSaveState {
 신규 상태는 `currentRoom: "outside"`이고 모든 진행 플래그가 `false`다. 다음 제약이 적용된다.
 
 - 정확히 정의된 필드만 허용하며 누락 필드와 추가 필드를 모두 거부한다.
-- 저장 버전은 `1`만 허용한다.
+- 저장 버전은 `2`만 허용한다.
 - Stage 1 JSON 상태는 UTF-8 기준 최대 4,096바이트다.
 - `elapsedTimeMs`는 `0` 이상 `Number.MAX_SAFE_INTEGER` 이하의 안전한 정수다.
 - 이미 `true`가 된 진행 플래그는 다시 `false`로 저장할 수 없다.
@@ -157,12 +159,12 @@ StageEntryView 또는 향후 Phaser Scene
 
 게임 코드는 `createStageOneProgressBridge()`를 한 번 생성하고 아래 계약만 사용한다.
 
-| 메서드 | 역할 | 중요한 동작 |
-| --- | --- | --- |
-| `start()` | 최초 시작 또는 Stage 1 진입 | 접근 권한 확인, `unlocked`→`in_progress`, 기본 저장을 없을 때만 생성 |
-| `load()` | 이어하기 데이터 조회 | 저장 상태, 누적 시간, 진행도, `canContinue` 반환 |
-| `save(state, elapsedTimeMs)` | 방·플래그·시간 저장 | 클라이언트 런타임 검증 후 전용 RPC 호출 |
-| `complete()` | Stage 1 클리어 | 서버 저장 상태를 재검증하고 최고 기록 및 다음 Stage 해금 처리 |
+| 메서드                         | 역할                        | 중요한 동작                                                              |
+| ------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
+| `start()`                    | 최초 시작 또는 Stage 1 진입 | 접근 권한 확인, `unlocked`→`in_progress`, 기본 저장을 없을 때만 생성 |
+| `load()`                     | 이어하기 데이터 조회        | 저장 상태, 누적 시간, 진행도, `canContinue` 반환                        |
+| `save(state, elapsedTimeMs)` | 방·플래그·시간 저장       | 클라이언트 런타임 검증 후 전용 RPC 호출                                  |
+| `complete()`                 | Stage 1 클리어              | 서버 저장 상태를 재검증하고 최고 기록 및 다음 Stage 해금 처리            |
 
 `StageOneProgressError`는 다음 안정적인 클라이언트 오류 코드를 제공한다.
 
@@ -207,27 +209,27 @@ StageEntryView 또는 향후 Phaser Scene
 
 ### `public.user_stage_saves`
 
-| 항목 | 내용 |
-| --- | --- |
-| 기본 키 | `(user_id, stage_id)` |
-| 사용자 FK | `auth.users(id)`, 사용자 삭제 시 cascade |
-| Stage FK | `public.stages(id)`, Stage 삭제 시 cascade |
-| 주요 값 | `state`, `save_version`, `elapsed_time_ms` |
-| 시간 | `created_at`, `updated_at`; 공통 trigger로 수정 시각 갱신 |
-| 공통 상태 크기 상한 | 65,536바이트 |
-| Stage 1 상태 크기 상한 | 검증 함수에서 4,096바이트 |
-| 경과 시간 | `0..9007199254740991` |
+| 항목                   | 내용                                                          |
+| ---------------------- | ------------------------------------------------------------- |
+| 기본 키                | `(user_id, stage_id)`                                       |
+| 사용자 FK              | `auth.users(id)`, 사용자 삭제 시 cascade                    |
+| Stage FK               | `public.stages(id)`, Stage 삭제 시 cascade                  |
+| 주요 값                | `state`, `save_version`, `elapsed_time_ms`              |
+| 시간                   | `created_at`, `updated_at`; 공통 trigger로 수정 시각 갱신 |
+| 공통 상태 크기 상한    | 65,536바이트                                                  |
+| Stage 1 상태 크기 상한 | 검증 함수에서 4,096바이트                                     |
+| 경과 시간              | `0..9007199254740991`                                       |
 
 `user_stage_progress`는 Stage 단위 상태, 시작·클리어·최근 플레이 시각과 최고 기록을 담당한다. `user_stage_saves`는 Stage 내부의 현재 방, 플래그, 저장 버전, 누적 시간을 담당한다. 두 책임을 섞지 않는다.
 
 ### 공개 RPC
 
-| RPC | 권한 | 역할 |
-| --- | --- | --- |
-| `get_stage_one_progress()` | `authenticated` | 접근 확인, 기본 저장 보장, 현재 상태 반환 |
-| `start_stage_one()` | `authenticated` | 범용 시작 처리 후 Stage 1 저장 보장 및 상태 반환 |
-| `save_stage_one_progress(jsonb, integer, bigint)` | `authenticated` | 스키마·순서·회귀·시간 검증 후 저장 |
-| `complete_stage_one()` | `authenticated` | 서버 저장 상태로 클리어 및 다음 Stage 해금 |
+| RPC                                                 | 권한              | 역할                                             |
+| --------------------------------------------------- | ----------------- | ------------------------------------------------ |
+| `get_stage_one_progress()`                        | `authenticated` | 접근 확인, 기본 저장 보장, 현재 상태 반환        |
+| `start_stage_one()`                               | `authenticated` | 범용 시작 처리 후 Stage 1 저장 보장 및 상태 반환 |
+| `save_stage_one_progress(jsonb, integer, bigint)` | `authenticated` | 스키마·순서·회귀·시간 검증 후 저장            |
+| `complete_stage_one()`                            | `authenticated` | 서버 저장 상태로 클리어 및 다음 Stage 해금       |
 
 기존 `complete_stage(stage_id, clear_time_ms)`도 Stage ID가 `1`이면 클라이언트의 기록 값을 신뢰하지 않고 Stage 1 서버 저장을 다시 검사하도록 강화됐다.
 
@@ -237,50 +239,51 @@ StageEntryView 또는 향후 Phaser Scene
 - `authenticated`는 테이블에 직접 `SELECT`만 할 수 있다.
 - 직접 `INSERT`·`UPDATE` 권한은 부여하지 않았으며 저장은 전용 RPC를 통해 수행한다.
 - 함수는 필요한 곳에서 `security definer`를 사용하고 `search_path = ''`로 고정했다.
-- 함수의 `PUBLIC`·`anon` 권한을 회수하고 `authenticated`에 필요한 실행 권한만 부여했다.
+- 함수의 `PUBLIC`·`anon` 권한을 회수하고 `authenticated`·`service_role`에 필요한 실행 권한만 부여했다.
 - 사용자 ID, 진행 상태, 다음 Stage ID를 클라이언트 입력으로 받지 않는다. 현재 세션의 `auth.uid()`와 서버 데이터를 신뢰한다.
 - 서비스 역할과 관리자용 자격 증명을 브라우저 코드나 문서에 넣지 않는다.
 
 ## 7. 주요 파일 지도
 
-| 파일 | 책임 |
-| --- | --- |
-| `docs/stage-1/README.md` | Stage 1 기획, 역할 분리, 진행 순서, PM 체크리스트 |
-| `docs/stage-1/progress-integration.md` | Phaser·퍼즐 담당자를 위한 저장·클리어 연동 계약 |
-| `src/types/stage-one.ts` | 저장 타입, 기본 상태, 상수, 런타임 검증 |
-| `src/types/stage-one.test.ts` | TypeScript 상태 검증 단위 테스트 |
-| `src/services/progress/stageOne.ts` | 인증 확인, RPC 호출, 응답 파싱, 오류 코드 변환 |
-| `src/game/stage-one/progressBridge.ts` | Phaser가 사용할 Supabase 비의존 인터페이스 |
-| `src/components/stages/StageEntryView.tsx` | Stage 접근 확인 및 Stage 1 전용 시작 연결 |
-| `src/types/database.ts` | `user_stage_saves`와 Stage 1 RPC의 정적 DB 타입 |
-| `supabase/migrations/20260803010000_add_stage_one_saves.sql` | 테이블, 검증, RPC, RLS, 권한, Stage 2 해금 |
-| `supabase/tests/stage_one_progress.sql` | 인증·권한·검증·멱등성·클리어를 다루는 pgTAP 테스트 |
+| 파일                                                                      | 책임                                                   |
+| ------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `docs/stage-1/README.md`                                                | Stage 1 기획, 역할 분리, 진행 순서, PM 체크리스트      |
+| `docs/stage-1/progress-integration.md`                                  | Phaser·퍼즐 담당자를 위한 저장·클리어 연동 계약      |
+| `src/types/stage-one.ts`                                                | 저장 타입, 기본 상태, 상수, 런타임 검증                |
+| `src/types/stage-one.test.ts`                                           | TypeScript 상태 검증 단위 테스트                       |
+| `src/services/progress/stageOne.ts`                                     | 인증 확인, RPC 호출, 응답 파싱, 오류 코드 변환         |
+| `src/game/stage-one/progressBridge.ts`                                  | Phaser가 사용할 Supabase 비의존 인터페이스             |
+| `src/components/stages/StageEntryView.tsx`                              | Stage 접근 확인 및 Stage 1 전용 시작 연결              |
+| `src/types/database.ts`                                                 | `user_stage_saves`와 Stage 1 RPC의 정적 DB 타입      |
+| `supabase/migrations/20260803010000_add_stage_one_saves.sql`            | 테이블, 검증, RPC, RLS, 권한, Stage 2 해금             |
+| `supabase/migrations/20260804011248_rename_stage_one_save_contract.sql` | 버전 2 상태, 새 내부 키, Stage 1 세부 저장 초기화      |
+| `supabase/tests/stage_one_progress.sql`                                 | 인증·권한·검증·멱등성·클리어를 다루는 pgTAP 테스트 |
 
 ## 8. 검증 현황
 
 ### 2026-08-04 문서 작성 시 재검증
 
-| 검사 | 결과 |
-| --- | --- |
-| `npm test` | 성공, 17/17 통과 |
-| `npm run typecheck` | 성공 |
-| `npm run lint` | 성공 |
-| `npm run build` | 성공, 정적 8개 페이지와 동적 `/stages/[slug]` 생성 |
-| `supabase migration list --linked` | 성공, 로컬·원격 migration 3개 일치 |
-| Git 상태 | 검사 시작 시 `feat/stage-1`과 `origin/feat/stage-1` 일치, 작업 트리 깨끗함 |
+| 검사                                 | 결과                                                                          |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| `npm test`                         | 성공, 25/25 통과                                                              |
+| `npm run typecheck`                | 성공                                                                          |
+| `npm run lint`                     | 성공                                                                          |
+| `npm run build`                    | 성공, 정적 8개 페이지와 동적 `/stages/[slug]` 생성                          |
+| `supabase migration list --linked` | 성공, 로컬·원격 migration 4개 일치                                           |
+| Git 상태                             | 검사 시작 시 `feat/stage-1`과 `origin/feat/stage-1` 일치, 작업 트리 깨끗함 |
 
 ### 데이터베이스 검증 이력
 
-Stage 1 migration 구현 완료 시 아래 검증을 통과했다. 이후 데이터베이스 코드에는 변경이 없었다.
+Stage 1 저장 버전 2 migration 적용 시 아래 검증을 통과했다.
 
 - 로컬 `supabase db reset`: 성공
-- `supabase test db`: pgTAP 45/45 통과
+- `supabase test db`: pgTAP 57/57 통과
 - 로컬 `public,private` DB lint: 오류 없음
 - 원격 `public,private` DB lint: 오류 없음
 - 원격 스키마 읽기 검증: 테이블, PK·FK, 제약, RLS, 정책, 권한, 빈 `search_path`, 강화된 `complete_stage` 확인
 - 적용 후 `supabase db push --dry-run`: 원격 DB가 최신 상태임을 확인
 
-문서 작성 중 원격 DB lint를 한 번 더 실행하려 했으나, Supabase CLI가 임시 DB 역할로 연결하는 과정에서 `SUPABASE_DB_PASSWORD`를 사용할 수 없어 SQL 분석을 시작하기 전에 연결이 중단됐다. 이는 lint에서 스키마 오류가 발견된 것이 아니다. 원격 migration 목록 조회는 같은 시점에 성공했다. 다음에 DB 비밀번호가 안전하게 제공되는 환경에서는 아래 명령으로 lint를 다시 확인한다.
+2026-08-04 최종 재검증에서도 아래 명령이 원격 스키마 분석을 완료했으며 경고와 오류를 보고하지 않았다.
 
 ```powershell
 supabase db lint --linked --schema public,private --level warning --fail-on warning
@@ -356,7 +359,7 @@ supabase stop --backup
 - 네트워크 저장 실패와 재시도
 - 이전 저장보다 오래된 비동기 요청 도착
 - 잘못된 진행 순서 거부
-- `chemistry-lab`과 `classified-storage`가 각각 과학 실험실과 문서 보관실로 표시되는지 확인
+- `science-lab`과 `document-storage`가 각각 과학 실험실과 문서 보관실로 표시되는지 확인
 - 탈출 전 클리어 거부
 - 정상 클리어와 Stage 2 해금
 - 중복 클리어 시 최초 클리어 시각 및 최고 기록 보존
@@ -372,7 +375,7 @@ supabase stop --backup
 - `start()` 또는 `load()`를 재호출할 때 기존 저장을 기본 상태로 덮어쓰지 않는다.
 - 저장 실패 상태에서 `complete()`를 먼저 호출하지 않는다.
 - Stage 1에서는 범용 `completeStage(stageId, clearTimeMs)`보다 전용 브리지의 `complete()`를 사용한다.
-- `chemistry-lab`, `classified-storage`와 관련 JSON 필드는 저장 호환성을 위한 내부 계약이므로 표시명에 맞춰 rename하지 않는다.
+- `science-lab`, `document-storage`와 버전 2 JSON 필드는 현재 저장 계약이므로 임의로 rename하지 않는다.
 - 저장 버전을 올리지 않고 상태 필드를 변경하지 않는다.
 - 이미 원격 적용된 migration을 수정하지 말고 새 migration을 추가한다.
 - `.env.local`, DB 비밀번호, 토큰, 서비스 역할 키를 커밋하지 않는다.
@@ -390,7 +393,7 @@ supabase stop --backup
 - 퍼즐 실패 패널티와 실패 상태를 영구 저장할지
 - 클리어 후 Stage 2로 바로 이동할지 Stage 목록으로 돌아갈지
 
-현재 `canContinue`는 Stage 진행 상태가 `in_progress`일 때만 `true`다. 클리어 후 재플레이 정책이 결정되기 전에는 기존 저장을 임의로 초기화하지 않는다.
+현재 `canContinue`는 Stage 진행 상태가 `in_progress`일 때만 `true`다. 버전 2 전환 migration의 의도적 초기화 이후에는 런타임에서 저장을 임의로 초기화하지 않는다.
 
 ## 13. 다음 GPT에게 전달할 작업 지시 예시
 
@@ -400,8 +403,8 @@ docs/stage-1/README.md와 progress-integration.md의 계약을 보존해 작업�
 
 작업 범위는 feat/stage-1/10320이며 형제 디렉터리와 다른 worktree는 수정하지 마.
 Phaser/퍼즐 코드에서는 Supabase를 직접 호출하지 말고 StageOneProgressBridge만 사용해.
-장소는 사용자에게 과학 실험실과 문서 보관실로 표시하되, 저장 키인 chemistry-lab과
-classified-storage 및 기존 JSON 필드는 호환성을 위해 그대로 유지해.
+장소는 사용자에게 과학 실험실과 문서 보관실로 표시하고, 저장 키는 science-lab과
+document-storage 및 버전 2 JSON 필드만 사용해.
 먼저 git status와 관련 파일을 확인하고, 구현 후 npm test/typecheck/lint/build 및 필요한
 Supabase 테스트를 수행해. 관련 파일만 커밋하고 feat/stage-1 원격 브랜치에 push해 줘.
 ```

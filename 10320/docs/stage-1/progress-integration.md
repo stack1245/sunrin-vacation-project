@@ -2,22 +2,22 @@
 
 ## 저장 상태
 
-`StageOneSaveState`는 Stage 1 내부에서 복구해야 할 최소 상태다. 저장 데이터 버전은 현재 `1`이며, 필드를 임의로 추가하거나 생략할 수 없다.
+`StageOneSaveState`는 Stage 1 내부에서 복구해야 할 최소 상태다. 저장 데이터 버전은 현재 `2`이며, 필드를 임의로 추가하거나 생략할 수 없다.
 
 | 필드 | 타입 | 의미 |
 | --- | --- | --- |
-| `version` | `1` | 저장 스키마 버전 |
+| `version` | `2` | 저장 스키마 버전 |
 | `currentRoom` | `StageOneRoomId` | 마지막으로 저장한 현재 위치 |
 | `hasKeycard` | `boolean` | 연구소 외부 키카드 획득 여부 |
 | `entranceUnlocked` | `boolean` | 연구소 입구 잠금 해제 여부 |
 | `archiveClueFound` | `boolean` | 연구 자료실 단서 획득 여부 |
-| `chemistryPuzzleSolved` | `boolean` | 과학 실험실 퍼즐 해결 여부 |
+| `scienceLabPuzzleSolved` | `boolean` | 과학 실험실 퍼즐 해결 여부 |
 | `controlRoomSolved` | `boolean` | 보안 통제실 퍼즐 해결 여부 |
-| `classifiedStorageUnlocked` | `boolean` | 문서 보관실 해금 여부 |
-| `classifiedDocumentObtained` | `boolean` | 기밀 문서 획득 여부 |
+| `documentStorageUnlocked` | `boolean` | 문서 보관실 해금 여부 |
+| `confidentialDocumentObtained` | `boolean` | 기밀 문서 획득 여부 |
 | `escaped` | `boolean` | 기밀 문서를 가진 상태로 연구소 탈출 완료 여부 |
 
-신규 저장의 위치는 `outside`, 버전은 `1`, 모든 진행 플래그는 `false`다.
+신규 저장의 위치는 `outside`, 버전은 `2`, 모든 진행 플래그는 `false`다. 버전 2 migration은 Stage 1 세부 저장 행만 초기화하며, 다음 `start()` 또는 `load()`가 새 기본 상태를 생성한다. 구버전 상태를 읽거나 변환하는 런타임 호환 계층은 제공하지 않는다.
 
 ## Room ID
 
@@ -27,13 +27,13 @@
 - `entrance`: 연구소 입구
 - `hallway`: 중앙 복도
 - `archive`: 연구 자료실
-- `chemistry-lab`: 과학 실험실
+- `science-lab`: 과학 실험실
 - `control-room`: 보안 통제실
-- `classified-storage`: 문서 보관실
+- `document-storage`: 문서 보관실
 
 다른 문자열은 클라이언트 검증과 DB 검증에서 모두 거부된다.
 
-`chemistry-lab`은 저장 호환성을 위해 유지하는 과학 실험실의 내부 ID이고, `classified-storage`는 저장 호환성을 위해 유지하는 문서 보관실의 내부 ID다. UI, 접근성 라벨과 제목에는 내부 ID를 직접 표시하지 않고 `STAGE_ONE_ROOM_DISPLAY_NAMES`의 사용자용 장소 명칭을 사용한다.
+UI, 접근성 라벨과 제목에는 내부 ID를 직접 표시하지 않고 `STAGE_ONE_ROOM_DISPLAY_NAMES`의 사용자용 장소 명칭을 사용한다.
 
 ## 브리지 생성과 시작
 
@@ -103,11 +103,11 @@ try {
 다음 모순 상태는 저장되지 않는다.
 
 - `hasKeycard` 없이 `entranceUnlocked`
-- `archiveClueFound` 없이 `chemistryPuzzleSolved`
-- `chemistryPuzzleSolved` 없이 `controlRoomSolved`
-- `controlRoomSolved` 없이 `classifiedStorageUnlocked`
-- `classifiedStorageUnlocked` 없이 `classifiedDocumentObtained`
-- `classifiedDocumentObtained` 없이 `escaped`
+- `archiveClueFound` 없이 `scienceLabPuzzleSolved`
+- `scienceLabPuzzleSolved` 없이 `controlRoomSolved`
+- `controlRoomSolved` 없이 `documentStorageUnlocked`
+- `documentStorageUnlocked` 없이 `confidentialDocumentObtained`
+- `confidentialDocumentObtained` 없이 `escaped`
 
 이 검증은 진행 순서만 확인한다. 퍼즐 정답 자체는 각 퍼즐 담당 코드가 판정한다.
 

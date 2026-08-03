@@ -134,10 +134,10 @@ function toJson(state: StageOneSaveState): Json {
     hasKeycard: state.hasKeycard,
     entranceUnlocked: state.entranceUnlocked,
     archiveClueFound: state.archiveClueFound,
-    chemistryPuzzleSolved: state.chemistryPuzzleSolved,
+    scienceLabPuzzleSolved: state.scienceLabPuzzleSolved,
     controlRoomSolved: state.controlRoomSolved,
-    classifiedStorageUnlocked: state.classifiedStorageUnlocked,
-    classifiedDocumentObtained: state.classifiedDocumentObtained,
+    documentStorageUnlocked: state.documentStorageUnlocked,
+    confidentialDocumentObtained: state.confidentialDocumentObtained,
     escaped: state.escaped,
   };
 }
@@ -162,7 +162,7 @@ function throwRpcError(error: PostgrestError): never {
   }
 
   if (
-    message.includes("classified document") ||
+    message.includes("confidential document") ||
     message.includes("escape") ||
     message.includes("positive elapsed")
   ) {

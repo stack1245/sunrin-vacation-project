@@ -1,7 +1,7 @@
 import type { StageStatus } from "@/types/stage";
 
 export const STAGE_ONE_ID = 1 as const;
-export const STAGE_ONE_SAVE_VERSION = 1 as const;
+export const STAGE_ONE_SAVE_VERSION = 2 as const;
 export const STAGE_ONE_MAX_STATE_BYTES = 4_096;
 export const STAGE_ONE_MAX_ELAPSED_TIME_MS = Number.MAX_SAFE_INTEGER;
 
@@ -10,9 +10,9 @@ export const STAGE_ONE_ROOM_IDS = [
   "entrance",
   "hallway",
   "archive",
-  "chemistry-lab",
+  "science-lab",
   "control-room",
-  "classified-storage",
+  "document-storage",
 ] as const;
 
 export type StageOneRoomId = (typeof STAGE_ONE_ROOM_IDS)[number];
@@ -22,9 +22,9 @@ export const STAGE_ONE_ROOM_DISPLAY_NAMES = {
   entrance: "연구소 입구",
   hallway: "중앙 복도",
   archive: "연구 자료실",
-  "chemistry-lab": "과학 실험실",
+  "science-lab": "과학 실험실",
   "control-room": "보안 통제실",
-  "classified-storage": "문서 보관실",
+  "document-storage": "문서 보관실",
 } as const satisfies Record<StageOneRoomId, string>;
 
 export interface StageOneSaveState {
@@ -33,10 +33,10 @@ export interface StageOneSaveState {
   hasKeycard: boolean;
   entranceUnlocked: boolean;
   archiveClueFound: boolean;
-  chemistryPuzzleSolved: boolean;
+  scienceLabPuzzleSolved: boolean;
   controlRoomSolved: boolean;
-  classifiedStorageUnlocked: boolean;
-  classifiedDocumentObtained: boolean;
+  documentStorageUnlocked: boolean;
+  confidentialDocumentObtained: boolean;
   escaped: boolean;
 }
 
@@ -76,10 +76,10 @@ const BOOLEAN_FIELDS = [
   "hasKeycard",
   "entranceUnlocked",
   "archiveClueFound",
-  "chemistryPuzzleSolved",
+  "scienceLabPuzzleSolved",
   "controlRoomSolved",
-  "classifiedStorageUnlocked",
-  "classifiedDocumentObtained",
+  "documentStorageUnlocked",
+  "confidentialDocumentObtained",
   "escaped",
 ] as const satisfies readonly (keyof StageOneSaveState)[];
 
@@ -170,34 +170,34 @@ function assertProgressionOrder(state: StageOneSaveState): void {
     );
   }
 
-  if (state.chemistryPuzzleSolved && !state.archiveClueFound) {
+  if (state.scienceLabPuzzleSolved && !state.archiveClueFound) {
     throw new StageOneStateValidationError(
       "연구 자료실 단서를 획득하기 전에는 과학 실험실 퍼즐을 완료할 수 없습니다.",
     );
   }
 
-  if (state.controlRoomSolved && !state.chemistryPuzzleSolved) {
+  if (state.controlRoomSolved && !state.scienceLabPuzzleSolved) {
     throw new StageOneStateValidationError(
       "과학 실험실 퍼즐을 완료하기 전에는 보안 통제실 퍼즐을 완료할 수 없습니다.",
     );
   }
 
-  if (state.classifiedStorageUnlocked && !state.controlRoomSolved) {
+  if (state.documentStorageUnlocked && !state.controlRoomSolved) {
     throw new StageOneStateValidationError(
       "보안 통제실 퍼즐을 완료하기 전에는 문서 보관실을 해제할 수 없습니다.",
     );
   }
 
   if (
-    state.classifiedDocumentObtained &&
-    !state.classifiedStorageUnlocked
+    state.confidentialDocumentObtained &&
+    !state.documentStorageUnlocked
   ) {
     throw new StageOneStateValidationError(
       "문서 보관실을 해제하기 전에는 기밀 문서를 획득할 수 없습니다.",
     );
   }
 
-  if (state.escaped && !state.classifiedDocumentObtained) {
+  if (state.escaped && !state.confidentialDocumentObtained) {
     throw new StageOneStateValidationError(
       "기밀 문서를 획득하기 전에는 탈출을 완료할 수 없습니다.",
     );
@@ -211,10 +211,10 @@ export function createDefaultStageOneSaveState(): StageOneSaveState {
     hasKeycard: false,
     entranceUnlocked: false,
     archiveClueFound: false,
-    chemistryPuzzleSolved: false,
+    scienceLabPuzzleSolved: false,
     controlRoomSolved: false,
-    classifiedStorageUnlocked: false,
-    classifiedDocumentObtained: false,
+    documentStorageUnlocked: false,
+    confidentialDocumentObtained: false,
     escaped: false,
   };
 }
@@ -261,10 +261,10 @@ export function validateStageOneSaveState(
     hasKeycard: value.hasKeycard,
     entranceUnlocked: value.entranceUnlocked,
     archiveClueFound: value.archiveClueFound,
-    chemistryPuzzleSolved: value.chemistryPuzzleSolved,
+    scienceLabPuzzleSolved: value.scienceLabPuzzleSolved,
     controlRoomSolved: value.controlRoomSolved,
-    classifiedStorageUnlocked: value.classifiedStorageUnlocked,
-    classifiedDocumentObtained: value.classifiedDocumentObtained,
+    documentStorageUnlocked: value.documentStorageUnlocked,
+    confidentialDocumentObtained: value.confidentialDocumentObtained,
     escaped: value.escaped,
   };
 

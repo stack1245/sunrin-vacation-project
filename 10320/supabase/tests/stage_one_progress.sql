@@ -2,16 +2,18 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select extensions.plan(45);
+select extensions.plan(57);
 
 create or replace function pg_temp.stage_one_state(
+  p_version integer default 2,
+  p_current_room text default 'outside',
   p_has_keycard boolean default false,
   p_entrance_unlocked boolean default false,
   p_archive_clue_found boolean default false,
-  p_chemistry_puzzle_solved boolean default false,
+  p_science_lab_puzzle_solved boolean default false,
   p_control_room_solved boolean default false,
-  p_classified_storage_unlocked boolean default false,
-  p_classified_document_obtained boolean default false,
+  p_document_storage_unlocked boolean default false,
+  p_confidential_document_obtained boolean default false,
   p_escaped boolean default false
 )
 returns jsonb
@@ -19,18 +21,28 @@ language sql
 immutable
 as $$
   select jsonb_build_object(
-    'version', 1,
-    'currentRoom', 'outside',
+    'version', p_version,
+    'currentRoom', p_current_room,
     'hasKeycard', p_has_keycard,
     'entranceUnlocked', p_entrance_unlocked,
     'archiveClueFound', p_archive_clue_found,
-    'chemistryPuzzleSolved', p_chemistry_puzzle_solved,
+    'scienceLabPuzzleSolved', p_science_lab_puzzle_solved,
     'controlRoomSolved', p_control_room_solved,
-    'classifiedStorageUnlocked', p_classified_storage_unlocked,
-    'classifiedDocumentObtained', p_classified_document_obtained,
+    'documentStorageUnlocked', p_document_storage_unlocked,
+    'confidentialDocumentObtained', p_confidential_document_obtained,
     'escaped', p_escaped
   );
 $$;
+
+select extensions.is(
+  (
+    select count(*)::integer
+    from public.user_stage_saves
+    where stage_id = 1
+  ),
+  0,
+  '버전 2 migration이 기존 Stage 1 세부 저장을 초기화한다'
+);
 
 insert into auth.users (
   id,
@@ -102,10 +114,10 @@ select extensions.ok(
       state -> 'hasKeycard' = 'false'::jsonb
       and state -> 'entranceUnlocked' = 'false'::jsonb
       and state -> 'archiveClueFound' = 'false'::jsonb
-      and state -> 'chemistryPuzzleSolved' = 'false'::jsonb
+      and state -> 'scienceLabPuzzleSolved' = 'false'::jsonb
       and state -> 'controlRoomSolved' = 'false'::jsonb
-      and state -> 'classifiedStorageUnlocked' = 'false'::jsonb
-      and state -> 'classifiedDocumentObtained' = 'false'::jsonb
+      and state -> 'documentStorageUnlocked' = 'false'::jsonb
+      and state -> 'confidentialDocumentObtained' = 'false'::jsonb
       and state -> 'escaped' = 'false'::jsonb
     from public.user_stage_saves
     where stage_id = 1
@@ -115,15 +127,15 @@ select extensions.ok(
 
 select extensions.is(
   (select save_version from public.user_stage_saves where stage_id = 1),
-  1,
-  '신규 저장 버전은 1이다'
+  2,
+  '신규 저장 버전은 2다'
 );
 
 select extensions.lives_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(p_has_keycard => true),
-      1,
+      2,
       1000
     )
   $$,
@@ -153,6 +165,12 @@ select extensions.is(
   '이어하기가 기존 저장 상태를 반환한다'
 );
 
+select extensions.is(
+  public.get_stage_one_progress() -> 'state' -> 'version',
+  '2'::jsonb,
+  '이어하기가 버전 2 저장 상태를 반환한다'
+);
+
 select extensions.ok(
   (select last_played_at is not null from public.user_stage_progress where stage_id = 1),
   '저장 후 last_played_at이 유지된다'
@@ -162,7 +180,7 @@ select extensions.lives_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(),
-      1,
+      2,
       999
     )
   $$,
@@ -179,7 +197,7 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(),
-      1,
+      2,
       1001
     )
   $$,
@@ -193,7 +211,7 @@ select extensions.throws_ok(
     select public.save_stage_one_progress(
       pg_temp.stage_one_state()
         || jsonb_build_object('currentRoom', 'server-room'),
-      1,
+      2,
       1001
     )
   $$,
@@ -202,12 +220,72 @@ select extensions.throws_ok(
   '허용되지 않은 Room ID 저장을 거부한다'
 );
 
+select extensions.lives_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state(
+        p_current_room => 'science-lab',
+        p_has_keycard => true
+      ),
+      2,
+      1001
+    )
+  $$,
+  'science-lab Room ID 저장을 허용한다'
+);
+
+select extensions.lives_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state(
+        p_current_room => 'document-storage',
+        p_has_keycard => true
+      ),
+      2,
+      1002
+    )
+  $$,
+  'document-storage Room ID 저장을 허용한다'
+);
+
+select extensions.throws_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state(
+        p_current_room => 'chemistry' || '-lab',
+        p_has_keycard => true
+      ),
+      2,
+      1003
+    )
+  $$,
+  '22023',
+  'Stage 1 save state has an invalid schema or value.',
+  '이전 과학 실험실 Room ID 저장을 거부한다'
+);
+
+select extensions.throws_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state(
+        p_current_room => 'classified' || '-storage',
+        p_has_keycard => true
+      ),
+      2,
+      1003
+    )
+  $$,
+  '22023',
+  'Stage 1 save state has an invalid schema or value.',
+  '이전 문서 보관실 Room ID 저장을 거부한다'
+);
+
 select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(),
-      2,
-      1001
+      1,
+      1003
     )
   $$,
   '22023',
@@ -218,10 +296,81 @@ select extensions.throws_ok(
 select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
+      pg_temp.stage_one_state(p_version => 1),
+      2,
+      1003
+    )
+  $$,
+  '22023',
+  'Stage 1 save state has an invalid schema or value.',
+  '이전 버전 1 상태를 거부한다'
+);
+
+select extensions.throws_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state()
+        || jsonb_build_object('chemistry' || 'PuzzleSolved', false),
+      2,
+      1003
+    )
+  $$,
+  '22023',
+  'Stage 1 save state has an invalid schema or value.',
+  '이전 과학 실험실 퍼즐 필드를 거부한다'
+);
+
+select extensions.throws_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state()
+        || jsonb_build_object('classified' || 'StorageUnlocked', false),
+      2,
+      1003
+    )
+  $$,
+  '22023',
+  'Stage 1 save state has an invalid schema or value.',
+  '이전 문서 보관실 해금 필드를 거부한다'
+);
+
+select extensions.throws_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state()
+        || jsonb_build_object('classified' || 'DocumentObtained', false),
+      2,
+      1003
+    )
+  $$,
+  '22023',
+  'Stage 1 save state has an invalid schema or value.',
+  '이전 기밀 문서 획득 필드를 거부한다'
+);
+
+select extensions.throws_ok(
+  $$
+    select public.save_stage_one_progress(
+      pg_temp.stage_one_state(
+        p_archive_clue_found => true,
+        p_science_lab_puzzle_solved => true
+      ) || jsonb_build_object('chemistry' || 'PuzzleSolved', true),
+      2,
+      1003
+    )
+  $$,
+  '22023',
+  'Stage 1 save state has an invalid schema or value.',
+  '버전 2 상태와 이전 필드가 섞인 저장을 거부한다'
+);
+
+select extensions.throws_ok(
+  $$
+    select public.save_stage_one_progress(
       pg_temp.stage_one_state()
         || jsonb_build_object('hasKeycard', 'yes'),
-      1,
-      1001
+      2,
+      1003
     )
   $$,
   '22023',
@@ -234,8 +383,8 @@ select extensions.throws_ok(
     select public.save_stage_one_progress(
       pg_temp.stage_one_state()
         || jsonb_build_object('unexpected', true),
-      1,
-      1001
+      2,
+      1003
     )
   $$,
   '22023',
@@ -247,8 +396,8 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state() - 'escaped',
-      1,
-      1001
+      2,
+      1003
     )
   $$,
   '22023',
@@ -261,8 +410,8 @@ select extensions.throws_ok(
     select public.save_stage_one_progress(
       pg_temp.stage_one_state()
         || jsonb_build_object('padding', repeat('x', 4097)),
-      1,
-      1001
+      2,
+      1003
     )
   $$,
   '22023',
@@ -274,7 +423,7 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(),
-      1,
+      2,
       -1
     )
   $$,
@@ -287,7 +436,7 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(),
-      1,
+      2,
       9007199254740992
     )
   $$,
@@ -300,8 +449,8 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(p_entrance_unlocked => true),
-      1,
-      1001
+      2,
+      1003
     )
   $$,
   '22023',
@@ -312,9 +461,9 @@ select extensions.throws_ok(
 select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
-      pg_temp.stage_one_state(p_chemistry_puzzle_solved => true),
-      1,
-      1001
+      pg_temp.stage_one_state(p_science_lab_puzzle_solved => true),
+      2,
+      1003
     )
   $$,
   '22023',
@@ -326,21 +475,21 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(p_control_room_solved => true),
-      1,
-      1001
+      2,
+      1003
     )
   $$,
   '22023',
-  'Stage 1 save state is invalid: chemistry puzzle is required.',
+  'Stage 1 save state is invalid: science lab puzzle is required.',
   '과학 실험실 퍼즐 완료 없이 보안실 완료 상태를 거부한다'
 );
 
 select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
-      pg_temp.stage_one_state(p_classified_storage_unlocked => true),
-      1,
-      1001
+      pg_temp.stage_one_state(p_document_storage_unlocked => true),
+      2,
+      1003
     )
   $$,
   '22023',
@@ -351,13 +500,13 @@ select extensions.throws_ok(
 select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
-      pg_temp.stage_one_state(p_classified_document_obtained => true),
-      1,
-      1001
+      pg_temp.stage_one_state(p_confidential_document_obtained => true),
+      2,
+      1003
     )
   $$,
   '22023',
-  'Stage 1 save state is invalid: storage unlock is required.',
+  'Stage 1 save state is invalid: document storage unlock is required.',
   '문서 보관실 해금 없이 기밀 문서 획득 상태를 거부한다'
 );
 
@@ -365,12 +514,12 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(p_escaped => true),
-      1,
-      1001
+      2,
+      1003
     )
   $$,
   '22023',
-  'Stage 1 save state is invalid: classified document is required.',
+  'Stage 1 save state is invalid: confidential document is required.',
   '기밀 문서 없이 탈출 상태를 거부한다'
 );
 
@@ -407,7 +556,7 @@ select extensions.throws_ok(
   $$
     select public.save_stage_one_progress(
       pg_temp.stage_one_state(),
-      1,
+      2,
       0
     )
   $$,
@@ -417,6 +566,20 @@ select extensions.throws_ok(
 );
 
 reset role;
+
+select extensions.throws_ok(
+  $$
+    select private.assert_valid_stage_one_save(
+      pg_temp.stage_one_state(p_version => 1),
+      1,
+      5000
+    )
+  $$,
+  '22023',
+  'Unsupported Stage 1 save version.',
+  '클리어 검증이 이전 버전 1 저장 상태를 거부한다'
+);
+
 set local role authenticated;
 select set_config(
   'request.jwt.claim.sub',
@@ -427,7 +590,7 @@ select set_config(
 select extensions.throws_ok(
   $$select public.complete_stage_one()$$,
   '55000',
-  'The classified document must be obtained before completion.',
+  'The confidential document must be obtained before completion.',
   '기밀 문서 미획득 상태에서 클리어를 거부한다'
 );
 
@@ -436,12 +599,12 @@ select public.save_stage_one_progress(
     p_has_keycard => true,
     p_entrance_unlocked => true,
     p_archive_clue_found => true,
-    p_chemistry_puzzle_solved => true,
+    p_science_lab_puzzle_solved => true,
     p_control_room_solved => true,
-    p_classified_storage_unlocked => true,
-    p_classified_document_obtained => true
+    p_document_storage_unlocked => true,
+    p_confidential_document_obtained => true
   ),
-  1,
+  2,
   5000
 );
 
@@ -457,13 +620,13 @@ select public.save_stage_one_progress(
     p_has_keycard => true,
     p_entrance_unlocked => true,
     p_archive_clue_found => true,
-    p_chemistry_puzzle_solved => true,
+    p_science_lab_puzzle_solved => true,
     p_control_room_solved => true,
-    p_classified_storage_unlocked => true,
-    p_classified_document_obtained => true,
+    p_document_storage_unlocked => true,
+    p_confidential_document_obtained => true,
     p_escaped => true
   ),
-  1,
+  2,
   5000
 );
 
