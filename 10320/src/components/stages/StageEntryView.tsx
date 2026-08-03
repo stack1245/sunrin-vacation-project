@@ -9,7 +9,9 @@ import {
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
 import { startStage } from "@/services/progress/startStage";
+import { startStageOne } from "@/services/progress/stageOne";
 import type { StageStatus } from "@/types/stage";
+import { STAGE_ONE_ID } from "@/types/stage-one";
 
 interface StageEntryViewProps {
   slug: string;
@@ -106,7 +108,12 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           return;
         }
 
-        await startStage(stage.id);
+        const stageOneProgress =
+          stage.id === STAGE_ONE_ID ? await startStageOne() : null;
+
+        if (!stageOneProgress) {
+          await startStage(stage.id);
+        }
 
         if (!isMounted) {
           return;
@@ -116,8 +123,11 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           status: "ready",
           stageOrder: stage.stage_order,
           title: stage.title,
-          progressStatus:
-            progress.status === "unlocked" ? "in_progress" : progress.status,
+          progressStatus: stageOneProgress
+            ? stageOneProgress.progress.status
+            : progress.status === "unlocked"
+              ? "in_progress"
+              : progress.status,
         });
       } catch {
         if (!isMounted) {

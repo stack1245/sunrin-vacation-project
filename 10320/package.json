@@ -9,6 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "node --test --experimental-strip-types src/types/stage-one.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
