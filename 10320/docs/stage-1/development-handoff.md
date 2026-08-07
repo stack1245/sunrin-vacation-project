@@ -1,16 +1,16 @@
 # OutOfBounds Stage 1 개발 현황 및 GPT 인수인계
 
-> 기준일: 2026-08-04 (Asia/Seoul)
+> 기준일: 2026-08-08 (Asia/Seoul)
 >
-> 대상 범위: `feat/stage-1/10320`
+> 대상 범위: `dev/stage-1/10320` A 파트
 >
 > 목적: 다른 GPT 또는 개발자가 현재 구현 상태를 오해 없이 파악하고 Stage 1 작업을 이어가기 위한 단일 인수인계 문서
 
 ## 1. 한눈에 보는 현재 상태
 
-Stage 1의 **PM 명세 및 Account & Progress 기반은 구현·검증·원격 반영까지 완료**됐다. 로그인한 사용자의 Stage 1 시작, 저장 불러오기, 자동 저장, 클리어 검증, 최고 기록 갱신, Stage 2 해금을 처리하는 클라이언트 계약과 Supabase 데이터 계층이 준비되어 있다.
+Stage 1의 **PM 명세, Account & Progress 기반과 A 파트 공통 Phaser 계층이 구현됐다.** 로그인한 사용자의 Stage 1 시작 결과를 공통 게임 호스트에 한 번 전달하고, Phaser Scene·플레이어·충돌·상호작용·Room 전환·React HUD·저장 재시도를 기존 Bridge 계약에 연결한다.
 
-반면 **실제 Phaser 게임은 아직 구현되지 않았다.** 현재 Stage 1 진입 페이지는 접근 권한과 진행 상태만 처리한 뒤 “퍼즐 콘텐츠는 현재 준비 중입니다”라는 플레이스홀더를 보여 준다. 다음 작업의 중심은 기존 진행도 계약을 변경하는 것이 아니라, Phaser Scene·방 이동·퍼즐·연출을 이 계약에 연결하는 것이다.
+현재 일곱 Room은 B~F가 실제 맵과 퍼즐을 꽂을 수 있는 코드 생성형 연결 슬롯이다. 다음 작업의 중심은 저장 계약이나 A 코어를 다시 만드는 것이 아니라, 각 담당 Room 모듈을 `StageOneRoomModule` 계약에 맞춰 등록하고 전체 진행을 통합하는 것이다.
 
 | 영역                           | 상태   | 요약                                                                |
 | ------------------------------ | ------ | ------------------------------------------------------------------- |
@@ -20,11 +20,12 @@ Stage 1의 **PM 명세 및 Account & Progress 기반은 구현·검증·원격 �
 | Phaser 연동 브리지             | 완료   | 게임 코드가 Supabase를 직접 알지 않도록 4개 메서드로 캡슐화         |
 | Stage 1 진입 처리              | 완료   | Stage 1만 전용 시작 RPC를 사용하고 다른 Stage는 기존 범용 흐름 유지 |
 | Supabase 저장 스키마·RPC·RLS | 완료   | 원격 migration 적용, 권한 최소화, 서버 측 클리어 재검증             |
-| TypeScript 단위 테스트         | 완료   | 현재 재검증 기준 25개 통과                                          |
+| TypeScript 단위 테스트         | 완료   | 상태·이동·Room·저장 큐·세션 기준 38개 통과                         |
 | SQL pgTAP 통합 테스트          | 완료   | 버전 2 계약 검증 기준 57개 통과                                     |
-| Phaser Scene·캐릭터·충돌     | 미구현 | `src/game/stage-one`에는 현재 진행도 브리지만 존재                |
-| 방·상호작용·퍼즐             | 미구현 | 실제 게임 플레이와 퍼즐 판정 코드 없음                              |
-| 저장 실패 재시도 UI            | 미구현 | 서비스 오류 타입만 준비됐으며 게임 UI 연결 필요                     |
+| Phaser Scene·캐릭터·충돌     | 완료   | 클라이언트 전용 Scene, 이동·달리기·벽 충돌·카메라·일시정지 구현  |
+| Room·상호작용 공통 계약      | 완료   | 일곱 Room 슬롯, 단일 대상 선택, 출입구와 B~F용 모듈 API 제공        |
+| 실제 방·퍼즐 콘텐츠           | 진행 전 | B~F 담당 맵, 오브젝트, 퍼즐 판정과 연출 통합 필요                    |
+| 저장 실패 재시도 UI            | 완료   | 직렬 저장, 1초·2초·4초 자동 재시도와 수동 재시도 HUD 제공          |
 | 브라우저 수동 E2E·실사용자 QA | 미완료 | 신규 시작→이어하기→클리어→Stage 2 해금 전체 UI 검증 필요         |
 
 ## 2. 저장소와 외부 연결
@@ -32,13 +33,12 @@ Stage 1의 **PM 명세 및 Account & Progress 기반은 구현·검증·원격 �
 ### Git
 
 - 원격 저장소: `https://github.com/stack1245/sunrin-vacation-project.git`
-- 작업 브랜치: `feat/stage-1`
-- Git 저장소 루트: `D:/.dev/school/sunrin/방학 프로젝트/OutOfBounds/feat/stage-1`
-- 실제 작업 프로젝트: `D:/.dev/school/sunrin/방학 프로젝트/OutOfBounds/feat/stage-1/10320`
-- 기능 구현 커밋: `b7a5078ca2b512fdf561d2b697de0ebd184f4d87`
-- 문서 작성 직전 기준 커밋: `ed3f64c983d0cbe37aa065359f5a390ca6e3109f`
+- 작업 브랜치: `dev/stage-1`
+- Git 저장소 루트: `D:/.dev/school/sunrin/방학 프로젝트/OutOfBounds/github/dev/stage-1`
+- 실제 작업 프로젝트: `D:/.dev/school/sunrin/방학 프로젝트/OutOfBounds/github/dev/stage-1/10320`
+- 원격 추적 브랜치: `origin/dev/stage-1`
 
-이 저장소에는 `main`, `assets`, `feat/stage-1`, `feat/stage-2` worktree가 따로 있다. Stage 1 후속 작업에서는 별도 지시가 없는 한 `feat/stage-1/10320`만 수정하고 형제 학번 디렉터리나 다른 worktree를 건드리지 않는다.
+이 저장소에는 `main`, `dev/stage-1`, `feat/stage-1` worktree가 따로 있다. A 파트 작업은 별도 지시가 없는 한 `dev/stage-1/10320`만 수정하고 형제 학번 디렉터리나 다른 worktree를 건드리지 않는다.
 
 ### Supabase
 
@@ -146,13 +146,18 @@ interface StageOneSaveState {
 ## 5. 구현 구조와 호출 흐름
 
 ```text
-StageEntryView 또는 향후 Phaser Scene
-  → StageOneProgressBridge
-    → Stage 1 브라우저 서비스
-      → Supabase public RPC
-        → private 검증·초기화 함수
-          → user_stage_progress + user_stage_saves
-            → 정상 클리어 시 다음 공개 Stage 해금
+StageEntryView
+  → StageOneProgressBridge 생성 및 start() Promise 1회 재사용
+  → StageOneGameHost
+    → Phaser composition root
+      → StageOneScene + StageOneRoomModule
+        → StageOneSession + StageOneSaveQueue
+          → StageOneProgressBridge
+            → Stage 1 브라우저 서비스
+              → Supabase public RPC
+                → private 검증·초기화 함수
+                  → user_stage_progress + user_stage_saves
+                    → 정상 클리어 시 다음 공개 Stage 해금
 ```
 
 ### 핵심 클라이언트 API
@@ -179,9 +184,9 @@ StageEntryView 또는 향후 Phaser Scene
 
 ### 시작과 진입
 
-`StageEntryView`는 로그인, 사용자 초기화, 공개 Stage, 잠금 상태를 확인한다. 조회된 Stage ID가 `1`이면 범용 `startStage()` 대신 `startStageOne()`을 호출한다. 다른 Stage의 기존 흐름은 유지한다.
+`StageEntryView`는 로그인, 사용자 초기화, 공개 Stage, 잠금 상태를 확인한다. 조회된 Stage ID가 `1`이면 Bridge를 한 번 생성해 `bridge.start()`를 호출하고, 다른 Stage에는 기존 범용 `startStage()` 흐름을 유지한다.
 
-현재 이 화면은 실제 Phaser Scene을 마운트하지 않는다. 게임 구현 시 진입 화면에서 받은 시작 결과를 Scene에 전달하거나 Scene 부팅 시 `load()`를 호출하되, 불필요한 중복 네트워크 요청과 초기화는 피한다.
+현재 이 화면은 Stage 1 시작 결과와 같은 Bridge 인스턴스를 `StageOneGameHost`에 전달한다. Phaser는 브라우저 effect에서만 동적으로 로드되고, Scene은 시작 결과의 `currentRoom`, 플래그와 누적 시간을 복구하므로 불필요한 `start()`·`load()` 중복 호출이 없다.
 
 ### 자동 저장 권장 지점
 
@@ -249,17 +254,37 @@ StageEntryView 또는 향후 Phaser Scene
 | ------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `docs/stage-1/README.md`                                                | Stage 1 기획, 역할 분리, 진행 순서, PM 체크리스트      |
 | `docs/stage-1/progress-integration.md`                                  | Phaser·퍼즐 담당자를 위한 저장·클리어 연동 계약      |
+| `docs/stage-1/game-integration.md`                                      | B~F Room 모듈, 상호작용, 저장과 인계 계약              |
 | `src/types/stage-one.ts`                                                | 저장 타입, 기본 상태, 상수, 런타임 검증                |
 | `src/types/stage-one.test.ts`                                           | TypeScript 상태 검증 단위 테스트                       |
 | `src/services/progress/stageOne.ts`                                     | 인증 확인, RPC 호출, 응답 파싱, 오류 코드 변환         |
 | `src/game/stage-one/progressBridge.ts`                                  | Phaser가 사용할 Supabase 비의존 인터페이스             |
+| `src/game/stage-one/contracts/*.ts`                                     | Room·이벤트·HUD 공통 타입                              |
+| `src/game/stage-one/core/StageOneScene.ts`                              | 플레이어, 충돌, 입력, 상호작용과 Room 전환              |
+| `src/game/stage-one/core/stageOneSession.ts`                            | 상태·타이머·클리어 순서                                |
+| `src/game/stage-one/core/saveQueue.ts`                                  | 저장 직렬화와 1초·2초·4초 재시도                       |
+| `src/game/stage-one/core/referenceRooms.ts`                             | B~F 콘텐츠가 교체할 일곱 Room 연결 슬롯                 |
 | `src/components/stages/StageEntryView.tsx`                              | Stage 접근 확인 및 Stage 1 전용 시작 연결              |
+| `src/components/stages/StageOneGameHost.tsx`                            | Phaser 생명주기, ResizeObserver와 React HUD             |
 | `src/types/database.ts`                                                 | `user_stage_saves`와 Stage 1 RPC의 정적 DB 타입      |
 | `supabase/migrations/20260803010000_add_stage_one_saves.sql`            | 테이블, 검증, RPC, RLS, 권한, Stage 2 해금             |
 | `supabase/migrations/20260804011248_rename_stage_one_save_contract.sql` | 버전 2 상태, 새 내부 키, Stage 1 세부 저장 초기화      |
 | `supabase/tests/stage_one_progress.sql`                                 | 인증·권한·검증·멱등성·클리어를 다루는 pgTAP 테스트 |
 
 ## 8. 검증 현황
+
+### 2026-08-08 A 파트 공통 기반 재검증
+
+| 검사 | 결과 |
+| --- | --- |
+| `npm test` | 성공, 상태·이동·Room·저장 큐·세션 38/38 통과 |
+| `npm run typecheck` | 성공 |
+| `npm run lint` | 성공 |
+| `npm run build` | 성공, SSR 중 Phaser 전역 접근 오류 없음 |
+| 브라우저 런타임 | 캔버스 1개, 960×540 내부 해상도, HUD·일시정지·재개·정리 정상 |
+| 브라우저 콘솔 | 경고·오류 없음 |
+
+브라우저 런타임 검증은 실제 계정이나 Supabase 데이터를 변경하지 않는 임시 Bridge로 같은 `StageOneGameHost`를 실행했다. 검증 뒤 임시 페이지를 삭제했으며 최종 소스에는 포함되지 않는다.
 
 ### 2026-08-04 문서 작성 시 재검증
 
@@ -330,29 +355,29 @@ supabase stop --backup
 
 ## 10. 다음 구현 우선순위
 
-### 1순위: Phaser 뼈대와 Scene 생명주기
+### 완료: Phaser 뼈대와 Scene 생명주기
 
-- 클라이언트에서만 Phaser를 로드한다.
-- Stage 1 Scene, 플레이어, 충돌 가능한 벽과 방 전환의 최소 구조를 만든다.
-- Scene 생성 시 `StageOneProgressBridge`를 한 번 주입한다.
-- 저장 상태의 `currentRoom`과 누적 시간을 Scene 초기 상태로 복구한다.
-- React 재렌더링 때문에 Phaser 인스턴스나 네트워크 호출이 중복되지 않게 한다.
+- Phaser 클라이언트 전용 동적 로드, 게임·Scene·Bridge 생명주기
+- 플레이어 이동·달리기·벽 충돌·카메라·단일 상호작용 대상
+- 일곱 Room 연결 슬롯과 출입구 접근 조건
+- `currentRoom`, 진행 플래그와 누적 시간 복구
+- React HUD, 일시정지, 저장 상태와 수동 재시도
+- 직렬 저장, 1초·2초·4초 자동 재시도와 최종 저장 후 클리어 호출
 
-### 2순위: 순차 상호작용과 자동 저장
+### 1순위: B 외부·입구·중앙 복도 통합
 
-- 외부 키카드와 입구 잠금장치를 구현한다.
-- 중앙 복도와 연구 자료실·과학 실험실·보안 통제실 이동을 구현하고, 해금 이후 문서 보관실로 진입하게 한다.
-- 각 성공 이벤트 뒤 새 불변 상태를 만들고 `save()`한다.
-- 네트워크 실패 경고와 재시도 큐를 만든다.
+- `referenceRooms`의 외부·입구·복도 슬롯을 B Room 모듈로 교체한다.
+- 키카드, 입구 잠금장치, 이동 게이트와 외부 탈출 상호작용을 공통 API에 연결한다.
+- 실제 맵 충돌 영역과 Room spawn 위치를 확인한다.
 
-### 3순위: 퍼즐과 최종 클리어
+### 2순위: C→D→E→F Room·퍼즐 통합
 
-- 연구 자료실 정보, 과학 실험실 퍼즐, 보안 통제실 퍼즐, 문서 보관실 퍼즐을 순서대로 연결한다.
-- 문서 보관실에서 기밀 문서를 획득한 뒤 외부로 탈출하는 흐름을 구현한다.
-- 최종 상태 저장 성공 뒤에만 `complete()`를 호출한다.
-- Stage 2 해금 응답과 클리어 연출을 연결한다.
+- 각 담당 모듈을 `StageOneRoomModule`로 등록한다.
+- 퍼즐 성공 뒤 `updateProgress()`로 합의된 플래그만 저장한다.
+- F의 기밀 문서 획득을 B의 외부 탈출과 A의 `completeEscape()`에 연결한다.
+- Stage 2 해금 응답과 최종 연출을 연결한다.
 
-### 4순위: 통합 QA
+### 3순위: 통합 QA
 
 - 신규 사용자 시작
 - 같은 계정으로 새로고침·재접속 후 이어하기
@@ -388,30 +413,31 @@ supabase stop --backup
 
 - 이미 Stage 1을 클리어한 사용자의 재플레이를 기존 저장에서 시작할지, 별도 초기화 기능을 제공할지
 - 모바일 입력 방식을 가상 패드, 탭 이동, 포인터 상호작용 중 무엇으로 할지
-- 저장 재시도 횟수, 간격, 오프라인 표시 방식
-- 방 전환 시 타이머를 계속 흐르게 할지, 일시정지 화면에서 멈출지
 - 퍼즐 실패 패널티와 실패 상태를 영구 저장할지
 - 클리어 후 Stage 2로 바로 이동할지 Stage 목록으로 돌아갈지
 
-현재 `canContinue`는 Stage 진행 상태가 `in_progress`일 때만 `true`다. 버전 2 전환 migration의 의도적 초기화 이후에는 런타임에서 저장을 임의로 초기화하지 않는다.
+현재 공통 정책은 자동 저장 실패 시 1초·2초·4초로 세 번 재시도하고 최종 실패를 HUD에서 수동 재시도하는 방식이다. Escape 일시정지 중에는 경과 시간을 멈춘다. 정책 변경이 필요하면 A 세션과 테스트를 함께 변경한다.
+
+`canContinue`는 Stage 진행 상태가 `in_progress`일 때만 `true`다. 버전 2 전환 migration의 의도적 초기화 이후에는 런타임에서 저장을 임의로 초기화하지 않는다.
 
 ## 13. 다음 GPT에게 전달할 작업 지시 예시
 
 ```text
 docs/stage-1/development-handoff.md를 현재 사실 기준으로 읽고,
-docs/stage-1/README.md와 progress-integration.md의 계약을 보존해 작업해 줘.
+docs/stage-1/README.md, progress-integration.md와 game-integration.md의 계약을 보존해 작업해 줘.
 
-작업 범위는 feat/stage-1/10320이며 형제 디렉터리와 다른 worktree는 수정하지 마.
+작업 범위는 dev/stage-1/10320이며 형제 디렉터리와 다른 worktree는 수정하지 마.
 Phaser/퍼즐 코드에서는 Supabase를 직접 호출하지 말고 StageOneProgressBridge만 사용해.
 장소는 사용자에게 과학 실험실과 문서 보관실로 표시하고, 저장 키는 science-lab과
 document-storage 및 버전 2 JSON 필드만 사용해.
 먼저 git status와 관련 파일을 확인하고, 구현 후 npm test/typecheck/lint/build 및 필요한
-Supabase 테스트를 수행해. 관련 파일만 커밋하고 feat/stage-1 원격 브랜치에 push해 줘.
+Supabase 테스트를 수행해. 관련 파일만 커밋하고 dev/stage-1 원격 브랜치에 push해 줘.
 ```
 
 ## 14. 관련 상세 문서
 
 - [Stage 1 개발 명세](./README.md)
 - [Stage 1 진행도 연동 가이드](./progress-integration.md)
+- [Stage 1 Phaser·Room 통합 가이드](./game-integration.md)
 - [Supabase Gmail SMTP 설정](../supabase-gmail-smtp.md)
 - [미확인 사용자 정리](../unconfirmed-user-cleanup.md)
