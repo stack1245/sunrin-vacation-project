@@ -4,7 +4,7 @@
 >
 > 통합 대상: `develop/stage-1`
 >
-> 공통 기준: A 파트 `feat/stage-1-10320`
+> 공통 기준: A 파트 `feat/stage-1/10320`
 
 ## 1. 운영 원칙
 
@@ -12,30 +12,30 @@ Stage 1은 저장소 루트의 단일 Next.js 프로젝트로 개발한다. 학�
 
 ```text
 develop/stage-1
-  └─ feat/stage-1-10320  ← 공통 프로젝트·Phaser 기반
-       ├─ feat/stage-1-10404
-       ├─ feat/stage-1-10409
-       ├─ feat/stage-1-10514
-       ├─ feat/stage-1-10602
-       └─ feat/stage-1-10405
+  └─ feat/stage-1/10320  ← 공통 프로젝트·Phaser 기반
+       ├─ feat/stage-1/10404
+       ├─ feat/stage-1/10409
+       ├─ feat/stage-1/10514
+       ├─ feat/stage-1/10602
+       └─ feat/stage-1/10405
 ```
 
 B~F 브랜치는 A 공통 기준 커밋을 포함한다. 통합할 때는 A 브랜치를 먼저 `develop/stage-1`에 반영한 뒤 B~F를 반영해야 공통 구조가 중복되거나 충돌하지 않는다. Pull Request 생성·병합은 별도 승인 후 수행한다.
 
 기존 `dev/stage-1`은 같은 커밋을 가리키는 `develop/stage-1`로 대체해 제거했다. 이전 `feat/stage-1` 통합 이력과 공용 `assets` 브랜치의 고유 이력은 각각 `archive/feat-stage-1-legacy-20260808`, `archive/assets-legacy-20260808` 태그로 보존한 뒤 활성 브랜치에서 제거했다. 신규 작업은 이 문서의 통합·역할 브랜치에서만 진행한다.
 
-역할별 브랜치와 worktree 이름은 `feat/stage-1-학번` 형식만 사용한다. 담당 역할은 문서와 코드 소유 경계에서 관리하고 브랜치·폴더 이름에는 넣지 않는다.
+역할별 브랜치와 worktree 이름은 `feat/stage-1/학번` 형식만 사용한다. 담당 역할은 문서와 코드 소유 경계에서 관리하고 브랜치·폴더 이름에는 넣지 않는다.
 
 ## 2. 역할·담당자·브랜치
 
 | 파트 | 담당자 | 담당 범위 | 브랜치 | worktree |
 | --- | --- | --- | --- | --- |
-| A | 10320 탁도형 | 공통 Phaser, Room 계약, 진행도·저장, HUD, 통합 주도 | `feat/stage-1-10320` | `github/feat/stage-1-10320` |
-| B | 10404 김준서 | 연구소 외부, 입구, 중앙 복도, 키카드, 최종 탈출 | `feat/stage-1-10404` | `github/feat/stage-1-10404` |
-| C | 10409 서정권 | 연구 자료실, 카이사르·비즈네르 암호, 실험실 단서 | `feat/stage-1-10409` | `github/feat/stage-1-10409` |
-| D | 10514 이동혁 | 과학 실험실, 화학·밀도·산소·점화·가열 퍼즐 | `feat/stage-1-10514` | `github/feat/stage-1-10514` |
-| E | 10602 김보민 | 보안 통제실, 가상 F12·Cookie·Console·OTP | `feat/stage-1-10602` | `github/feat/stage-1-10602` |
-| F | 10405 김지산 | 문서 보관실, hello world·스도쿠·N-Queens·자원 분배·기밀 문서 | `feat/stage-1-10405` | `github/feat/stage-1-10405` |
+| A | 10320 탁도형 | 공통 Phaser, Room 계약, 진행도·저장, HUD, 통합 주도 | `feat/stage-1/10320` | `github/feat/stage-1/10320` |
+| B | 10404 김준서 | 연구소 외부, 입구, 중앙 복도, 키카드, 최종 탈출 | `feat/stage-1/10404` | `github/feat/stage-1/10404` |
+| C | 10409 서정권 | 연구 자료실, 카이사르·비즈네르 암호, 실험실 단서 | `feat/stage-1/10409` | `github/feat/stage-1/10409` |
+| D | 10514 이동혁 | 과학 실험실, 화학·밀도·산소·점화·가열 퍼즐 | `feat/stage-1/10514` | `github/feat/stage-1/10514` |
+| E | 10602 김보민 | 보안 통제실, 가상 F12·Cookie·Console·OTP | `feat/stage-1/10602` | `github/feat/stage-1/10602` |
+| F | 10405 김지산 | 문서 보관실, hello world·스도쿠·N-Queens·자원 분배·기밀 문서 | `feat/stage-1/10405` | `github/feat/stage-1/10405` |
 
 모든 경로의 기준 루트는 `D:/.dev/school/sunrin/방학 프로젝트/OutOfBounds/`다.
 
