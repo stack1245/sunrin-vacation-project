@@ -39,7 +39,7 @@ Stage 1의 **PM 명세, Account & Progress 기반과 A 파트 공통 Phaser 계�
 - A 공통 기반 worktree: `D:/.dev/school/sunrin/방학 프로젝트/OutOfBounds/github/feat/stage-1-10320-core`
 - 원격 추적 브랜치: 각 로컬 브랜치와 같은 이름의 `origin/*`
 
-각 역할은 독립된 브랜치와 worktree를 사용하지만 프로젝트는 모두 저장소 루트의 같은 Next.js 앱 구조를 사용한다. 학번별 프로젝트 복사본을 새로 만들지 않는다. B~F 브랜치는 A 공통 기반 커밋에서 분기하며, 역할별 소유 경로와 통합 순서는 [역할별 브랜치·worktree 운영 가이드](./branch-workflow.md)를 기준으로 한다. 기존 `dev/stage-1`과 `feat/stage-1`은 이전 작업 복구용으로 보존하며 신규 작업 대상으로 사용하지 않는다.
+각 역할은 독립된 브랜치와 worktree를 사용하지만 프로젝트는 모두 저장소 루트의 같은 Next.js 앱 구조를 사용한다. 학번별 프로젝트 복사본을 새로 만들지 않는다. B~F 브랜치는 A 공통 기반 커밋에서 분기하며, 역할별 소유 경로와 통합 순서는 [역할별 브랜치·worktree 운영 가이드](./branch-workflow.md)를 기준으로 한다. 기존 `dev/stage-1`, `feat/stage-1`, `assets` 브랜치는 활성 목록에서 제거했으며 고유 이력은 운영 가이드에 기록한 원격 태그로 복구할 수 있다.
 
 ### Supabase
 
