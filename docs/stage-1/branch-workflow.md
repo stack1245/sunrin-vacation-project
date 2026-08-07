@@ -22,7 +22,7 @@ develop/stage-1
 
 B~F 브랜치는 A 공통 기준 커밋을 포함한다. 통합할 때는 A 브랜치를 먼저 `develop/stage-1`에 반영한 뒤 B~F를 반영해야 공통 구조가 중복되거나 충돌하지 않는다. Pull Request 생성·병합은 별도 승인 후 수행한다.
 
-기존 `dev/stage-1`과 `feat/stage-1`은 이전 학번별 복사본과 통합 시도의 복구 지점으로만 보존한다. 신규 코드를 두 브랜치에 직접 작성하지 않는다.
+기존 `dev/stage-1`은 같은 커밋을 가리키는 `develop/stage-1`로 대체해 제거했다. 이전 `feat/stage-1` 통합 이력과 공용 `assets` 브랜치의 고유 이력은 각각 `archive/feat-stage-1-legacy-20260808`, `archive/assets-legacy-20260808` 태그로 보존한 뒤 활성 브랜치에서 제거했다. 신규 작업은 이 문서의 통합·역할 브랜치에서만 진행한다.
 
 ## 2. 역할·담당자·브랜치
 
