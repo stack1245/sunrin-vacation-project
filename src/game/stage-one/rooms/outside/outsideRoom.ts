@@ -1,5 +1,3 @@
-    import type Phaser from "phaser";
-
     import type {
     StageOneRoomModule,
     StageOneRoomMountContext,
@@ -65,6 +63,10 @@
     });
     }
 
+    interface RoomMarker {
+    setVisible(visible: boolean): void;
+    }
+
     /** 눈에 보이는 사각형 표식과 이름표를 만든다. */
     function addMarker(
     context: StageOneRoomMountContext,
@@ -76,7 +78,7 @@
         color: number;
         text: string;
     },
-    ): Phaser.GameObjects.Rectangle {
+    ): RoomMarker {
     const { scene } = context;
     const box = scene.add
         .rectangle(
@@ -102,7 +104,12 @@
     context.track(box);
     context.track(label);
 
-    return box;
+    return {
+        setVisible(visible) {
+        box.setVisible(visible);
+        label.setVisible(visible);
+        },
+    };
     }
 
     function describeObjective(state: StageOneSaveState): string {

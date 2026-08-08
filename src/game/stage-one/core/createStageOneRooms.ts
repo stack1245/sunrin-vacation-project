@@ -1,5 +1,8 @@
 import type { StageOneRoomModule } from "../contracts/room";
 import { controlRoomRoom } from "../rooms/control-room/index.ts";
+import { entranceRoom } from "../rooms/entrance/entranceRoom.ts";
+import { hallwayRoom } from "../rooms/hallway/hallwayRoom.ts";
+import { outsideRoom } from "../rooms/outside/outsideRoom.ts";
 import { createStageOneReferenceRooms } from "./referenceRooms.ts";
 
 /**
@@ -10,7 +13,12 @@ export function createStageOneRooms(): readonly StageOneRoomModule[] {
   const implementedRooms = new Map<
     StageOneRoomModule["id"],
     StageOneRoomModule
-  >([[controlRoomRoom.id, controlRoomRoom]]);
+  >([
+    [outsideRoom.id, outsideRoom],
+    [entranceRoom.id, entranceRoom],
+    [hallwayRoom.id, hallwayRoom],
+    [controlRoomRoom.id, controlRoomRoom],
+  ]);
 
   return createStageOneReferenceRooms().map(
     (room) => implementedRooms.get(room.id) ?? room,

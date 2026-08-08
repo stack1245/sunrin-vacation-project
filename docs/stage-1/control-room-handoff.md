@@ -108,7 +108,7 @@ createStageOneGame({
 
 | 검사 | 결과 |
 | --- | --- |
-| `npm test` | 121/121 통과 (A 통합 테스트 6개 포함) |
+| `npm test` | 129/129 통과 (B 파트와 A 통합 테스트 포함) |
 | `npm run typecheck` | 오류 0건 |
 | `npm run lint` | 오류 0건 |
 | `npm run build` | 성공 |
@@ -119,4 +119,4 @@ createStageOneGame({
 - 가짜 DevTools는 데스크톱 키보드 입력 전용이다. 모바일 입력은 통합 명세 16장 미결정 항목이라 반영하지 않았다.
 - `shift` 값의 D 파트 단서 연동은 D 확정값 대기 중 (3장 참고). 현재는 통제실 자체 힌트로 완결된다.
 - 오버레이는 실 브라우저 플레이 확인(A 통합 후 QA) 전이다. 렌더링 좌표는 A 공통 월드(960×540) FIT 스케일 기준으로 배치했다.
-- B·C·D·F Room은 각 담당 브랜치가 `develop/stage-1`에 통합될 때 `createStageOneRooms()`에 순차 등록해야 한다.
+- B의 외부·입구·중앙 복도는 통합 완료됐다. C·D·F Room은 각 담당 브랜치가 `develop/stage-1`에 통합될 때 `createStageOneRooms()`에 순차 등록해야 한다.

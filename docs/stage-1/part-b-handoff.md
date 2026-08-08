@@ -20,9 +20,9 @@ B 파트는 Stage 1의 진입 동선 세 구간을 담당한다. 실제 플레�
 
 세 모듈 모두 `id`, `displayName`, `getObjective`, `getAccess`, `getSpawnPoint`, `mount`를 내보낸다. 이동·충돌·상호작용 선택·HUD는 A 공통 계층에 맡기고 Room은 배치와 판정만 담당한다.
 
-## 2. A 파트 등록 요청
+## 2. A 파트 등록 결과
 
-`createStageOneGame()`의 `rooms` 인자는 A 소유이므로 B가 직접 등록할 수 없다. `createStageOneReferenceRooms()`가 제공하는 임시 슬롯 가운데 `outside`, `entrance`, `hallway` 세 개를 위 모듈로 교체하면 된다. 나머지 네 Room은 C~F 인계 전까지 기존 참조 구현을 유지한다.
+2026-08-09 기준 A 파트가 `createStageOneRooms()` composition root에 `outside`, `entrance`, `hallway` 세 모듈을 등록했다. `createStageOneGame()`에서 `rooms`를 생략하면 B의 실제 Room 세 개와 E의 보안 통제실이 기본 구성으로 사용된다. C·D·F Room은 각 담당 브랜치 통합 전까지 참조 구현을 유지한다.
 
 ## 3. Room 접근 조건
 
@@ -111,13 +111,7 @@ B가 직접 갱신하는 플래그는 두 개뿐이다. 나머지는 읽기만 �
 5. 복도 목표 문구가 다음 선행 조건을 가리킨다.
 6. 세 Room의 spawn 좌표가 벽 안쪽 범위에 있다.
 
-`package.json`의 `test` 스크립트가 파일 경로를 직접 나열하는 방식이라 이 파일이 `npm test`에 포함되지 않는다. 아래 경로 추가가 필요하다.
-
-```
-src/game/stage-one/rooms/hallway/partBRooms.test.ts
-```
-
-직접 실행하면 여섯 개 모두 통과한다.
+`package.json`은 A 통합 과정에서 Node 테스트 자동 탐색 방식으로 변경됐다. 따라서 B 파트 테스트는 공통 파일을 추가로 수정하지 않아도 `npm test`에 자동 포함된다. B 테스트만 따로 실행하려면 다음 명령을 사용한다.
 
 ```powershell
 node --test --experimental-strip-types src/game/stage-one/rooms/hallway/partBRooms.test.ts
@@ -128,6 +122,8 @@ node --test --experimental-strip-types src/game/stage-one/rooms/hallway/partBRoo
 | 항목 | 결과 |
 | --- | --- |
 | B 파트 테스트 6개 | 통과 |
+| 통합 전체 테스트 129개 | 통과 |
+| 키카드 표식 재입장 회귀 테스트 1개 | 통과 |
 | `npm run typecheck` | 오류 0 |
 | `npm run lint` | 오류 0 |
 | `npm run build` | 성공 |
@@ -135,11 +131,13 @@ node --test --experimental-strip-types src/game/stage-one/rooms/hallway/partBRoo
 
 ## 10. 알려진 제한
 
-- 로컬 `.env.local`에 Supabase 공개 클라이언트 값이 없어 브라우저 플레이 검증을 수행하지 못했다. 배치와 반경은 좌표 기준으로만 확인했다.
+- A 통합 환경에는 Supabase 공개 클라이언트 값이 준비되어 있지만 실제 브라우저에서 배치·반경·조작감은 아직 확인하지 않았다.
 - 월드 크기 960×540을 각 Room 파일에 상수로 선언했다. A가 월드 크기를 변경하면 세 파일의 `WORLD_WIDTH`, `WORLD_HEIGHT`도 함께 수정해야 한다.
 - 복도에서 문 사이를 지날 때 활성 상호작용이 자주 전환된다. 실제 플레이에서 산만하면 문 간격이나 반경 조정이 필요하다.
 - 좁은 화면에서 HUD와 캔버스가 겹치는지 확인하지 못했다.
 - 그래픽은 도형과 텍스트로만 구성했으며 픽셀 에셋을 사용하지 않는다.
+
+통합 검토에서 이미 획득한 키카드의 사각형만 숨고 이름표가 남는 문제를 발견했다. A 통합 단계에서 표식 본체와 이름표를 함께 제어하도록 수정하고 재입장 회귀 테스트를 추가했다.
 
 ## 11. 인계 체크리스트
 
@@ -151,4 +149,5 @@ node --test --experimental-strip-types src/game/stage-one/rooms/hallway/partBRoo
 - [x] 성공 플래그와 선행 조건이 저장 버전 2 계약을 지킨다.
 - [x] Room 전용 테스트와 입력·출력·알려진 제한을 A에게 전달한다.
 - [x] `npm run typecheck`, `npm run lint`, `npm run build`가 통과한다.
-- [ ] `npm test`에 B 파트 테스트 파일이 포함된다.
+- [x] `npm test`에 B 파트 테스트 파일이 자동 포함된다.
+- [x] A 기본 Room 구성에 `outside`, `entrance`, `hallway`가 등록된다.
