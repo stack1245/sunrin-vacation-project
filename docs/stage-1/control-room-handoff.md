@@ -33,7 +33,7 @@
 ## 3. 퍼즐 흐름
 
 ```text
-보안 단말(E 키) → 가짜 DevTools 열림 (이동은 A의 interactionRunning으로 자동 정지)
+보안 단말(E 키) → 가짜 DevTools 열림 (A 공통 모달 입력 잠금으로 이동·ESC 일시정지 차단)
   콘솔 탭: help / cookie.list() / cookie.get(name) / net.list() / otp.rule()
            / otp.verify(code) / lockdown.status() / lockdown.release() / clear / exit
   쿠키 탭: sec.session(마스킹) · sec.shift 등 5종 열람
@@ -77,33 +77,38 @@ F는 별도 이벤트 구독 없이 **저장 상태 `state.documentStorageUnlock
 (A의 참조 Room이 이미 같은 방식으로 `document-storage` 접근을 제어하고 있음).
 페이로드가 필요하면 `ControlRoomCompletionFlow` 생성자의 `onEvent` 리스너를 A 통합 지점에서 연결한다.
 
-## 5. A 통합 방법
+## 5. A 통합 상태
+
+2026-08-08 기준 A 파트가 보안 통제실을 기본 Room 구성에 연결했다.
+`createStageOneGame()`의 기본 `rooms`는 `createStageOneRooms()`에서 조립되며,
+참조 Room 가운데 `control-room` 슬롯만 실제 `controlRoomRoom`으로 교체한다.
 
 ```ts
-import { controlRoomRoom } from "@/game/stage-one/rooms/control-room";
-
 createStageOneGame({
-  // referenceRooms의 control-room 슬롯을 이 모듈로 교체
-  rooms: [...otherRooms, controlRoomRoom],
+  // rooms를 생략하면 A의 기본 Room 구성을 사용한다.
   ...
 });
 ```
 
 - Room ID(`control-room`)·표시명(`보안 통제실`)·복도 출입구 좌표(110, 270)는 A 참조 맵과 동일하다.
-- 단말 모달 중 이동 정지는 A의 `runInteraction()` await 동작을 그대로 이용한다 (공통 계약 무변경).
+- 단말 세션은 `StageOneInteractionContext.acquireModalInputLock()`으로 공통 입력 잠금을 획득하고 종료 경로에서 반드시 해제한다.
+- 모달을 ESC로 닫을 때는 해당 키가 올라올 때까지 잠금 해제를 미뤄 같은 입력이 게임 일시정지로 전달되지 않게 한다.
 - 오버레이 키 리스너는 Phaser `scene.input.keyboard` 의 `keydown` 구독이며, Room `mount()` 정리 함수 → `terminalSession.dispose()` → `overlay.destroy()` 경로에서 반드시 해제된다.
 
-## 6. 공통 파일 변경 사항 (A 승인 필요)
+## 6. A 공통 변경 반영
 
-- `package.json` — `test` 스크립트에 E 파트 테스트 파일 8개 추가 (기존 목록 뒤에 append, 다른 변경 없음).
+- `src/game/stage-one/core/createStageOneRooms.ts` — 실제 구현 Room을 참조 슬롯과 교체하는 composition root.
+- `src/game/stage-one/core/modalInputLock.ts` — 중첩과 중복 해제에 안전한 공통 모달 입력 잠금.
+- `src/game/stage-one/contracts/room.ts` — Room 모달이 잠금을 획득할 수 있도록 `acquireModalInputLock()` 계약 추가.
+- `package.json` — 테스트 파일 수동 목록을 제거하고 Node 테스트 자동 탐색을 사용하도록 변경. 이후 파트별 `*.test.ts`가 공통 파일 수정 없이 자동 포함된다.
 
-그 외 `progressBridge.ts`, `src/types/stage-one.ts`, contracts, core 파일은 **일절 수정하지 않았다.**
+저장 버전, 진행 플래그, `progressBridge.ts`, 이벤트 이름과 E 퍼즐의 2단계 저장 계약은 변경하지 않았다.
 
 ## 7. 검증 결과 (2026-08-08)
 
 | 검사 | 결과 |
 | --- | --- |
-| `npm test` | 115/115 통과 (E 파트 신규 77개 포함) |
+| `npm test` | 121/121 통과 (A 통합 테스트 6개 포함) |
 | `npm run typecheck` | 오류 0건 |
 | `npm run lint` | 오류 0건 |
 | `npm run build` | 성공 |
@@ -114,3 +119,4 @@ createStageOneGame({
 - 가짜 DevTools는 데스크톱 키보드 입력 전용이다. 모바일 입력은 통합 명세 16장 미결정 항목이라 반영하지 않았다.
 - `shift` 값의 D 파트 단서 연동은 D 확정값 대기 중 (3장 참고). 현재는 통제실 자체 힌트로 완결된다.
 - 오버레이는 실 브라우저 플레이 확인(A 통합 후 QA) 전이다. 렌더링 좌표는 A 공통 월드(960×540) FIT 스케일 기준으로 배치했다.
+- B·C·D·F Room은 각 담당 브랜치가 `develop/stage-1`에 통합될 때 `createStageOneRooms()`에 순차 등록해야 한다.

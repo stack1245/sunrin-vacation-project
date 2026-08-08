@@ -165,6 +165,7 @@ test("과학 실험실 미완료 상태에서 단말 상호작용은 잠금 안�
     updateProgress: (patch, message) => port.updateProgress(patch, message),
     transitionTo: async () => {},
     completeEscape: async () => {},
+    acquireModalInputLock: () => () => {},
     showMessage: (text) => {
       messages.push(text);
     },
@@ -175,6 +176,42 @@ test("과학 실험실 미완료 상태에서 단말 상호작용은 잠금 안�
   assert.ok(messages[0].includes("과학 실험실"));
 
   record.cleanup?.();
+});
+
+test("단말 세션은 열려 있는 동안 공통 모달 입력 잠금을 유지한다", async () => {
+  const port = createFakeProgressPort({
+    initial: createControlRoomReadyState(),
+  });
+  const record = mountRoom(port);
+  const terminal = record.interactions.find(
+    (interaction) => interaction.id === "control-room-terminal",
+  );
+  let acquired = 0;
+  let released = 0;
+
+  assert.ok(terminal);
+
+  const interaction = terminal.onInteract({
+    getState: () => port.getState(),
+    updateProgress: (patch, message) => port.updateProgress(patch, message),
+    transitionTo: async () => {},
+    completeEscape: async () => {},
+    acquireModalInputLock: () => {
+      acquired += 1;
+      return () => {
+        released += 1;
+      };
+    },
+    showMessage: () => {},
+  });
+
+  assert.equal(acquired, 1);
+  assert.equal(released, 0);
+
+  record.cleanup?.();
+  await interaction;
+
+  assert.equal(released, 1);
 });
 
 test("봉쇄 패널: 부분 완료 상태에서 2단계 커밋을 이어서 수행한다", async () => {
@@ -192,6 +229,7 @@ test("봉쇄 패널: 부분 완료 상태에서 2단계 커밋을 이어서 수�
     updateProgress: (patch, message) => port.updateProgress(patch, message),
     transitionTo: async () => {},
     completeEscape: async () => {},
+    acquireModalInputLock: () => () => {},
     showMessage: () => {},
   });
 
@@ -227,6 +265,7 @@ test("봉쇄 패널: 인증 전에는 안내만 하고 완료 후에는 저장�
       updateProgress: (patch, message) => port.updateProgress(patch, message),
       transitionTo: async () => {},
       completeEscape: async () => {},
+      acquireModalInputLock: () => () => {},
       showMessage: (text) => {
         messages.push(text);
       },
@@ -256,6 +295,7 @@ test("안내판은 저장 없이 수칙을 순환 표시한다", async () => {
     ) => port.updateProgress(patch, message),
     transitionTo: async () => {},
     completeEscape: async () => {},
+    acquireModalInputLock: () => () => {},
     showMessage: (text: string) => {
       messages.push(text);
     },
