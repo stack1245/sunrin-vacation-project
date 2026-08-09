@@ -1,6 +1,6 @@
 # Stage 1 Phaser·Room 통합 가이드
 
-> 기준일: 2026-08-08
+> 기준일: 2026-08-09
 >
 > 담당: A 파트 `10320`
 >
@@ -26,6 +26,7 @@ Phaser는 `StageOneGameHost`의 브라우저 `useEffect` 안에서 동적으로 
 | 경로 | 책임 |
 | --- | --- |
 | `src/components/stages/StageOneGameHost.tsx` | React HUD, 캔버스 컨테이너, 일시정지·저장 재시도 UI |
+| `src/game/stage-one/adapters/supabaseStageOneProgressBridge.ts` | 게임 진행도 계약과 Supabase 진행도 서비스 조립 |
 | `src/game/stage-one/core/createStageOneGame.ts` | Phaser, 세션, Room과 Bridge 조립 |
 | `src/game/stage-one/core/StageOneScene.ts` | 이동·충돌·상호작용 선택·Room 전환 |
 | `src/game/stage-one/core/stageOneSession.ts` | 진행 상태, 타이머, 상태 회귀 방지, 클리어 순서 |

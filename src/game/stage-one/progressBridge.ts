@@ -1,19 +1,6 @@
-import "client-only";
-
-import {
-  completeStageOne,
-  loadStageOneProgress,
-  saveStageOneProgress,
-  startStageOne,
-} from "@/services/progress/stageOne";
-import type { StageOneProgressBridge } from "@/types/stage-one";
-
-export function createStageOneProgressBridge(): StageOneProgressBridge {
-  return {
-    start: startStageOne,
-    load: loadStageOneProgress,
-    save: (state, elapsedTimeMs) =>
-      saveStageOneProgress({ state, elapsedTimeMs }),
-    complete: completeStageOne,
-  };
-}
+/**
+ * @deprecated Supabase 어댑터의 명시적인 경로와 이름을 사용하세요.
+ */
+export {
+  createSupabaseStageOneProgressBridge as createStageOneProgressBridge,
+} from "./adapters/supabaseStageOneProgressBridge";

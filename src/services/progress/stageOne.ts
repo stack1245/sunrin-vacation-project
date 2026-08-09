@@ -67,7 +67,7 @@ function isNonNegativeSafeInteger(value: unknown): value is number {
   );
 }
 
-function parseProgressSummary(value: unknown): StageOneProgressSummary {
+function parseStageOneProgressSummary(value: unknown): StageOneProgressSummary {
   if (
     !isRecord(value) ||
     !isStageStatus(value.status) ||
@@ -91,7 +91,7 @@ function parseProgressSummary(value: unknown): StageOneProgressSummary {
   };
 }
 
-function parseProgressResult(value: unknown): StageOneProgressResult {
+function parseStageOneProgressResult(value: unknown): StageOneProgressResult {
   if (
     !isRecord(value) ||
     typeof value.canContinue !== "boolean" ||
@@ -105,7 +105,7 @@ function parseProgressResult(value: unknown): StageOneProgressResult {
   }
 
   return {
-    progress: parseProgressSummary(value.progress),
+    progress: parseStageOneProgressSummary(value.progress),
     state: validateStageOneSaveState(value.state),
     canContinue: value.canContinue,
     elapsedTimeMs: value.elapsedTimeMs,
@@ -113,7 +113,7 @@ function parseProgressResult(value: unknown): StageOneProgressResult {
   };
 }
 
-function parseCompleteResult(value: unknown): StageOneCompleteResult {
+function parseStageOneCompleteResult(value: unknown): StageOneCompleteResult {
   if (!isRecord(value) || typeof value.stageTwoUnlocked !== "boolean") {
     throw new StageOneProgressError(
       "REQUEST_FAILED",
@@ -122,12 +122,12 @@ function parseCompleteResult(value: unknown): StageOneCompleteResult {
   }
 
   return {
-    ...parseProgressResult(value),
+    ...parseStageOneProgressResult(value),
     stageTwoUnlocked: value.stageTwoUnlocked,
   };
 }
 
-function toJson(state: StageOneSaveState): Json {
+function serializeStageOneSaveState(state: StageOneSaveState): Json {
   return {
     version: state.version,
     currentRoom: state.currentRoom,
@@ -142,7 +142,7 @@ function toJson(state: StageOneSaveState): Json {
   };
 }
 
-function throwRpcError(error: PostgrestError): never {
+function throwStageOneRpcError(error: PostgrestError): never {
   const message = error.message.toLowerCase();
 
   if (message.includes("authentication")) {
@@ -192,7 +192,7 @@ function throwRpcError(error: PostgrestError): never {
   );
 }
 
-async function getAuthenticatedClient(): Promise<SupabaseBrowserClient> {
+async function getAuthenticatedSupabaseClient(): Promise<SupabaseBrowserClient> {
   const supabase = getSupabaseBrowserClient();
 
   if (!supabase) {
@@ -219,50 +219,50 @@ async function getAuthenticatedClient(): Promise<SupabaseBrowserClient> {
 }
 
 export async function startStageOne(): Promise<StageOneProgressResult> {
-  const supabase = await getAuthenticatedClient();
+  const supabase = await getAuthenticatedSupabaseClient();
   const { data, error } = await supabase.rpc("start_stage_one");
 
   if (error) {
-    throwRpcError(error);
+    throwStageOneRpcError(error);
   }
 
-  return parseProgressResult(data);
+  return parseStageOneProgressResult(data);
 }
 
 export async function loadStageOneProgress(): Promise<StageOneProgressResult> {
-  const supabase = await getAuthenticatedClient();
+  const supabase = await getAuthenticatedSupabaseClient();
   const { data, error } = await supabase.rpc("get_stage_one_progress");
 
   if (error) {
-    throwRpcError(error);
+    throwStageOneRpcError(error);
   }
 
-  return parseProgressResult(data);
+  return parseStageOneProgressResult(data);
 }
 
 export async function saveStageOneProgress(
   input: StageOneSaveInput,
 ): Promise<void> {
-  const validated = validateStageOneSaveInput(input);
-  const supabase = await getAuthenticatedClient();
+  const validatedInput = validateStageOneSaveInput(input);
+  const supabase = await getAuthenticatedSupabaseClient();
   const { error } = await supabase.rpc("save_stage_one_progress", {
-    p_state: toJson(validated.state),
-    p_save_version: validated.state.version,
-    p_elapsed_time_ms: validated.elapsedTimeMs,
+    p_state: serializeStageOneSaveState(validatedInput.state),
+    p_save_version: validatedInput.state.version,
+    p_elapsed_time_ms: validatedInput.elapsedTimeMs,
   });
 
   if (error) {
-    throwRpcError(error);
+    throwStageOneRpcError(error);
   }
 }
 
 export async function completeStageOne(): Promise<StageOneCompleteResult> {
-  const supabase = await getAuthenticatedClient();
+  const supabase = await getAuthenticatedSupabaseClient();
   const { data, error } = await supabase.rpc("complete_stage_one");
 
   if (error) {
-    throwRpcError(error);
+    throwStageOneRpcError(error);
   }
 
-  return parseCompleteResult(data);
+  return parseStageOneCompleteResult(data);
 }
