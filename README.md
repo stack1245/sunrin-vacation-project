@@ -72,7 +72,7 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 | E | 보안 통제실 | `feat/stage-1/10602` |
 | F | 문서 보관실 | `feat/stage-1/10405` |
 
-담당자와 세부 코드 소유 범위는 [브랜치·worktree 운영 가이드](./docs/stage-1/branch-workflow.md)를 기준으로 한다.
+담당자와 세부 코드 소유 범위는 [Stage 1 공통 개발 계약](./docs/stage-1.md)을 기준으로 한다.
 
 ## 개발 명령
 
@@ -97,8 +97,6 @@ feat/stage-1/학번 → develop/stage-1 → main
 
 ## 문서
 
-- [Stage 1 개발 명세](./docs/stage-1/README.md)
-- [개발 현황과 통합 인수인계](./docs/stage-1/development-handoff.md)
-- [Phaser·Room 통합 계약](./docs/stage-1/game-integration.md)
-- [진행도·저장 계약](./docs/stage-1/progress-integration.md)
-- [브랜치·worktree 운영 가이드](./docs/stage-1/branch-workflow.md)
+- [Stage 1 공통 개발 계약](./docs/stage-1.md)
+- [인증 운영 가이드](./docs/auth-operations.md)
+- [B 파트 인수인계](./docs/B2A_handoff.md)
