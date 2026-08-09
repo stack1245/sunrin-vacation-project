@@ -5,7 +5,7 @@ import type { StageOneRoomAccess, StageOneRoomModule } from "../../contracts/roo
 import { CAESAR_PUZZLE, checkCaesarAnswer } from "../../puzzles/archive/caesarPuzzle.ts";
 import { VIGENERE_PUZZLE, checkVigenereAnswer } from "../../puzzles/archive/vigenerePuzzle.ts";
 
-const ARCHIVE_SPAWN_FROM_HALLWAY = { x: 780, y: 270 };
+const ARCHIVE_SPAWN_FROM_HALLWAY = { x: 220, y: 150 };
 const ARCHIVE_DEFAULT_SPAWN = { x: 480, y: 270 };
 
 function requiresEntrance(state: StageOneSaveState): StageOneRoomAccess {
@@ -88,7 +88,7 @@ export function createArchiveRoom(): StageOneRoomModule {
       context.addPortal({
         id: "archive-to-hallway",
         targetRoomId: "hallway",
-        position: { x: 110, y: 270 },
+        position: { x: 220, y: 150 },
       });
 
       const title = scene.add

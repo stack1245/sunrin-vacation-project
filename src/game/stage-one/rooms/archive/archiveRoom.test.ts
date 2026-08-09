@@ -53,7 +53,7 @@ test("중앙 복도에서 진입하면 오른쪽 스폰 지점을 사용한다",
   const room = createArchiveRoom();
   const spawn = room.getSpawnPoint?.("hallway");
 
-  assert.deepEqual(spawn, { x: 780, y: 270 });
+  assert.deepEqual(spawn, { x: 220, y: 150 });
 });
 
 test("복도 외 경로로 진입하면 기본 스폰 지점을 사용한다", () => {

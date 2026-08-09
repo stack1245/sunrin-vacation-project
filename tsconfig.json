@@ -21,7 +21,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["node"]   // ← 이 줄 추가
   },
   "include": [
     "next-env.d.ts",
