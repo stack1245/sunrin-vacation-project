@@ -56,7 +56,7 @@ createStageOneGame({
 테스트 파일을 한 줄에 수동으로 나열하던 방식을 제거하고 Node 테스트 러너의 자동 탐색을 사용하도록 바꿨습니다.
 이제 B~F 담당자가 `*.test.ts`를 추가해도 `package.json` 공통 파일을 다시 수정할 필요가 없습니다.
 
-저장 버전, 진행 플래그, `progressBridge.ts`와 E의 2단계 저장 계약은 변경하지 않았습니다.
+저장 버전, 진행 플래그, `supabaseStageOneProgressBridge.ts`와 E의 2단계 저장 계약은 변경하지 않았습니다.
 
 ---
 
