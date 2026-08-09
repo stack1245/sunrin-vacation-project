@@ -65,12 +65,12 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 
 | 파트 | 담당 영역 | 브랜치 |
 | --- | --- | --- |
-| A | 공통 Phaser·진행도·통합 | `feat/stage-1/A_10320` |
-| B | 외부·입구·중앙 복도 | `feat/stage-1/B_10404` |
-| C | 연구 자료실 | `feat/stage-1/C_10409` |
-| D | 과학 실험실 | `feat/stage-1/D_10514` |
-| E | 보안 통제실 | `feat/stage-1/E_10602` |
-| F | 문서 보관실 | `feat/stage-1/F_10405` |
+| A | 공통 Phaser·진행도·통합 | `feat/stage-1/A-10320` |
+| B | 외부·입구·중앙 복도 | `feat/stage-1/B-10404` |
+| C | 연구 자료실 | `feat/stage-1/C-10409` |
+| D | 과학 실험실 | `feat/stage-1/D-10514` |
+| E | 보안 통제실 | `feat/stage-1/E-10602` |
+| F | 문서 보관실 | `feat/stage-1/F-10405` |
 
 담당자와 세부 코드 소유 범위는 [Stage 1 공통 개발 계약](./docs/stage-1.md)을 기준으로 한다.
 
@@ -90,7 +90,7 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 ## Git 작업 흐름
 
 ```text
-feat/stage-1/파트_학번 → develop/stage-1 → main
+feat/stage-1/파트-학번 → develop/stage-1 → main
 ```
 
 각 담당자는 자신의 worktree에서만 작업하고 `develop/stage-1`을 대상으로 Pull Request를 생성한다. 공통 계약이나 Room 등록 변경은 A 파트가 검토한다. 충돌 시 강제 push나 임의 rebase를 사용하지 않으며, 커밋 메시지는 `feat: 한글 설명`, `fix: 한글 설명`, `docs: 한글 설명` 형식을 사용한다.
