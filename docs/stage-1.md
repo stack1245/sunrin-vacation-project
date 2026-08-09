@@ -6,12 +6,12 @@
 
 | 파트 | 담당 영역 | 담당자 | 작업 브랜치 |
 | --- | --- | --- | --- |
-| A | 공통 Phaser 기반, Room 조립, 진행도·저장, 통합·QA | 10320 박도현 | `feat/stage-1/A_10320` |
-| B | 연구소 외부·입구·중앙 복도 | 10404 김준서 | `feat/stage-1/B_10404` |
-| C | 연구 자료실 | 10409 서정권 | `feat/stage-1/C_10409` |
-| D | 과학 실험실 | 10514 이동혁 | `feat/stage-1/D_10514` |
-| E | 보안 통제실 | 10602 김보민 | `feat/stage-1/E_10602` |
-| F | 문서 보관실과 최종 탈출 | 10405 김지산 | `feat/stage-1/F_10405` |
+| A | 공통 Phaser 기반, Room 조립, 진행도·저장, 통합·QA | 10320 박도현 | `feat/stage-1/A-10320` |
+| B | 연구소 외부·입구·중앙 복도 | 10404 김준서 | `feat/stage-1/B-10404` |
+| C | 연구 자료실 | 10409 서정권 | `feat/stage-1/C-10409` |
+| D | 과학 실험실 | 10514 이동혁 | `feat/stage-1/D-10514` |
+| E | 보안 통제실 | 10602 김보민 | `feat/stage-1/E-10602` |
+| F | 문서 보관실과 최종 탈출 | 10405 김지산 | `feat/stage-1/F-10405` |
 
 통합 대상은 `develop/stage-1`이고 배포 기준은 `main`이다. 기능 브랜치는 서로 직접 병합하지 않는다.
 
@@ -22,12 +22,12 @@
 ```text
 github/main                         → main
 github/develop/stage-1              → develop/stage-1
-github/feat/stage-1/A_10320           → feat/stage-1/A_10320
-github/feat/stage-1/B_10404           → feat/stage-1/B_10404
-github/feat/stage-1/F_10405           → feat/stage-1/F_10405
-github/feat/stage-1/C_10409           → feat/stage-1/C_10409
-github/feat/stage-1/D_10514           → feat/stage-1/D_10514
-github/feat/stage-1/E_10602           → feat/stage-1/E_10602
+github/feat/stage-1/A-10320           → feat/stage-1/A-10320
+github/feat/stage-1/B-10404           → feat/stage-1/B-10404
+github/feat/stage-1/F-10405           → feat/stage-1/F-10405
+github/feat/stage-1/C-10409           → feat/stage-1/C-10409
+github/feat/stage-1/D-10514           → feat/stage-1/D-10514
+github/feat/stage-1/E-10602           → feat/stage-1/E-10602
 ```
 
 - 자신의 worktree와 브랜치에서만 구현한다.
