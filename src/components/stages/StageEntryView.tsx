@@ -2,21 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { StageOneGameHost } from "@/components/stages/StageOneGameHost";
-import { createSupabaseStageOneProgressBridge } from "@/game/stage-one/adapters/supabaseStageOneProgressBridge";
 import {
   getSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
 import { startStage } from "@/services/progress/startStage";
 import type { StageStatus } from "@/types/stage";
-import {
-  STAGE_ONE_ID,
-  type StageOneProgressBridge,
-  type StageOneProgressResult,
-} from "@/types/stage-one";
 
 interface StageEntryViewProps {
   slug: string;
@@ -30,21 +23,11 @@ type EntryState =
       stageOrder: number;
       title: string;
       progressStatus: StageStatus;
-      stageOne:
-        | {
-            bridge: StageOneProgressBridge;
-            initialProgress: StageOneProgressResult;
-          }
-        | null;
     };
 
 export function StageEntryView({ slug }: StageEntryViewProps) {
   const router = useRouter();
   const configured = isSupabaseConfigured();
-  const stageOneBootstrapRef = useRef<{
-    bridge: StageOneProgressBridge;
-    promise: Promise<StageOneProgressResult>;
-  } | null>(null);
   const [state, setState] = useState<EntryState>(
     configured
       ? { status: "loading" }
@@ -123,27 +106,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           return;
         }
 
-        let stageOne: Extract<EntryState, { status: "ready" }>["stageOne"] =
-          null;
-
-        if (stage.id === STAGE_ONE_ID) {
-          if (!stageOneBootstrapRef.current) {
-            const bridge = createSupabaseStageOneProgressBridge();
-            stageOneBootstrapRef.current = {
-              bridge,
-              promise: bridge.start(),
-            };
-          }
-
-          stageOne = {
-            bridge: stageOneBootstrapRef.current.bridge,
-            initialProgress: await stageOneBootstrapRef.current.promise,
-          };
-        }
-
-        if (!stageOne) {
-          await startStage(stage.id);
-        }
+        await startStage(stage.id);
 
         if (!isMounted) {
           return;
@@ -153,12 +116,8 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           status: "ready",
           stageOrder: stage.stage_order,
           title: stage.title,
-          progressStatus: stageOne
-            ? stageOne.initialProgress.progress.status
-            : progress.status === "unlocked"
-              ? "in_progress"
-              : progress.status,
-          stageOne,
+          progressStatus:
+            progress.status === "unlocked" ? "in_progress" : progress.status,
         });
       } catch {
         if (!isMounted) {
@@ -205,17 +164,6 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           스테이지 목록으로
         </Link>
       </div>
-    );
-  }
-
-  if (state.stageOne) {
-    return (
-      <StageOneGameHost
-        stageOrder={state.stageOrder}
-        title={state.title}
-        initialProgress={state.stageOne.initialProgress}
-        bridge={state.stageOne.bridge}
-      />
     );
   }
 

@@ -107,53 +107,11 @@ export interface Database {
           },
         ];
       };
-      user_stage_saves: {
-        Row: {
-          user_id: string;
-          stage_id: number;
-          state: Json;
-          save_version: number;
-          elapsed_time_ms: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          user_id: string;
-          stage_id: number;
-          state: Json;
-          save_version: number;
-          elapsed_time_ms?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          user_id?: string;
-          stage_id?: number;
-          state?: Json;
-          save_version?: number;
-          elapsed_time_ms?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "user_stage_saves_stage_id_fkey";
-            columns: ["stage_id"];
-            isOneToOne: false;
-            referencedRelation: "stages";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      complete_stage_one: {
-        Args: Record<PropertyKey, never>;
-        Returns: Json;
-      };
       complete_stage: {
         Args: {
           p_clear_time_ms: number;
@@ -164,22 +122,6 @@ export interface Database {
       ensure_user_setup: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
-      };
-      get_stage_one_progress: {
-        Args: Record<PropertyKey, never>;
-        Returns: Json;
-      };
-      save_stage_one_progress: {
-        Args: {
-          p_elapsed_time_ms: number;
-          p_save_version: number;
-          p_state: Json;
-        };
-        Returns: undefined;
-      };
-      start_stage_one: {
-        Args: Record<PropertyKey, never>;
-        Returns: Json;
       };
       start_stage: {
         Args: {
@@ -201,5 +143,3 @@ export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export type StageRow = Database["public"]["Tables"]["stages"]["Row"];
 export type UserStageProgressRow =
   Database["public"]["Tables"]["user_stage_progress"]["Row"];
-export type UserStageSaveRow =
-  Database["public"]["Tables"]["user_stage_saves"]["Row"];
