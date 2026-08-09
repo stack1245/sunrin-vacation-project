@@ -9,7 +9,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test --experimental-strip-types src/types/stage-one.test.ts src/game/stage-one/core/movement.test.ts src/game/stage-one/core/referenceRooms.test.ts src/game/stage-one/core/saveQueue.test.ts src/game/stage-one/core/stageOneSession.test.ts src/game/stage-one/puzzles/control-room/otp.test.ts src/game/stage-one/puzzles/control-room/virtualCookieJar.test.ts src/game/stage-one/puzzles/control-room/virtualConsole.test.ts src/game/stage-one/puzzles/control-room/completionFlow.test.ts src/game/stage-one/puzzles/control-room/controlRoomPuzzle.test.ts src/game/stage-one/puzzles/control-room/viewModel.test.ts src/game/stage-one/puzzles/control-room/isolation.test.ts src/game/stage-one/rooms/control-room/controlRoomRoom.test.ts",
+    "test": "node --test --experimental-strip-types",
+    "env:check": "node scripts/check-env-structure.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },

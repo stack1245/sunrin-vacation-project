@@ -40,9 +40,9 @@ UI, 접근성 라벨과 제목에는 내부 ID를 직접 표시하지 않고 `ST
 브라우저에서 Phaser 게임을 생성할 때 진행 브리지도 한 번 생성한다. 이 모듈은 클라이언트 전용이며 서버 컴포넌트에서 import하지 않는다.
 
 ```ts
-import { createStageOneProgressBridge } from "@/game/stage-one/progressBridge";
+import { createSupabaseStageOneProgressBridge } from "@/game/stage-one/adapters/supabaseStageOneProgressBridge";
 
-const progress = createStageOneProgressBridge();
+const progress = createSupabaseStageOneProgressBridge();
 const initial = await progress.start();
 ```
 

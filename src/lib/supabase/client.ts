@@ -1,35 +1,37 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+import { readSupabasePublicConfig } from "@/config/supabasePublicConfig";
 import type { Database } from "@/types/database";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const supabasePublishableKey =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+const supabasePublicConfig = readSupabasePublicConfig();
 
 export type SupabaseBrowserClient = SupabaseClient<Database>;
 
-let browserClient: SupabaseBrowserClient | null = null;
+let cachedSupabaseBrowserClient: SupabaseBrowserClient | null = null;
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(supabaseUrl && supabasePublishableKey);
+  return supabasePublicConfig !== null;
 }
 
 export function getSupabaseBrowserClient(): SupabaseBrowserClient | null {
-  if (!supabaseUrl || !supabasePublishableKey) {
+  if (!supabasePublicConfig) {
     return null;
   }
 
-  if (!browserClient) {
-    browserClient = createClient<Database>(supabaseUrl, supabasePublishableKey, {
-      auth: {
-        autoRefreshToken: true,
-        detectSessionInUrl: false,
-        flowType: "pkce",
-        persistSession: true,
+  if (!cachedSupabaseBrowserClient) {
+    cachedSupabaseBrowserClient = createClient<Database>(
+      supabasePublicConfig.url,
+      supabasePublicConfig.publishableKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          detectSessionInUrl: false,
+          flowType: "pkce",
+          persistSession: true,
+        },
       },
-    });
+    );
   }
 
-  return browserClient;
+  return cachedSupabaseBrowserClient;
 }

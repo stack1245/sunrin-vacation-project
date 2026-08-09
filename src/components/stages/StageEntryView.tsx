@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { StageOneGameHost } from "@/components/stages/StageOneGameHost";
-import { createStageOneProgressBridge } from "@/game/stage-one/progressBridge";
+import { createSupabaseStageOneProgressBridge } from "@/game/stage-one/adapters/supabaseStageOneProgressBridge";
 import {
   getSupabaseBrowserClient,
   isSupabaseConfigured,
@@ -128,7 +128,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
 
         if (stage.id === STAGE_ONE_ID) {
           if (!stageOneBootstrapRef.current) {
-            const bridge = createStageOneProgressBridge();
+            const bridge = createSupabaseStageOneProgressBridge();
             stageOneBootstrapRef.current = {
               bridge,
               promise: bridge.start(),

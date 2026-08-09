@@ -55,7 +55,7 @@ createStageOneGame({
 
 `test` 스크립트 뒤에 E 파트 테스트 파일 8개를 덧붙였습니다. 기존 항목은 순서·내용 모두 그대로입니다.
 
-그 외 `progressBridge.ts`, `src/types/stage-one.ts`, contracts, core 파일은 **일절 수정하지 않았습니다.**
+그 외 `supabaseStageOneProgressBridge.ts`, `src/types/stage-one.ts`, contracts, core 파일은 **일절 수정하지 않았습니다.**
 
 ---
 

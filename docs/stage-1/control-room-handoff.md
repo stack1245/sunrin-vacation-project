@@ -1,6 +1,6 @@
 # Stage 1 · E 파트(보안 통제실) 인계 문서
 
-> 기준일: 2026-08-08
+> 기준일: 2026-08-09
 >
 > 담당: E 파트 `10602 김보민`
 >
@@ -97,7 +97,7 @@ createStageOneGame({
 
 - `package.json` — `test` 스크립트에 E 파트 테스트 파일 8개 추가 (기존 목록 뒤에 append, 다른 변경 없음).
 
-그 외 `progressBridge.ts`, `src/types/stage-one.ts`, contracts, core 파일은 **일절 수정하지 않았다.**
+그 외 `supabaseStageOneProgressBridge.ts`, `src/types/stage-one.ts`, contracts, core 파일은 **일절 수정하지 않았다.**
 
 ## 7. 검증 결과 (2026-08-08)
 
