@@ -1,6 +1,6 @@
 # Stage 1 역할별 브랜치·worktree 운영 가이드
 
-> 기준일: 2026-08-08
+> 기준일: 2026-08-09
 >
 > 통합 대상: `develop/stage-1`
 >
@@ -20,7 +20,7 @@ develop/stage-1
        └─ feat/stage-1/10405
 ```
 
-B~F 브랜치는 A 공통 기준 커밋을 포함한다. 통합할 때는 A 브랜치를 먼저 `develop/stage-1`에 반영한 뒤 B~F를 반영해야 공통 구조가 중복되거나 충돌하지 않는다. Pull Request 생성·병합은 별도 승인 후 수행한다.
+B~F 브랜치는 A 공통 기준 커밋을 포함한다. 통합할 때는 A 브랜치를 먼저 `develop/stage-1`에 반영한 뒤 B~F를 반영해야 공통 구조가 중복되거나 충돌하지 않는다. 각 담당자는 `develop/stage-1`을 대상으로 Pull Request를 생성하고, 검토와 검사 통과 후 승인된 PR만 병합한다.
 
 기존 `dev/stage-1`은 같은 커밋을 가리키는 `develop/stage-1`로 대체해 제거했다. 이전 `feat/stage-1` 통합 이력과 공용 `assets` 브랜치의 고유 이력은 각각 `archive/feat-stage-1-legacy-20260808`, `archive/assets-legacy-20260808` 태그로 보존한 뒤 활성 브랜치에서 제거했다. 신규 작업은 이 문서의 통합·역할 브랜치에서만 진행한다.
 
@@ -37,13 +37,13 @@ B~F 브랜치는 A 공통 기준 커밋을 포함한다. 통합할 때는 A 브�
 | E | 10602 김보민 | 보안 통제실, 가상 F12·Cookie·Console·OTP | `feat/stage-1/10602` | `github/feat/stage-1/10602` |
 | F | 10405 김지산 | 문서 보관실, hello world·스도쿠·N-Queens·자원 분배·기밀 문서 | `feat/stage-1/10405` | `github/feat/stage-1/10405` |
 
-모든 경로의 기준 루트는 `D:/.dev/school/sunrin/방학 프로젝트/OutOfBounds/`다.
+worktree 경로는 저장소 루트를 기준으로 하며 브랜치 계층과 같은 디렉터리 계층을 유지한다.
 
 ## 3. 코드 소유 경계
 
 | 소유자 | 직접 수정하는 기본 경로 | 규칙 |
 | --- | --- | --- |
-| A | `src/game/stage-one/contracts/**`, `src/game/stage-one/core/**`, `src/game/stage-one/progressBridge.ts`, `src/components/stages/StageOneGameHost.tsx`, 진행도·저장 계약 | 공통 계약 변경을 검토하고 B~F 통합을 조립한다. |
+| A | `src/game/stage-one/contracts/**`, `src/game/stage-one/core/**`, `src/game/stage-one/adapters/supabaseStageOneProgressBridge.ts`, `src/components/stages/StageOneGameHost.tsx`, 진행도·저장 계약 | 공통 계약 변경을 검토하고 B~F 통합을 조립한다. |
 | B | `src/game/stage-one/rooms/outside/**`, `rooms/entrance/**`, `rooms/hallway/**`, 해당 에셋·테스트 | 외부 탈출은 F의 기밀 문서 플래그와 A의 `completeEscape()`를 사용한다. |
 | C | `src/game/stage-one/rooms/archive/**`, `src/game/stage-one/puzzles/archive/**`, 해당 에셋·테스트 | 성공 후 `archiveClueFound`만 공통 API로 갱신한다. |
 | D | `src/game/stage-one/rooms/science-lab/**`, `src/game/stage-one/puzzles/science-lab/**`, 해당 에셋·테스트 | 성공 후 `scienceLabPuzzleSolved`만 공통 API로 갱신한다. |
@@ -65,7 +65,7 @@ npm run lint
 npm run build
 ```
 
-커밋 메시지는 `feat(학번): 한글 설명` 형식을 사용한다. 관련 파일만 커밋하고 현재 역할 브랜치와 같은 이름의 원격 브랜치로 push한다. force push, 임의 rebase, 다른 역할 브랜치 병합, `develop/stage-1` 또는 `main` 직접 병합은 하지 않는다.
+커밋 메시지는 `feat: 한글 설명`, `fix: 한글 설명`, `docs: 한글 설명` 형식을 사용한다. 관련 파일만 커밋하고 현재 역할 브랜치와 같은 이름의 원격 브랜치로 push한다. force push, 임의 rebase, 다른 역할 브랜치 병합, `develop/stage-1` 또는 `main` 직접 병합은 하지 않는다.
 
 ## 5. 통합 순서
 
@@ -75,4 +75,4 @@ npm run build
 4. A 반영 후 B→C→D→E→F 순서로 충돌과 진행 플래그를 확인한다.
 5. 신규 시작, 이어하기, 저장 실패 재시도, 기밀 문서 획득, 외부 탈출, Stage 2 해금을 통합 검증한다.
 
-이 순서는 브랜치 병합 승인 자체를 의미하지 않는다. 실제 Pull Request 생성과 병합은 팀 합의 또는 별도 요청이 있을 때 수행한다.
+각 파트 PR은 공통 계약, 자동 검사와 인수인계 내용을 검토한 뒤 팀이 승인한 경우에만 병합한다.
