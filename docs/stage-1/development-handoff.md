@@ -1,6 +1,6 @@
 # OutOfBounds Stage 1 개발 현황 및 GPT 인수인계
 
-> 기준일: 2026-08-08 (Asia/Seoul)
+> 기준일: 2026-08-09 (Asia/Seoul)
 >
 > 대상 범위: `develop/stage-1` 통합 기준 및 Stage 1 역할별 기능 브랜치
 >
@@ -163,7 +163,7 @@ StageEntryView
 
 ### 핵심 클라이언트 API
 
-게임 코드는 `createStageOneProgressBridge()`를 한 번 생성하고 아래 계약만 사용한다.
+게임 코드는 `createSupabaseStageOneProgressBridge()`를 한 번 생성하고 아래 계약만 사용한다.
 
 | 메서드                         | 역할                        | 중요한 동작                                                              |
 | ------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
@@ -259,7 +259,7 @@ StageEntryView
 | `src/types/stage-one.ts`                                                | 저장 타입, 기본 상태, 상수, 런타임 검증                |
 | `src/types/stage-one.test.ts`                                           | TypeScript 상태 검증 단위 테스트                       |
 | `src/services/progress/stageOne.ts`                                     | 인증 확인, RPC 호출, 응답 파싱, 오류 코드 변환         |
-| `src/game/stage-one/progressBridge.ts`                                  | Phaser가 사용할 Supabase 비의존 인터페이스             |
+| `src/game/stage-one/adapters/supabaseStageOneProgressBridge.ts`                                  | Phaser가 사용할 Supabase 비의존 인터페이스             |
 | `src/game/stage-one/contracts/*.ts`                                     | Room·이벤트·HUD 공통 타입                              |
 | `src/game/stage-one/core/StageOneScene.ts`                              | 플레이어, 충돌, 입력, 상호작용과 Room 전환              |
 | `src/game/stage-one/core/stageOneSession.ts`                            | 상태·타이머·클리어 순서                                |
