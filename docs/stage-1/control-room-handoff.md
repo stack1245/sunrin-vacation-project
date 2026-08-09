@@ -1,6 +1,6 @@
 # Stage 1 · E 파트(보안 통제실) 인계 문서
 
-> 기준일: 2026-08-08
+> 기준일: 2026-08-09
 >
 > 담당: E 파트 `10602 김보민`
 >
@@ -102,7 +102,7 @@ createStageOneGame({
 - `src/game/stage-one/contracts/room.ts` — Room 모달이 잠금을 획득할 수 있도록 `acquireModalInputLock()` 계약 추가.
 - `package.json` — 테스트 파일 수동 목록을 제거하고 Node 테스트 자동 탐색을 사용하도록 변경. 이후 파트별 `*.test.ts`가 공통 파일 수정 없이 자동 포함된다.
 
-저장 버전, 진행 플래그, `progressBridge.ts`, 이벤트 이름과 E 퍼즐의 2단계 저장 계약은 변경하지 않았다.
+저장 버전, 진행 플래그, `supabaseStageOneProgressBridge.ts`, 이벤트 이름과 E 퍼즐의 2단계 저장 계약은 변경하지 않았다.
 
 ## 7. 검증 결과 (2026-08-08)
 

@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "test": "node --test --experimental-strip-types",
+    "env:check": "node scripts/check-env-structure.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
