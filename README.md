@@ -72,7 +72,6 @@ UI는 Supabase 클라이언트를 직접 생성하지 않고 `src/lib/supabase/c
 
 ## 관련 문서
 
-- [Supabase Gmail SMTP 설정](./docs/supabase-gmail-smtp.md)
-- [미확인 사용자 정리](./docs/unconfirmed-user-cleanup.md)
+- [인증 운영 가이드](./docs/auth-operations.md)
 
 Stage 1 기능 개발은 `feat/stage-1/학번 → develop/stage-1 → main` 순서의 Pull Request로 통합한다. 기능 브랜치에서 검증을 마친 뒤 `develop/stage-1`을 대상으로 PR을 생성하며, 커밋 메시지는 `feat: 한글 설명`, `fix: 한글 설명`과 같은 형식을 사용한다.
