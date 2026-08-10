@@ -16,19 +16,19 @@
 | A 통합 보완 커밋 | `4e96c61 feat: 연구 자료실 공통 조립과 후속 단서 연결` |
 | 최종 확인일 | 2026-08-10 |
 | 구현 상태 | 완료 |
-| PR 상태 | 열림 |
+| PR 상태 | 병합 완료 |
 | PR | [#3 연구 자료실 퍼즐 구현](https://github.com/stack1245/sunrin-vacation-project/pull/3) |
 
 ## 2. 인계 결론
 
 | 항목 | 내용 |
 | --- | --- |
-| A 통합 판정 | 통합 가능 |
-| A가 해야 할 작업 | 코드 보완과 공통 조립부 등록 완료. PR #3 최종 검토·병합 및 통합 브라우저 QA |
-| 차단 요인 | 코드·자동 검증 기준 없음 |
-| 통합 후 필수 회귀 확인 | `hallway → archive` 진입, 두 암호 완료, 후속 단서 확인, `archiveClueFound` 복구, `science-lab` 문 해금 |
+| A 통합 판정 | 통합 완료 |
+| A가 해야 할 작업 | 없음 — PR 병합, 통합 자동 검증과 브라우저 회귀 확인 완료 |
+| 차단 요인 | 없음 |
+| 통합 후 필수 회귀 확인 | `hallway → archive` 진입, 두 암호 완료, 후속 단서 확인, `archiveClueFound` 복구, `science-lab` 문 해금 완료 |
 
-C 파트 Room과 두 암호 퍼즐은 구현 완료 상태다. A가 최신 `develop/stage-1`을 C 브랜치에 일반 merge 방식으로 반영해 PR의 공용 문서 삭제·인증 설정 변경을 제거했고, `createStageOneRooms`에 연구 자료실을 게임별 새 인스턴스로 등록했다. 비즈네르 성공 후 D·F용 단서 표시와 완료 상태 재입장 시 단서 재확인도 실제 코드와 테스트로 보완했다.
+C 파트 Room과 두 암호 퍼즐은 구현·통합 완료 상태다. A가 최신 `develop/stage-1`을 C 브랜치에 일반 merge 방식으로 반영해 PR의 공용 문서 삭제·인증 설정 변경을 제거했고, `createStageOneRooms`에 연구 자료실을 게임별 새 인스턴스로 등록했다. 비즈네르 성공 후 D·F용 단서 표시와 완료 상태 재입장 시 단서 재확인도 실제 코드와 테스트로 보완했다. PR #3은 `develop/stage-1`에 squash merge되었고, 병합 커밋은 `af7a2d4e4ebaca355ccc9e292294a295ec236c19`이다.
 
 ## 3. 완료 범위
 
@@ -51,7 +51,7 @@ C 파트 Room과 두 암호 퍼즐은 구현 완료 상태다. A가 최신 `deve
 - 보안 통제실과 `controlRoomSolved`·`documentStorageUnlocked` 저장은 E 파트가 담당한다.
 - 문서 보관실 최종 기호 퍼즐과 `confidentialDocumentObtained` 저장은 F 파트가 담당한다.
 - 카이사르만 완료한 중간 상태는 서버에 저장하지 않는다. 게임을 새로 시작하면 카이사르 단계부터 다시 진행하는 것이 현재 저장 계약이다.
-- 이번 확인에서는 실제 브라우저에서 전체 Stage 1 동선을 플레이하지 않았다. 자동 테스트와 프로덕션 빌드까지 확인했다.
+- 로그인 세션이 필요한 실제 Supabase 저장 API 왕복은 브라우저에서 실행하지 않았다. 공통 저장 Bridge 계약은 자동 테스트와 로컬 mock Bridge를 연결한 통합 브라우저 QA로 확인했다.
 
 ## 5. 공개 통합 계약
 
@@ -68,7 +68,7 @@ C 파트 Room과 두 암호 퍼즐은 구현 완료 상태다. A가 최신 `deve
 | 항목 | 내용 |
 | --- | --- |
 | 조립 파일 | `src/game/stage-one/core/createStageOneRooms.ts` |
-| 현재 등록 상태 | C 기능 브랜치에 등록됨, `develop/stage-1`은 PR #3 병합 전 |
+| 현재 등록 상태 | PR #3 squash merge로 `develop/stage-1`에 등록 완료 |
 | 필요한 변경 | 추가 코드 변경 없음 |
 | 충돌 주의 | `archive`를 중복 등록하지 않고 `createArchiveRoom()` 팩토리 호출을 유지한다. |
 
@@ -159,15 +159,15 @@ C 파트가 직접 패치하는 값은 `archiveClueFound` 하나다. Supabase를
 | 린트 | `npm run lint` | 통과 |
 | 프로덕션 빌드 | `npm run build` | Next.js 프로덕션 빌드 성공 |
 | 변경 공백 검사 | `git diff --check` | 통과 |
-| 브라우저 QA | 미실행 | 통합 브랜치 병합 후 실제 전체 동선 수행 예정 |
+| 브라우저 QA | 통과 | 잠금 거부, `hallway → archive` 진입, 오답 거부, 두 암호 완료, 저장·단서 표시, 완료 재입장, `science-lab` 해금과 진입 확인 |
 
-위 검증은 2026-08-10에 최신 `develop/stage-1`을 반영한 `feat/stage-1/C-10409`에서 실행했다. 전체 테스트 스크립트가 C Room과 두 퍼즐 테스트를 자동 탐색하는 것도 확인했다.
+기능 브랜치 검증 후 PR #3을 병합한 `develop/stage-1`에서 전체 테스트 151개, 환경변수 구조, 타입, 린트와 프로덕션 빌드를 다시 실행했다. 브라우저 QA도 같은 통합 브랜치의 실제 Phaser Room 구성을 사용했으며, 인증 의존성만 로컬 mock Bridge로 대체했다.
 
 ## 10. 알려진 이슈와 위험
 
 | 우선순위 | 내용 | 영향 | 후속 조치 |
 | --- | --- | --- | --- |
-| 중간 | 통합 브랜치의 실제 브라우저 전체 동선 QA 미실행 | Phaser 좌표, 키보드 포커스, HUD 메시지와 저장 복구의 체감 문제는 자동 테스트만으로 완전히 확인할 수 없음 | PR #3 병합 후 A가 8장 동선을 실행 |
+| 낮음 | 실제 로그인 계정 기반 Supabase 왕복은 브라우저에서 미검증 | 배포 환경의 세션·RLS 설정 문제는 로컬 mock Bridge QA만으로 확인할 수 없음 | 배포 전 테스트 계정으로 저장·재입장 smoke test 실행 |
 | 낮음 | 카이사르 중간 완료 상태는 서버에 저장하지 않음 | 비즈네르 완료 전 새로고침하면 카이사르부터 다시 시작 | 현재 Stage 1 저장 계약상 의도된 동작 |
 | 낮음 | Room 그래픽이 도형·텍스트 중심 | 최종 아트 교체 시 단말 위치와 상호작용 반경이 어긋날 수 있음 | 아트 반영 시 좌표 회귀 QA |
 
@@ -181,8 +181,8 @@ C 파트가 직접 패치하는 값은 `archiveClueFound` 하나다. Supabase를
 | 담당자 후속 수정 | `1d180a1 feat : C-10409 오류 해결 및 B파트 자료실 연결` |
 | A 기준 동기화 | `81ade3f chore: 최신 Stage 1 통합 기준 반영` |
 | A 통합 보완 | `4e96c61 feat: 연구 자료실 공통 조립과 후속 단서 연결` |
-| PR | [#3 · 열림 · `develop/stage-1` 대상](https://github.com/stack1245/sunrin-vacation-project/pull/3) |
-| `develop/stage-1` 반영 | 미반영 — PR #3 병합 대기 |
+| PR | [#3 · 병합 완료 · `develop/stage-1` 대상](https://github.com/stack1245/sunrin-vacation-project/pull/3) |
+| `develop/stage-1` 반영 | `af7a2d4e4ebaca355ccc9e292294a295ec236c19` |
 
 ## 12. A 통합 체크리스트
 
@@ -197,8 +197,8 @@ C 파트가 직접 패치하는 값은 `archiveClueFound` 하나다. Supabase를
 - [x] C가 Supabase나 다른 파트 완료 플래그를 직접 변경하지 않는다.
 - [x] C Room·퍼즐·공통 조립 테스트가 `npm test`에서 자동 실행된다.
 - [x] 전체 테스트, 환경 구조, 타입, 린트, 빌드와 변경 공백 검사가 통과한다.
-- [ ] PR #3을 `develop/stage-1`에 병합한다.
-- [ ] `develop/stage-1` 브라우저에서 정상·실패 전체 동선을 확인한다.
+- [x] PR #3을 `develop/stage-1`에 병합했다.
+- [x] `develop/stage-1` 브라우저에서 잠금·오답·정상 완료·재입장·후속 문 해금 동선을 확인했다.
 - [x] 실제 환경변수나 비밀정보가 문서와 커밋 대상에 포함되지 않았다.
 
 ## 13. 작성자 최종 확인
@@ -206,6 +206,6 @@ C 파트가 직접 패치하는 값은 `archiveClueFound` 하나다. Supabase를
 - [x] 자리표시자와 깨진 출처 표기를 제거했다.
 - [x] 브랜치·upstream·커밋·PR 정보를 실제 저장소에서 확인했다.
 - [x] 공개 진입점과 진행도 플래그를 코드에서 확인했다.
-- [x] 실행하지 않은 브라우저 QA를 통과로 표시하지 않았다.
+- [x] 브라우저 QA 범위와 인증 기반 미검증 항목을 구분해 기록했다.
 - [x] 비밀정보와 실제 환경변수 값을 기록하지 않았다.
 - [x] 최종 파일명을 `C2A_handoff.md` 형식으로 사용한다.
