@@ -5,7 +5,7 @@ import {
   loadStageOneProgress,
   saveStageOneProgress,
   startStageOne,
-} from "@/services/progress/stageOne";
+} from "@/services/progress/stageOneProgressService";
 import type { StageOneProgressBridge } from "@/types/stage-one";
 
 export function createSupabaseStageOneProgressBridge(): StageOneProgressBridge {

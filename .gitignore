@@ -1,28 +1,31 @@
-# Dependencies (npm)
+# npm 의존성
 /node_modules/
 
-# Next.js generated output
+# Next.js 생성물
 /.next/
 /out/
 
-# TypeScript incremental state
+# TypeScript 증분 빌드 상태
 /tsconfig.tsbuildinfo
 /next-env.d.ts
 
-# Local environment files
+# 로컬 환경변수 파일
 .env
 .env.*
 !.env.example
 
-# Runtime and package-manager logs
+# 런타임·패키지 관리자 로그
 *.log
 npm-debug.log*
 
-# Local editor state
+# 로컬 컴파일 산출물
+*.exe
+
+# 로컬 편집기 상태
 /.idea/
 /.vscode/
 /.history/
 
-# Operating system metadata
+# 운영체제 메타데이터
 .DS_Store
 Thumbs.db

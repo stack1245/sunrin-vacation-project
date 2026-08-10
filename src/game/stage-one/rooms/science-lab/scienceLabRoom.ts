@@ -2,7 +2,6 @@ import type { Scene } from "phaser";
 
 import type { StageOneSaveState } from "@/types/stage-one";
 import type { StageOneRoomAccess, StageOneRoomModule } from "../../contracts/room";
-// .tsx 확장자를 제거하고 올바른 상대 경로로 수정합니다.
 import {
   SCIENCE_LAB_SECURITY_CODE,
   checkSymbolAnswer,
@@ -10,7 +9,7 @@ import {
   checkOxygenAnswer,
   checkIgnitionAnswer,
   readLabAnswerLine,
-} from "../../puzzles/science-lab/labpuzzle";
+} from "../../puzzles/science-lab/scienceLabPuzzle";
 
 const SCIENCE_LAB_SPAWN_FROM_HALLWAY = { x: 220, y: 150 };
 const SCIENCE_LAB_DEFAULT_SPAWN = { x: 480, y: 270 };
