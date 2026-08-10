@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import * as Phaser from 'phaser';
 // 작성하신 ex_nqueen.ts 파일에서 클래스를 불러옵니다. 
 // (클래스 이름이 NQueensScene이 맞는지 확인해 주세요!)
-import { NQueensScene } from '../game/puzzles/ex_nqueen'; 
+import { SudokuScene } from '../game/puzzles/ex_sudoku'; 
 
 export default function NQueenGame() {
     const gameRef = useRef<Phaser.Game | null>(null);
@@ -18,7 +18,7 @@ export default function NQueenGame() {
                 height: 600,
                 backgroundColor: '#333333',
                 parent: 'phaser-container', // 게임이 들어갈 div의 ID
-                scene: [NQueensScene]
+                scene: [SudokuScene]
             };
             
             gameRef.current = new Phaser.Game(config);
