@@ -62,6 +62,7 @@ UI는 Supabase 클라이언트를 직접 생성하지 않고 `src/lib/supabase/c
 | 명령 | 설명 |
 | --- | --- |
 | `npm run dev` | 개발 서버 실행 |
+| `npm start` | 프로덕션 빌드 결과 실행 |
 | `npm test` | Node 기반 단위 테스트 실행 |
 | `npm run env:check` | 실제·예제 환경변수 파일 구조 비교 |
 | `npm run typecheck` | TypeScript 타입 검사 |
@@ -70,8 +71,14 @@ UI는 Supabase 클라이언트를 직접 생성하지 않고 `src/lib/supabase/c
 
 변경을 전달하기 전에 테스트, 환경변수 구조 검사, 타입 검사, 린트와 빌드를 모두 확인한다.
 
+## Git 작업 흐름
+
+```text
+feat/stage-1/파트-학번 → develop/stage-1 → main
+```
+
+기능 브랜치에서 검증을 마친 뒤 `develop/stage-1`을 대상으로 Pull Request를 생성한다. 작업을 시작할 때 현재 브랜치와 변경 상태를 확인하고, 작업 폴더가 깨끗한 경우에만 `git pull --ff-only`로 원격 변경을 반영한다. 충돌 시 강제 push나 임의 rebase를 사용하지 않으며, 커밋 메시지는 `feat: 한글 설명`, `fix: 한글 설명`, `docs: 한글 설명` 형식을 사용한다.
+
 ## 관련 문서
 
 - [인증 운영 가이드](./docs/auth-operations.md)
-
-Stage 1 기능 개발은 `feat/stage-1/파트-학번 → develop/stage-1 → main` 순서의 Pull Request로 통합한다. 기능 브랜치에서 검증을 마친 뒤 `develop/stage-1`을 대상으로 PR을 생성하며, 커밋 메시지는 `feat: 한글 설명`, `fix: 한글 설명`과 같은 형식을 사용한다.
