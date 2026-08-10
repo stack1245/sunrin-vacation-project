@@ -1,36 +1,27 @@
-# Dependencies
+# npm 의존성
 /node_modules/
-/.pnp
-.pnp.*
 
-# Next.js build output
+# Next.js 생성물
 /.next/
 /out/
 
-# Production build output
-/dist/
-/.vinext/
-/.wrangler/
-/.vite/
-
-# Environment variables
+# 로컬 환경변수
 .env
 .env.*
 !.env.example
 
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
+# TypeScript 생성물
+/tsconfig.tsbuildinfo
+/next-env.d.ts
 
-# Logs
+# 로그
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
-# Editor and operating system files
+# 편집기 설정
 /.idea/
 /.vscode/
+
+# 운영체제 메타데이터
 .DS_Store
 Thumbs.db
