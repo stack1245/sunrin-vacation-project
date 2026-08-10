@@ -23,6 +23,16 @@ test("기본 Room 구성에서 보안 통제실 참조 슬롯을 실제 구현�
   assert.equal(controlRoom, controlRoomRoom);
 });
 
+test("기본 Room 구성에서 연구 자료실을 게임별 새 구현으로 교체한다", () => {
+  const firstArchive = createStageOneRooms().find((room) => room.id === "archive");
+  const secondArchive = createStageOneRooms().find((room) => room.id === "archive");
+
+  assert.ok(firstArchive);
+  assert.ok(secondArchive);
+  assert.equal(firstArchive.displayName, "연구 자료실");
+  assert.notEqual(firstArchive, secondArchive);
+});
+
 test("기본 Room 구성은 모든 Stage 1 Room ID를 중복 없이 유지한다", () => {
   const rooms = createStageOneRooms();
   const roomIds = rooms.map((room) => room.id);

@@ -1,4 +1,5 @@
 import type { StageOneRoomModule } from "../contracts/room";
+import { createArchiveRoom } from "../rooms/archive/index.ts";
 import { controlRoomRoom } from "../rooms/control-room/index.ts";
 import { entranceRoom } from "../rooms/entrance/entranceRoom.ts";
 import { hallwayRoom } from "../rooms/hallway/hallwayRoom.ts";
@@ -10,6 +11,7 @@ import { createStageOneReferenceRooms } from "./referenceRooms.ts";
  * 각 파트가 완료되면 이 composition root에 공개 Room 모듈만 추가한다.
  */
 export function createStageOneRooms(): readonly StageOneRoomModule[] {
+  const archiveRoom = createArchiveRoom();
   const implementedRooms = new Map<
     StageOneRoomModule["id"],
     StageOneRoomModule
@@ -17,6 +19,7 @@ export function createStageOneRooms(): readonly StageOneRoomModule[] {
     [outsideRoom.id, outsideRoom],
     [entranceRoom.id, entranceRoom],
     [hallwayRoom.id, hallwayRoom],
+    [archiveRoom.id, archiveRoom],
     [controlRoomRoom.id, controlRoomRoom],
   ]);
 
