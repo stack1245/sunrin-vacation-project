@@ -3,9 +3,14 @@ import type Phaser from "phaser";
 import type { StageOneSaveState } from "@/types/stage-one";
 import type { StageOneRoomAccess, StageOneRoomModule } from "../../contracts/room.ts";
 import { CAESAR_PUZZLE, checkCaesarAnswer } from "../../puzzles/archive/caesarPuzzle.ts";
-import { VIGENERE_PUZZLE, checkVigenereAnswer } from "../../puzzles/archive/vigenerePuzzle.ts";
+import {
+  checkVigenereAnswer,
+  describeArchiveClues,
+  VIGENERE_PUZZLE,
+} from "../../puzzles/archive/vigenerePuzzle.ts";
 
-const ARCHIVE_SPAWN_FROM_HALLWAY = { x: 220, y: 150 };
+const ARCHIVE_EXIT_POSITION = { x: 110, y: 270 };
+const ARCHIVE_SPAWN_FROM_HALLWAY = { x: 220, y: 270 };
 const ARCHIVE_DEFAULT_SPAWN = { x: 480, y: 270 };
 
 function requiresEntrance(state: StageOneSaveState): StageOneRoomAccess {
@@ -88,7 +93,7 @@ export function createArchiveRoom(): StageOneRoomModule {
       context.addPortal({
         id: "archive-to-hallway",
         targetRoomId: "hallway",
-        position: { x: 220, y: 150 },
+        position: { ...ARCHIVE_EXIT_POSITION },
       });
 
       const title = scene.add
@@ -129,11 +134,17 @@ export function createArchiveRoom(): StageOneRoomModule {
       context.track(vigenereCipher);
 
       const vigenereAnswerLine = scene.add
-        .text(480, 385, "", {
-          color: "#f0e9ff",
-          fontFamily: "Consolas, monospace",
-          fontSize: "18px",
-        })
+        .text(
+          480,
+          385,
+          context.getState().archiveClueFound ? describeArchiveClues() : "",
+          {
+            color: "#f0e9ff",
+            fontFamily: "Consolas, monospace",
+            fontSize: "16px",
+            align: "center",
+          },
+        )
         .setOrigin(0.5);
       context.track(vigenereAnswerLine);
 
@@ -148,7 +159,15 @@ export function createArchiveRoom(): StageOneRoomModule {
             interactionContext.showMessage("이미 해독한 단말기입니다.", "info");
             return;
           }
-          const raw = await readAnswerLine(scene, caesarAnswerLine);
+          const releaseInputLock = interactionContext.acquireModalInputLock();
+          let raw: string;
+
+          try {
+            raw = await readAnswerLine(scene, caesarAnswerLine);
+          } finally {
+            releaseInputLock();
+          }
+
           if (checkCaesarAnswer(raw)) {
             caesarSolved = true;
             caesarAnswerLine.setText(CAESAR_PUZZLE.answer);
@@ -164,20 +183,44 @@ export function createArchiveRoom(): StageOneRoomModule {
         id: "archive-vigenere-terminal",
         position: { x: 480, y: 350 },
         radius: 90,
-        enabled: (state) => !state.archiveClueFound,
-        prompt: () => (caesarSolved ? "E · 비즈네르 암호 입력" : "카이사르 암호를 먼저 해독하세요"),
+        prompt: (state) => {
+          if (state.archiveClueFound) {
+            return "E · 확보한 후속 단서 다시 확인";
+          }
+          return caesarSolved
+            ? "E · 비즈네르 암호 입력"
+            : "카이사르 암호를 먼저 해독하세요";
+        },
         async onInteract(interactionContext) {
+          if (interactionContext.getState().archiveClueFound) {
+            const clues = describeArchiveClues();
+            vigenereAnswerLine.setText(clues);
+            interactionContext.showMessage(clues, "info");
+            return;
+          }
+
           if (!caesarSolved) {
             interactionContext.showMessage("카이사르 암호를 먼저 해독하세요.", "warning");
             return;
           }
-          const raw = await readAnswerLine(scene, vigenereAnswerLine);
+
+          const releaseInputLock = interactionContext.acquireModalInputLock();
+          let raw: string;
+
+          try {
+            raw = await readAnswerLine(scene, vigenereAnswerLine);
+          } finally {
+            releaseInputLock();
+          }
+
           if (checkVigenereAnswer(raw)) {
-            vigenereAnswerLine.setText(VIGENERE_PUZZLE.answer);
             await interactionContext.updateProgress(
               { archiveClueFound: true },
               "두 암호를 모두 해독했습니다. 과학 실험실 단서와 최종 순서 단서를 확보했습니다.",
             );
+            const clues = describeArchiveClues();
+            vigenereAnswerLine.setText(clues);
+            interactionContext.showMessage(clues, "success");
           } else {
             vigenereAnswerLine.setText("");
             interactionContext.showMessage("정답이 아닙니다. 다시 시도하세요.", "warning");
