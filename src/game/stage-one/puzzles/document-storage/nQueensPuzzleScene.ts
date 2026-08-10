@@ -9,7 +9,7 @@ interface Queen extends Position {
     sprite: Phaser.GameObjects.Text;
 }
 
-export class NQueensScene extends Phaser.Scene {
+export class NQueensPuzzleScene extends Phaser.Scene {
     private readonly N: number = 8;
     private readonly targetQueens: number = 12; 
     
@@ -31,7 +31,7 @@ export class NQueensScene extends Phaser.Scene {
     private successWindow!: Phaser.GameObjects.Container;
 
     constructor() {
-        super({ key: 'NQueensScene' });
+        super({ key: 'NQueensPuzzleScene' });
     }
 
     create(): void {
@@ -82,7 +82,7 @@ export class NQueensScene extends Phaser.Scene {
 
         const resetX = submitX + 120 + 10; 
         const resetButtonBg = this.add.rectangle(resetX, uiY, 100, 40, 0x883333).setOrigin(0.5);
-        const resetButtonText = this.add.text(resetX, uiY, '초기화', { 
+        this.add.text(resetX, uiY, '초기화', {
             fontSize: '18px', color: '#ffffff', fontFamily: 'Arial' 
         }).setOrigin(0.5);
         

@@ -5,9 +5,11 @@ interface CellPosition {
     c: number;
 }
 
+type CageOperator = "" | "+" | "x";
+
 interface Cage {
     target: number;
-    operator: string; // '+', 'x', 또는 단일 칸일 경우 ''
+    operator: CageOperator;
     cells: CellPosition[];
 }
 
@@ -54,7 +56,7 @@ const PUZZLES: PuzzleData[] = [
     }
 ];
 
-export class SudokuScene extends Phaser.Scene {
+export class MathdokuPuzzleScene extends Phaser.Scene {
     private readonly N: number = 6;
     private readonly tileSize: number = 60; 
     private readonly boardOffsetX: number = 120; 
@@ -91,7 +93,7 @@ export class SudokuScene extends Phaser.Scene {
     }[] = [];
 
     constructor() {
-        super({ key: 'MathdokuScene' });
+        super({ key: 'MathdokuPuzzleScene' });
     }
 
     create(): void {
@@ -419,7 +421,7 @@ export class SudokuScene extends Phaser.Scene {
         const puzzle = PUZZLES[this.currentPuzzleIndex];
         puzzle.cages.forEach(cage => {
             let isFull = true;
-            let values: number[] = [];
+            const values: number[] = [];
             
             cage.cells.forEach(c => {
                 const val = this.currentBoard[c.r][c.c];
@@ -459,7 +461,7 @@ export class SudokuScene extends Phaser.Scene {
                 if (!tile) continue;
 
                 const isLight = (r + c) % 2 === 0;
-                let baseColor = isLight ? 0x272a3d : 0x222538;
+                const baseColor = isLight ? 0x272a3d : 0x222538;
 
                 const isSelected = this.selectedCell?.r === r && this.selectedCell?.c === c;
                 const isRelated = this.selectedCell && (this.selectedCell.r === r || this.selectedCell.c === c);
