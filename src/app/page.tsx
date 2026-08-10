@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 // Phaser는 브라우저에서만 초기화한다.
 const MathdokuGameHost = dynamic(
-  () => import("@/components/stages/MathdokuGameHost"),
+  () => import("@/components/stages/NqueensGameHost"),
   {
     ssr: false,
   },
