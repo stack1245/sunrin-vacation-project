@@ -14,10 +14,10 @@ import {
   STAGE_ONE_SCENE_KEY,
 } from "./StageOneScene";
 import {
-  createStageOneReferenceRooms,
   STAGE_ONE_WORLD_HEIGHT,
   STAGE_ONE_WORLD_WIDTH,
 } from "./referenceRooms";
+import { createStageOneRooms } from "./createStageOneRooms";
 import { StageOneSession } from "./stageOneSession";
 
 export interface CreateStageOneGameOptions {
@@ -41,7 +41,7 @@ export function createStageOneGame({
   initialProgress,
   bridge,
   events,
-  rooms = createStageOneReferenceRooms(),
+  rooms = createStageOneRooms(),
 }: CreateStageOneGameOptions): StageOneGameHandle {
   if (typeof window === "undefined") {
     throw new Error("Stage 1 Phaser 게임은 브라우저에서만 시작할 수 있습니다.");

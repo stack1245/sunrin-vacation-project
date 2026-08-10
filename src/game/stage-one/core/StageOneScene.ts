@@ -25,6 +25,7 @@ import {
   STAGE_ONE_WORLD_HEIGHT,
   STAGE_ONE_WORLD_WIDTH,
 } from "./referenceRooms";
+import { StageOneModalInputLock } from "./modalInputLock";
 
 export const STAGE_ONE_SCENE_KEY = "stage-one";
 
@@ -75,6 +76,8 @@ export class StageOneScene extends Phaser.Scene {
   private activeInteraction: StageOneInteractionDefinition | null = null;
   private interactionRunning = false;
   private paused = false;
+  private readonly modalInputLock = new StageOneModalInputLock();
+  private readonly deferredModalInputReleases = new Set<() => void>();
   private roomCleanup: (() => void) | null = null;
   private readonly roomObjects: Phaser.GameObjects.GameObject[] = [];
   private readonly roomColliders: Phaser.Physics.Arcade.Collider[] = [];
@@ -155,17 +158,26 @@ export class StageOneScene extends Phaser.Scene {
   }
 
   update(time: number): void {
+    this.flushDeferredModalInputReleases();
+
     if (isTextInputActive()) {
       this.playerBody.setVelocity(0, 0);
       this.updateHud(time);
       return;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.movementKeys.pause)) {
+    if (
+      Phaser.Input.Keyboard.JustDown(this.movementKeys.pause) &&
+      !this.modalInputLock.isActive()
+    ) {
       this.setPaused(!this.paused);
     }
 
-    if (this.paused || this.interactionRunning) {
+    if (
+      this.paused ||
+      this.interactionRunning ||
+      this.modalInputLock.isActive()
+    ) {
       this.playerBody.setVelocity(0, 0);
       this.updateHud(time);
       return;
@@ -387,10 +399,52 @@ export class StageOneScene extends Phaser.Scene {
         this.updateProgress(patch, successMessage),
       transitionTo: (roomId) => this.transitionTo(roomId),
       completeEscape: () => this.completeEscape(),
+      acquireModalInputLock: () => this.acquireModalInputLock(),
       showMessage: (text, tone = "info") => {
         this.gameEvents.emit("message", { tone, text });
       },
     };
+  }
+
+  /**
+   * Room 모달이 열려 있는 동안 게임 입력을 잠근다.
+   *
+   * Esc로 모달을 닫으면 같은 키 입력이 게임 일시정지까지 전달될 수 있으므로,
+   * Esc 키가 올라올 때까지 실제 잠금 해제를 미룬다.
+   */
+  private acquireModalInputLock(): () => void {
+    const releaseLock = this.modalInputLock.acquire();
+    let released = false;
+
+    this.playerBody.setVelocity(0, 0);
+
+    return () => {
+      if (released) {
+        return;
+      }
+
+      released = true;
+
+      if (this.movementKeys.pause.isDown) {
+        this.deferredModalInputReleases.add(releaseLock);
+        return;
+      }
+
+      releaseLock();
+    };
+  }
+
+  /** Esc 키가 올라온 뒤 보류된 모달 잠금을 해제한다. */
+  private flushDeferredModalInputReleases(): void {
+    if (this.movementKeys.pause.isDown) {
+      return;
+    }
+
+    for (const release of this.deferredModalInputReleases) {
+      release();
+    }
+
+    this.deferredModalInputReleases.clear();
   }
 
   private async updateProgress(
@@ -513,6 +567,13 @@ export class StageOneScene extends Phaser.Scene {
   private clearRoom(): void {
     this.roomCleanup?.();
     this.roomCleanup = null;
+
+    for (const release of this.deferredModalInputReleases) {
+      release();
+    }
+
+    this.deferredModalInputReleases.clear();
+    this.modalInputLock.clear();
 
     for (const collider of this.roomColliders.splice(0)) {
       collider.destroy();
