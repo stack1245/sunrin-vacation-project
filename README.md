@@ -61,6 +61,13 @@ Next.js StageEntryView
 
 Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `StageOneInteractionContext`와 `StageOneProgressBridge`를 통해 세션·저장 큐로 전달하고, 구체적인 Supabase 연결은 `adapters/supabaseStageOneProgressBridge.ts`에서만 조립한다.
 
+### 아키텍처 보호 규칙
+
+- Room·퍼즐·게임 코어는 `contracts/`와 공통 타입에만 의존하고 Supabase SDK·진행도 서비스를 직접 가져오지 않는다.
+- 외부 저장소 연결은 `adapters/`가 `StageOneProgressBridge` 계약 뒤에서 담당한다.
+- 실제 Room 구현 선택과 수명 주기 조립은 `createStageOneRooms.ts`와 `createStageOneGame.ts`에 모은다.
+- `architectureBoundaries.test.ts`가 별칭·상대 경로를 통한 인프라 역참조를 검사하며 `npm test`에서 자동 실행된다.
+
 ## 역할과 브랜치
 
 | 파트 | 담당 영역 | 브랜치 |
@@ -79,6 +86,7 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 | 명령 | 설명 |
 | --- | --- |
 | `npm run dev` | 개발 서버 실행 |
+| `npm start` | 프로덕션 빌드 결과 실행 |
 | `npm test` | 모든 TypeScript 단위·계약 테스트 자동 탐색 |
 | `npm run env:check` | 실제·예제 환경변수 파일 구조 비교 |
 | `npm run typecheck` | TypeScript 타입 검사 |
@@ -95,7 +103,10 @@ feat/stage-1/파트-학번 → develop/stage-1 → main
 
 각 담당자는 자신의 worktree에서만 작업하고 `develop/stage-1`을 대상으로 Pull Request를 생성한다. 공통 계약이나 Room 등록 변경은 A 파트가 검토한다. 충돌 시 강제 push나 임의 rebase를 사용하지 않으며, 커밋 메시지는 `feat: 한글 설명`, `fix: 한글 설명`, `docs: 한글 설명` 형식을 사용한다.
 
+작업을 시작할 때 현재 브랜치와 변경 상태를 확인하고, 작업 폴더가 깨끗한 경우에만 `git pull --ff-only`로 원격 변경을 반영한다. 다른 담당자의 미커밋 파일, 진행 중인 merge·rebase 또는 갈라진 브랜치는 자동으로 정리하지 않는다.
+
 ## 문서
 
 - [Stage 1 공통 개발 계약](./docs/stage-1.md)
 - [인증 운영 가이드](./docs/auth-operations.md)
+- [C 파트 인수인계](./docs/C2A_handoff.md)
