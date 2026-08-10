@@ -18,6 +18,9 @@
 *.log
 npm-debug.log*
 
+# 로컬 컴파일 산출물
+*.exe
+
 # 로컬 편집기 상태
 /.idea/
 /.vscode/
