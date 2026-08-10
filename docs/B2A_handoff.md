@@ -88,7 +88,7 @@ B 파트가 직접 패치하는 값은 `hasKeycard`와 `entranceUnlocked`뿐이�
 | 연구소 외부 Room | `src/game/stage-one/rooms/outside/outsideRoom.ts` |
 | 연구소 입구 Room | `src/game/stage-one/rooms/entrance/entranceRoom.ts` |
 | 중앙 복도 Room | `src/game/stage-one/rooms/hallway/hallwayRoom.ts` |
-| B 파트 테스트 | `src/game/stage-one/rooms/hallway/partBRooms.test.ts` |
+| B 파트 테스트 | `src/game/stage-one/rooms/hallway/entryRooms.test.ts` |
 | 통합 조립부 | `src/game/stage-one/core/createStageOneRooms.ts` |
 | 진행도 타입 | `src/types/stage-one.ts` |
 
