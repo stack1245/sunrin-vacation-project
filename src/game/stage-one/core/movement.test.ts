@@ -11,27 +11,24 @@ test("입력이 없으면 플레이어를 정지한다", () => {
   assert.deepEqual(
     calculateStageOneVelocity({
       horizontal: 0,
-      vertical: 0,
       sprinting: false,
     }),
     { x: 0, y: 0 },
   );
 });
 
-test("대각선 이동 속도를 정규화한다", () => {
+test("횡스크롤 이동은 수평 속도만 만든다", () => {
   const velocity = calculateStageOneVelocity({
     horizontal: 1,
-    vertical: 1,
     sprinting: false,
   });
 
-  assert.ok(Math.abs(Math.hypot(velocity.x, velocity.y) - STAGE_ONE_WALK_SPEED) < 0.001);
+  assert.deepEqual(velocity, { x: STAGE_ONE_WALK_SPEED, y: 0 });
 });
 
-test("Space 입력 중 달리기 속도를 사용한다", () => {
+test("Shift 입력 중 달리기 속도를 사용한다", () => {
   const velocity = calculateStageOneVelocity({
     horizontal: -1,
-    vertical: 0,
     sprinting: true,
   });
 

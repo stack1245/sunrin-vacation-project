@@ -10,6 +10,7 @@ export type {
 export type {
   StageOneInteractionContext,
   StageOneInteractionDefinition,
+  StageOneModalInputRelease,
   StageOnePoint,
   StageOnePortalDefinition,
   StageOneProgressPatch,
