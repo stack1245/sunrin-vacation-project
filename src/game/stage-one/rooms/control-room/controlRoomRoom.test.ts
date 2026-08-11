@@ -56,6 +56,7 @@ function mountRoom(port: FakeProgressPort): MountRecord {
   const stubScene = {
     add: {
       graphics: () => createStubGameObject(),
+      image: () => createStubGameObject(),
       rectangle: () => createStubGameObject(),
       text: () => createStubGameObject(),
     },
