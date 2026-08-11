@@ -1,6 +1,7 @@
 import type { StageOneRoomModule } from "../contracts/room";
 import { createArchiveRoom } from "../rooms/archive/index.ts";
 import { controlRoomRoom } from "../rooms/control-room/index.ts";
+import { createDocumentStorageRoom } from "../rooms/document-storage/index.ts";
 import { entranceRoom } from "../rooms/entrance/entranceRoom.ts";
 import { hallwayRoom } from "../rooms/hallway/hallwayRoom.ts";
 import { outsideRoom } from "../rooms/outside/outsideRoom.ts";
@@ -12,6 +13,7 @@ import { createStageOneReferenceRooms } from "./referenceRooms.ts";
  */
 export function createStageOneRooms(): readonly StageOneRoomModule[] {
   const archiveRoom = createArchiveRoom();
+  const documentStorageRoom = createDocumentStorageRoom();
   const implementedRooms = new Map<
     StageOneRoomModule["id"],
     StageOneRoomModule
@@ -21,6 +23,7 @@ export function createStageOneRooms(): readonly StageOneRoomModule[] {
     [hallwayRoom.id, hallwayRoom],
     [archiveRoom.id, archiveRoom],
     [controlRoomRoom.id, controlRoomRoom],
+    [documentStorageRoom.id, documentStorageRoom],
   ]);
 
   return createStageOneReferenceRooms().map(

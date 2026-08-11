@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { controlRoomRoom } from "../rooms/control-room/index.ts";
+import { DocumentStorageRoomModule } from "../rooms/document-storage/index.ts";
 import { entranceRoom } from "../rooms/entrance/entranceRoom.ts";
 import { hallwayRoom } from "../rooms/hallway/hallwayRoom.ts";
 import { outsideRoom } from "../rooms/outside/outsideRoom.ts";
@@ -21,6 +22,14 @@ test("기본 Room 구성에서 보안 통제실 참조 슬롯을 실제 구현�
   const controlRoom = rooms.find((room) => room.id === "control-room");
 
   assert.equal(controlRoom, controlRoomRoom);
+});
+
+test("기본 Room 구성에서 문서 보관실 참조 슬롯을 실제 구현으로 교체한다", () => {
+  const documentStorageRoom = createStageOneRooms().find(
+    (room) => room.id === "document-storage",
+  );
+
+  assert.ok(documentStorageRoom instanceof DocumentStorageRoomModule);
 });
 
 test("기본 Room 구성에서 연구 자료실을 게임별 새 구현으로 교체한다", () => {

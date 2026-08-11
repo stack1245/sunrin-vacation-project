@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { DocumentStoragePuzzleModal } from "./DocumentStoragePuzzleModal";
 import type {
   StageOneGameEventMap,
   StageOneGameMessage,
@@ -358,6 +359,8 @@ export function StageOneGameHost({
           Stage 1 클리어 상태입니다. 기존 저장을 유지한 채 다시 입장했습니다.
         </p>
       ) : null}
+
+      <DocumentStoragePuzzleModal />
     </section>
   );
 }
