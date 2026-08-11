@@ -11,9 +11,9 @@
     const { scene } = context;
     const floor = scene.add.graphics();
 
-    floor.fillStyle(0x070b10, 1);
+    floor.fillStyle(0x050b10, 1);
     floor.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    floor.lineStyle(1, 0x222936, 0.45);
+    floor.lineStyle(1, 0x223341, 0.55);
 
     for (let x = 0; x <= WORLD_WIDTH; x += 48) {
         floor.lineBetween(x, 0, x, WORLD_HEIGHT);
@@ -28,8 +28,8 @@
 
     const label = scene.add
         .text(48, 44, title, {
-        color: "#f5f5f4",
-        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        color: "#eef3f5",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "28px",
         fontStyle: "bold",
         })
@@ -79,7 +79,7 @@
         targetRoomId: "archive",
         label: "연구 자료실",
         x: 220,
-        y: 150,
+        y: 374,
         isUnlocked: (state) => state.entranceUnlocked,
         lockedReason: "정문을 먼저 해제하세요.",
     },
@@ -88,7 +88,7 @@
         targetRoomId: "science-lab",
         label: "과학 실험실",
         x: 400,
-        y: 150,
+        y: 374,
         isUnlocked: (state) => state.archiveClueFound,
         lockedReason: "연구 자료실에서 단서를 먼저 확보하세요.",
     },
@@ -97,7 +97,7 @@
         targetRoomId: "control-room",
         label: "보안 통제실",
         x: 580,
-        y: 150,
+        y: 374,
         isUnlocked: (state) => state.scienceLabPuzzleSolved,
         lockedReason: "과학 실험실 장치를 먼저 작동시키세요.",
     },
@@ -106,7 +106,7 @@
         targetRoomId: "document-storage",
         label: "문서 보관실",
         x: 760,
-        y: 150,
+        y: 374,
         isUnlocked: (state) => state.documentStorageUnlocked,
         lockedReason: "보안 통제실에서 보관실 잠금을 먼저 해제하세요.",
     },
@@ -135,14 +135,14 @@
     function addDoor(context: StageOneRoomMountContext, door: HallwayDoor): void {
     const { scene } = context;
     const box = scene.add
-        .rectangle(door.x, door.y, 112, 96, 0x7c6daf, 0.2)
-        .setStrokeStyle(2, 0xa99ad8, 0.9)
+        .rectangle(door.x, door.y, 112, 96, 0x0b1823, 0.94)
+        .setStrokeStyle(2, 0x4a5f6d, 0.9)
         .setDepth(8);
     const label = scene.add
         .text(door.x, door.y, door.label, {
         align: "center",
-        color: "#ddd6fe",
-        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        color: "#d4dde1",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "13px",
         })
         .setOrigin(0.5)
@@ -150,8 +150,8 @@
     const lockTag = scene.add
         .text(door.x, door.y + 62, "", {
         align: "center",
-        color: "#e5a3a3",
-        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        color: "#e0a08f",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "12px",
         })
         .setOrigin(0.5)

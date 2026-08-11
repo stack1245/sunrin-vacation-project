@@ -126,8 +126,8 @@ export const controlRoomRoom: StageOneRoomModule = {
 
     const roomLabel = scene.add
       .text(48, 44, "보안 통제실", {
-        color: "#f5f5f4",
-        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        color: "#eef3f5",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "26px",
         fontStyle: "bold",
       })
@@ -194,7 +194,7 @@ export const controlRoomRoom: StageOneRoomModule = {
     const monitorText = scene.add
       .text(180, 118, "CCTV\nOFFLINE", {
         align: "center",
-        color: "#4b5a70",
+        color: "#6f838f",
         fontFamily: "Consolas, monospace",
         fontSize: "13px",
       })
@@ -212,7 +212,7 @@ export const controlRoomRoom: StageOneRoomModule = {
         CONTROL_ROOM_COLORS.terminal,
         1,
       )
-      .setStrokeStyle(2, 0xa99ad8, 0.9)
+      .setStrokeStyle(2, 0x8fb49a, 0.9)
       .setDepth(6);
     const terminalScreen = scene.add
       .rectangle(
@@ -230,8 +230,8 @@ export const controlRoomRoom: StageOneRoomModule = {
         CONTROL_ROOM_TERMINAL_POSITION.y + 48,
         "보안 단말",
         {
-          color: "#ddd6fe",
-          fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+          color: "#b7d8c1",
+          fontFamily: "Cascadia Code, Consolas, monospace",
           fontSize: "13px",
         },
       )
@@ -260,8 +260,8 @@ export const controlRoomRoom: StageOneRoomModule = {
         released ? "봉쇄 해제됨" : "봉쇄 작동 중",
         {
           align: "center",
-          color: released ? "#86efac" : "#fca5a5",
-          fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+          color: released ? "#5dbd8b" : "#e0a08f",
+          fontFamily: "Cascadia Code, Consolas, monospace",
           fontSize: "12px",
         },
       )
@@ -286,8 +286,8 @@ export const controlRoomRoom: StageOneRoomModule = {
         CONTROL_ROOM_NOTICE_POSITION.y + 44,
         "보안 수칙",
         {
-          color: "#cbd5e1",
-          fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+          color: "#d4dde1",
+          fontFamily: "Cascadia Code, Consolas, monospace",
           fontSize: "12px",
         },
       )

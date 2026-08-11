@@ -10,9 +10,9 @@
     const { scene } = context;
     const floor = scene.add.graphics();
 
-    floor.fillStyle(0x070b10, 1);
+    floor.fillStyle(0x050b10, 1);
     floor.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    floor.lineStyle(1, 0x222936, 0.45);
+    floor.lineStyle(1, 0x223341, 0.55);
 
     for (let x = 0; x <= WORLD_WIDTH; x += 48) {
         floor.lineBetween(x, 0, x, WORLD_HEIGHT);
@@ -27,8 +27,8 @@
 
     const label = scene.add
         .text(48, 44, title, {
-        color: "#f5f5f4",
-        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        color: "#eef3f5",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "28px",
         fontStyle: "bold",
         })
@@ -83,13 +83,13 @@
         drawRoomBase(context, "연구소 입구");
 
         // 가운데를 막는 안내 데스크 (충돌 벽)
-        context.addWall({ x: 480, y: 270, width: 160, height: 64 }, 0x1d2432);
+        context.addWall({ x: 480, y: 270, width: 160, height: 64 }, 0x0b1823);
 
         const desk = context.scene.add
         .text(480, 320, "무인 안내 데스크", {
             align: "center",
-            color: "#8f83b8",
-            fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+            color: "#6f838f",
+            fontFamily: "Cascadia Code, Consolas, monospace",
             fontSize: "13px",
         })
         .setOrigin(0.5)
