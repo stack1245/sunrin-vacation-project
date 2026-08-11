@@ -60,16 +60,16 @@ const PUZZLES: PuzzleData[] = [
 
 export class MathdokuPuzzleScene extends Phaser.Scene {
     private readonly N: number = 6;
-    private readonly tileSize: number = 60; 
-    private readonly boardOffsetX: number = 120; 
-    private readonly boardOffsetY: number = 60; 
+    private readonly tileSize: number = 60;
+    private readonly boardOffsetX: number = 120;
+    private readonly boardOffsetY: number = 60;
 
     private currentPuzzleIndex: number = 0;
     private currentBoard: number[][] = [];
     private solutionBoard: number[][] = [];
 
     private selectedCell: CellPosition | null = null;
-    
+
     // 테스트 시 이 값을 true로 바꾸면 시작하자마자 클리어 창이 뜹니다.
     private isCleared: boolean = false;
 
@@ -113,7 +113,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         // 🔥 처음 시작 시 isCleared 상태를 감지하여 클리어 처리
         if (this.isCleared) {
             this.successWindow.setVisible(true);
-            
+
             // 보드판을 빈칸으로 초기화
             this.currentBoard = Array.from({ length: this.N }, () => Array(this.N).fill(0));
             this.selectedCell = null;
@@ -137,13 +137,13 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         this.solutionBoard = puzzle.solution.map(row => [...row]);
 
         this.selectedCell = null;
-        
+
         // 외부에서 isCleared를 true로 세팅했을 수 있으므로 강제 false 처리를 조건부로 변경
         if (!this.isCleared) {
             if (this.successWindow) this.successWindow.setVisible(false);
         }
 
-        this.drawGridLinesAndCages(); 
+        this.drawGridLinesAndCages();
         this.refreshTextDisplay();
         this.updateGameState();
     }
@@ -153,7 +153,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
             this.boardOffsetX,
             20,
             '연산 스도쿠 (6x6)',
-            { fontSize: '24px', color: '#ffffff', fontFamily: 'Arial', fontStyle: 'bold' }
+            { fontSize: '24px', color: '#eef3f5', fontFamily: 'Cascadia Code, Consolas, monospace', fontStyle: 'bold' }
         ).setOrigin(0, 0.5);
     }
 
@@ -163,7 +163,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
                 const x = this.boardOffsetX + c * this.tileSize + this.tileSize / 2;
                 const y = this.boardOffsetY + r * this.tileSize + this.tileSize / 2;
 
-                const tile = this.add.rectangle(x, y, this.tileSize - 2, this.tileSize - 2, 0x25283a);
+                const tile = this.add.rectangle(x, y, this.tileSize - 2, this.tileSize - 2, 0x0b1823);
                 tile.setInteractive({ useHandCursor: true });
                 tile.on('pointerdown', () => this.handleCellClick(r, c));
 
@@ -171,7 +171,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
                     fontSize: '28px',
                     fontFamily: 'Arial',
                     fontStyle: 'bold',
-                    color: '#ffffff'
+                    color: '#d4dde1'
                 }).setOrigin(0.5);
 
                 this.tiles[r][c] = tile;
@@ -189,7 +189,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         const boardHeight = this.N * this.tileSize;
 
         // 1. 기본 얇은 격자 그리기
-        this.gridGraphics.lineStyle(1, 0x44475a, 0.5);
+        this.gridGraphics.lineStyle(1, 0x344854, 0.65);
         for (let i = 0; i <= this.N; i++) {
             const lineX = this.boardOffsetX + i * this.tileSize;
             const lineY = this.boardOffsetY + i * this.tileSize;
@@ -199,7 +199,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         }
 
         // 2. 케이지 굵은 테두리와 라벨 그리기
-        this.gridGraphics.lineStyle(3, 0xffffff, 1);
+        this.gridGraphics.lineStyle(3, 0x8fa1aa, 1);
         const puzzle = PUZZLES[this.currentPuzzleIndex];
 
         puzzle.cages.forEach(cage => {
@@ -212,9 +212,9 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
 
             const labelX = this.boardOffsetX + topLeft.c * this.tileSize + 4;
             const labelY = this.boardOffsetY + topLeft.r * this.tileSize + 4;
-            
+
             const label = this.add.text(labelX, labelY, `${cage.target}${cage.operator}`, {
-                fontSize: '14px', color: '#ffcc00', fontFamily: 'Arial', fontStyle: 'bold'
+                fontSize: '14px', color: '#f0cf72', fontFamily: 'Cascadia Code, Consolas, monospace', fontStyle: 'bold'
             }).setOrigin(0, 0);
             this.cageLabels.push(label);
 
@@ -239,38 +239,38 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
     }
 
     private drawKeypad(): void {
-        const keypadY = this.boardOffsetY + this.N * this.tileSize + 35; 
-        const startX = 110; 
+        const keypadY = this.boardOffsetY + this.N * this.tileSize + 35;
+        const startX = 110;
         const buttonWidth = 46;
-        const buttonGap = 10; 
+        const buttonGap = 10;
 
         for (let i = 1; i <= this.N; i++) {
             const bx = startX + (i - 1) * (buttonWidth + buttonGap) + buttonWidth / 2;
-            const bg = this.add.rectangle(bx, keypadY, buttonWidth, 46, 0x3b3e5b).setOrigin(0.5);
+            const bg = this.add.rectangle(bx, keypadY, buttonWidth, 46, 0x0b1823).setOrigin(0.5);
             bg.setInteractive({ useHandCursor: true });
 
             const text = this.add.text(bx, keypadY, `${i}`, {
-                fontSize: '20px', color: '#ffffff', fontFamily: 'Arial', fontStyle: 'bold'
+                fontSize: '20px', color: '#d4dde1', fontFamily: 'Cascadia Code, Consolas, monospace', fontStyle: 'bold'
             }).setOrigin(0.5);
 
             bg.on('pointerdown', () => this.inputNumber(i));
-            bg.on('pointerover', () => bg.setFillStyle(0x50547b));
-            bg.on('pointerout', () => bg.setFillStyle(0x3b3e5b));
+            bg.on('pointerover', () => bg.setFillStyle(0x132635));
+            bg.on('pointerout', () => bg.setFillStyle(0x0b1823));
 
             this.keypadButtons.push({ bg, text, val: i });
         }
 
-        const eraseX = startX + this.N * (buttonWidth + buttonGap) + buttonWidth / 2 + 5; 
-        const eraseBg = this.add.rectangle(eraseX, keypadY, 56, 46, 0x5a3b3b).setOrigin(0.5);
+        const eraseX = startX + this.N * (buttonWidth + buttonGap) + buttonWidth / 2 + 5;
+        const eraseBg = this.add.rectangle(eraseX, keypadY, 56, 46, 0x251517).setOrigin(0.5);
         eraseBg.setInteractive({ useHandCursor: true });
 
         const eraseText = this.add.text(eraseX, keypadY, '지우기', {
-            fontSize: '14px', color: '#ff8888', fontFamily: 'Arial'
+            fontSize: '14px', color: '#e0a08f', fontFamily: 'Cascadia Code, Consolas, monospace'
         }).setOrigin(0.5);
 
         eraseBg.on('pointerdown', () => this.inputNumber(0));
-        eraseBg.on('pointerover', () => eraseBg.setFillStyle(0x7a4b4b));
-        eraseBg.on('pointerout', () => eraseBg.setFillStyle(0x5a3b3b));
+        eraseBg.on('pointerover', () => eraseBg.setFillStyle(0x321b1d));
+        eraseBg.on('pointerout', () => eraseBg.setFillStyle(0x251517));
 
         this.keypadButtons.push({ bg: eraseBg, text: eraseText, val: 0 });
     }
@@ -279,19 +279,19 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         const uiY = this.boardOffsetY + this.N * this.tileSize + 95;
 
         this.instructionText = this.add.text(
-            300, 
+            300,
             uiY,
             '셀 선택 후 키패드나 키보드(1~6)로 입력하세요',
-            { fontSize: '15px', color: '#aaaaaa', fontFamily: 'Arial' }
+            { fontSize: '15px', color: '#6f838f', fontFamily: 'Cascadia Code, Consolas, monospace' }
         ).setOrigin(0.5, 0.5);
 
-        const btnY = uiY + 40; 
-        const submitX = 240; 
-        const resetX = 360; 
+        const btnY = uiY + 40;
+        const submitX = 240;
+        const resetX = 360;
 
-        this.submitButtonBg = this.add.rectangle(submitX, btnY, 100, 36, 0x555555).setOrigin(0.5);
+        this.submitButtonBg = this.add.rectangle(submitX, btnY, 100, 36, 0x223341).setOrigin(0.5);
         this.submitButtonText = this.add.text(submitX, btnY, '정답', {
-            fontSize: '15px', color: '#aaaaaa', fontFamily: 'Arial', fontStyle: 'bold'
+            fontSize: '15px', color: '#6f838f', fontFamily: 'Cascadia Code, Consolas, monospace', fontStyle: 'bold'
         }).setOrigin(0.5);
 
         this.submitButtonBg.on('pointerdown', () => {
@@ -300,9 +300,9 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
             }
         });
 
-        this.resetButtonBg = this.add.rectangle(resetX, btnY, 90, 36, 0x883333).setOrigin(0.5);
+        this.resetButtonBg = this.add.rectangle(resetX, btnY, 90, 36, 0x251517).setOrigin(0.5);
         this.resetButtonText = this.add.text(resetX, btnY, '초기화', {
-            fontSize: '15px', color: '#ffffff', fontFamily: 'Arial'
+            fontSize: '15px', color: '#e0a08f', fontFamily: 'Cascadia Code, Consolas, monospace'
         }).setOrigin(0.5);
 
         this.resetButtonBg.setInteractive({ useHandCursor: true });
@@ -310,10 +310,10 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
             if (!this.isCleared) this.resetBoard();
         });
         this.resetButtonBg.on('pointerover', () => {
-            if (!this.isCleared) this.resetButtonBg.setFillStyle(0xaa4444);
+            if (!this.isCleared) this.resetButtonBg.setFillStyle(0x321b1d);
         });
         this.resetButtonBg.on('pointerout', () => {
-            if (!this.isCleared) this.resetButtonBg.setFillStyle(0x883333);
+            if (!this.isCleared) this.resetButtonBg.setFillStyle(0x251517);
         });
     }
 
@@ -376,7 +376,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
             textObj.setText('');
         } else {
             textObj.setText(`${val}`);
-            textObj.setColor('#ffffff'); 
+            textObj.setColor('#d4dde1');
         }
     }
 
@@ -386,18 +386,18 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         for (let i = 0; i < this.N; i++) {
             const rowSeen = new Map<number, number[]>();
             const colSeen = new Map<number, number[]>();
-            
+
             for (let j = 0; j < this.N; j++) {
                 const rVal = this.currentBoard[i][j];
                 if (rVal !== 0) {
                     if (!rowSeen.has(rVal)) rowSeen.set(rVal, []);
                     rowSeen.get(rVal)!.push(j);
                 }
-                
+
                 const cVal = this.currentBoard[j][i];
                 if (cVal !== 0) {
                     if (!colSeen.has(cVal)) colSeen.set(cVal, []);
-                    colSeen.get(cVal)!.push(j); 
+                    colSeen.get(cVal)!.push(j);
                 }
             }
 
@@ -413,7 +413,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         puzzle.cages.forEach(cage => {
             let isFull = true;
             const values: number[] = [];
-            
+
             cage.cells.forEach(c => {
                 const val = this.currentBoard[c.r][c.c];
                 if (val === 0) isFull = false;
@@ -452,7 +452,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
                 if (!tile) continue;
 
                 const isLight = (r + c) % 2 === 0;
-                const baseColor = isLight ? 0x272a3d : 0x222538;
+                const baseColor = isLight ? 0x132635 : 0x0b1823;
 
                 const isSelected = this.selectedCell?.r === r && this.selectedCell?.c === c;
                 const isRelated = this.selectedCell && (this.selectedCell.r === r || this.selectedCell.c === c);
@@ -460,21 +460,21 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
                 const isConflict = conflicts[r][c];
 
                 if (isConflict) {
-                    tile.setFillStyle(0x772233);
+                    tile.setFillStyle(0x6d3e3b);
                 } else if (isSelected) {
-                    tile.setFillStyle(0x665500);
+                    tile.setFillStyle(0x6b572e);
                 } else if (isSameValue) {
-                    tile.setFillStyle(0x1e4959);
+                    tile.setFillStyle(0x29404a);
                 } else if (isRelated) {
-                    tile.setFillStyle(0x32364d);
+                    tile.setFillStyle(0x17242c);
                 } else {
                     tile.setFillStyle(baseColor);
                 }
 
                 if (isSelected) {
-                    tile.setStrokeStyle(2, 0xffcc00);
+                    tile.setStrokeStyle(2, 0xf0cf72);
                 } else if (isConflict) {
-                    tile.setStrokeStyle(2, 0xff5555);
+                    tile.setStrokeStyle(2, 0xe0a08f);
                 } else {
                     tile.setStrokeStyle(0);
                 }
@@ -486,12 +486,12 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
 
         if (this.submitButtonBg && this.submitButtonText) {
             if (isFull && hasNoConflict && !this.isCleared) {
-                this.submitButtonBg.setFillStyle(0x28a745);
-                this.submitButtonText.setColor('#ffffff');
+                this.submitButtonBg.setFillStyle(0x315447);
+                this.submitButtonText.setColor('#eef3f5');
                 this.submitButtonBg.setInteractive({ useHandCursor: true });
             } else {
-                this.submitButtonBg.setFillStyle(0x555555);
-                this.submitButtonText.setColor('#aaaaaa');
+                this.submitButtonBg.setFillStyle(0x223341);
+                this.submitButtonText.setColor('#6f838f');
                 this.submitButtonBg.disableInteractive();
             }
         }
@@ -512,7 +512,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
             this.isCleared = true;
             this.successWindow.setVisible(true);
             this.game.events.emit(DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT);
-            
+
             this.currentBoard = Array.from({ length: this.N }, () => Array(this.N).fill(0));
             this.selectedCell = null;
             this.refreshTextDisplay();
@@ -527,7 +527,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         this.currentBoard = Array.from({ length: this.N }, () => Array(this.N).fill(0));
         this.selectedCell = null;
         this.isCleared = false;
-        
+
         this.refreshTextDisplay();
         this.updateGameState();
     }
@@ -536,14 +536,14 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         this.successWindow = this.add.container(0, 0);
 
         const overlay = this.add.rectangle(300, 300, 600, 600, 0x000000, 0.75);
-        overlay.setInteractive(); 
+        overlay.setInteractive();
 
-        const panel = this.add.rectangle(300, 300, 360, 150, 0x1e1e2e).setStrokeStyle(4, 0xffcc00);
+        const panel = this.add.rectangle(300, 300, 360, 150, 0x071018).setStrokeStyle(3, 0xf0cf72);
 
         // 🔥 보조 텍스트 없이 중앙(Y:300)에 딱 맞게 정렬
         const successText = this.add.text(300, 300, '% : hell', {
             fontSize: '24px',
-            color: '#ffcc00',
+            color: '#f0cf72',
             fontFamily: 'Arial',
             fontStyle: 'bold',
             align: 'center'

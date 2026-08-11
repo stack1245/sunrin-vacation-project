@@ -15,15 +15,15 @@
 | 기능 구현 기준 커밋 | `c79d3ad feat : 퍼즐5종 모두 제작 완료, 인수인계` |
 | 최종 확인일 | 2026-08-12 |
 | 구현 상태 | 완료 |
-| PR 상태 | 없음 |
-| PR | 없음 |
+| PR 상태 | A 통합 작업으로 반영 |
+| PR | 별도 PR 없이 `develop/stage-1`에서 선별 통합 |
 
 ## 2. 인계 결론
 
 | 항목 | 내용 |
 | --- | --- |
-| A 통합 판정 | 조건부 통합 |
-| A가 해야 할 작업 | A 파트의 `src/game/stage-one/core/createStageOneRooms.ts` 조립 지점에 `createDocumentStorageRoom()`을 등록하여 레퍼런스 더미 Room을 교체 |
+| A 통합 판정 | 통합 완료 |
+| A가 해야 할 작업 | 완료 — `src/game/stage-one/core/createStageOneRooms.ts`에 `createDocumentStorageRoom()` 등록 |
 | 차단 요인 | 없음 |
 | 통합 후 필수 회귀 확인 | E 파트 보안 통제실 완료(`controlRoomSolved: true`) 후 문서 보관실 해금(`documentStorageUnlocked: true`), 문서 보관실 진입 및 HELLO WORLD와 %$#@! 기호 퍼즐 순서 완주, 중앙 금고 기밀 문서 획득(`confidentialDocumentObtained: true`), 외부 귀환 및 Stage 1 최종 클리어 동선 |
 
@@ -65,8 +65,8 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 | 항목 | 내용 |
 | --- | --- |
 | 조립 파일 | `src/game/stage-one/core/createStageOneRooms.ts` |
-| 현재 등록 상태 | F 브랜치의 composition root에 등록됨 |
-| 필요한 변경 | A 파트 통합 브랜치 조립 시 `createStageOneRooms` 등록 목록에 `createDocumentStorageRoom()` 추가 연결 |
+| 현재 등록 상태 | `develop/stage-1` composition root에 등록됨 |
+| 필요한 변경 | 완료 — 레퍼런스 더미 Room을 F 파트 실제 구현으로 교체 |
 | 충돌 주의 | Room ID `document-storage`, 출구 포탈 ID `document-storage-to-hallway`, 복귀 Target Room ID `hallway` 유지 |
 
 ## 6. 진행도·파트 간 계약
@@ -119,7 +119,7 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 
 | 검사 | 실행 명령 | 결과 |
 | --- | --- | --- |
-| 자동 테스트 | `npm test` | 49/49 전체 통과 |
+| 자동 테스트 | `npm test` | `develop/stage-1` 통합 기준 159/159 전체 통과 |
 | 환경변수 구조 | `npm run env:check` | 통과 (실제·예제 파일의 값 외 구조 일치) |
 | 타입 검사 | `npm run typecheck` | 통과 (`tsc --noEmit` 0 errors) |
 | 린트 | `npm run lint` | 통과 (`eslint .` 0 errors, 0 warnings) |
@@ -141,8 +141,9 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 | --- | --- |
 | 기능 구현 커밋 | `c79d3ad feat : 퍼즐5종 모두 제작 완료, 인수인계` |
 | 후속 수정 커밋 | `ceb8c0d refactor: 문서 보관실 통합 경계와 네이밍 정리` |
-| PR | 없음 |
-| 통합 브랜치 반영 | 미반영 (`develop/stage-1` PR 생성 대기) |
+| 통합 커밋 | `adc4846 feat: 문서 보관실 퍼즐과 최종 회수 동선 통합` |
+| PR | 별도 PR 없음 |
+| 통합 브랜치 반영 | `develop/stage-1` 반영 완료 |
 
 ## 12. A 통합 체크리스트
 

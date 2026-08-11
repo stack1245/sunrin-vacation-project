@@ -64,13 +64,13 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
   public mount(context: StageOneRoomMountContext): () => void {
     const { scene } = context;
 
-    // 1. 문서 보관실 바닥 & 분위기 그래픽 연출
+    // 문서 보관실 바닥과 보안 시설 격자를 그린다.
     const bg = scene.add.graphics();
-    bg.fillStyle(0x0a0e17, 1); // 고요하고 어두운 딥 네이비 바닥
+    bg.fillStyle(0x050b10, 1);
     bg.fillRect(0, 0, STAGE_ONE_WORLD_WIDTH, STAGE_ONE_WORLD_HEIGHT);
 
     // 격자 바닥 렌더링 (보안 시설 테마)
-    bg.lineStyle(1, 0x1e293b, 0.5);
+    bg.lineStyle(1, 0x223341, 0.55);
     for (let x = 0; x <= STAGE_ONE_WORLD_WIDTH; x += 40) {
       bg.lineBetween(x, 0, x, STAGE_ONE_WORLD_HEIGHT);
     }
@@ -78,10 +78,10 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
       bg.lineBetween(0, y, STAGE_ONE_WORLD_WIDTH, y);
     }
 
-    // 중앙 기밀 보관 구역 구림 경계선
-    bg.lineStyle(2, 0x6366f1, 0.4);
+    // 중앙 기밀 보관 구역의 경계와 상태를 구분한다.
+    bg.lineStyle(2, 0x315447, 0.7);
     bg.strokeRect(400, 180, 200, 180);
-    bg.fillStyle(0x4338ca, 0.15);
+    bg.fillStyle(0x14261f, 0.45);
     bg.fillRect(400, 180, 200, 180);
 
     bg.setDepth(-20);
@@ -90,8 +90,8 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
     // Room 라벨 & 타이틀
     const titleText = scene.add
       .text(48, 40, "SECURE DOCUMENT STORAGE", {
-        color: "#818cf8",
-        fontFamily: "Consolas, monospace",
+        color: "#b7d8c1",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "14px",
         fontStyle: "bold",
       })
@@ -100,8 +100,8 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
 
     const roomLabel = scene.add
       .text(48, 58, "문서 보관실 (최종 구역)", {
-        color: "#f8fafc",
-        fontFamily: "Pretendard, sans-serif",
+        color: "#eef3f5",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "24px",
         fontStyle: "bold",
       })
@@ -110,14 +110,14 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
 
     // 2. 벽 & 장애물 배치
     // 외곽 테두리 벽
-    context.addWall({ x: STAGE_ONE_WORLD_WIDTH / 2, y: 16, width: 960, height: 32 }, 0x1e1b4b);
-    context.addWall({ x: STAGE_ONE_WORLD_WIDTH / 2, y: STAGE_ONE_WORLD_HEIGHT - 16, width: 960, height: 32 }, 0x1e1b4b);
-    context.addWall({ x: 16, y: STAGE_ONE_WORLD_HEIGHT / 2, width: 32, height: 540 }, 0x1e1b4b);
-    context.addWall({ x: STAGE_ONE_WORLD_WIDTH - 16, y: STAGE_ONE_WORLD_HEIGHT / 2, width: 32, height: 540 }, 0x1e1b4b);
+    context.addWall({ x: STAGE_ONE_WORLD_WIDTH / 2, y: 16, width: 960, height: 32 }, 0x0b1823);
+    context.addWall({ x: STAGE_ONE_WORLD_WIDTH / 2, y: STAGE_ONE_WORLD_HEIGHT - 16, width: 960, height: 32 }, 0x0b1823);
+    context.addWall({ x: 16, y: STAGE_ONE_WORLD_HEIGHT / 2, width: 32, height: 540 }, 0x0b1823);
+    context.addWall({ x: STAGE_ONE_WORLD_WIDTH - 16, y: STAGE_ONE_WORLD_HEIGHT / 2, width: 32, height: 540 }, 0x0b1823);
 
     // 내부에 서류함 및 서버 랙 정적 장애물 배치
-    context.addWall({ x: 260, y: 270, width: 40, height: 180 }, 0x312e81); // 왼쪽 서류 랙
-    context.addWall({ x: 740, y: 270, width: 40, height: 180 }, 0x312e81); // 오른쪽 서류 랙
+    context.addWall({ x: 260, y: 270, width: 40, height: 180 }, 0x17242c);
+    context.addWall({ x: 740, y: 270, width: 40, height: 180 }, 0x17242c);
 
     // 3. 포탈 (중앙 복도로 이동)
     context.addPortal({
@@ -135,24 +135,24 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
       y: number;
       color: number;
     }[] = [
-      { type: "ago", name: "보안 노드 터미널 [Ago]", x: 260, y: 130, color: 0x10b981 },
-      { type: "mathdoku", name: "암호 연산기 [Mathdoku]", x: 500, y: 110, color: 0x3b82f6 },
-      { type: "nqueens", name: "배치 제어반 [N-Queens]", x: 740, y: 130, color: 0x8b5cf6 },
-      { type: "resource", name: "자원 배분반 [Resource]", x: 340, y: 430, color: 0xf59e0b },
-      { type: "ttf", name: "패턴 해독기 [TTF]", x: 660, y: 430, color: 0xec4899 },
+      { type: "ago", name: "보안 노드 [Ago]", x: 210, y: 382, color: 0x315447 },
+      { type: "mathdoku", name: "암호 연산 [Mathdoku]", x: 340, y: 382, color: 0x29404a },
+      { type: "nqueens", name: "배치 제어 [N-Queens]", x: 470, y: 382, color: 0x3e505a },
+      { type: "resource", name: "자원 배분 [Resource]", x: 600, y: 382, color: 0x8b6d3e },
+      { type: "ttf", name: "패턴 해독 [TTF]", x: 730, y: 382, color: 0x4f7460 },
     ];
 
     terminals.forEach((term) => {
       // 터미널 시각적 베이스
       const rect = scene.add
         .rectangle(term.x, term.y, 44, 44, term.color, 0.8)
-        .setStrokeStyle(2, 0xffffff, 0.9)
+        .setStrokeStyle(2, 0x8fa1aa, 0.9)
         .setDepth(5);
       context.track(rect);
 
       const label = scene.add
         .text(term.x, term.y + 30, term.name, {
-          color: "#cbd5e1",
+          color: "#d4dde1",
           fontSize: "11px",
           fontFamily: "Pretendard, sans-serif",
         })
@@ -177,9 +177,12 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
             return;
           }
 
+          const releaseInputLock = ctx.acquireModalInputLock();
+
           openDocumentStoragePuzzle({
             puzzleType: term.type,
             title: term.name,
+            releaseInputLock,
           });
 
           ctx.showMessage(`${term.name} 퍼즐 터미널에 접속합니다...`, "info");
@@ -189,14 +192,14 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
 
     // 5. 중앙 기밀 문서 금고 (Confidential Safe)
     const safeRect = scene.add
-      .rectangle(500, 270, 70, 70, 0xf43f5e, 0.9)
-      .setStrokeStyle(3, 0xfef08a)
+      .rectangle(880, 370, 70, 92, 0x251517, 0.96)
+      .setStrokeStyle(3, 0xe0a08f)
       .setDepth(10);
     context.track(safeRect);
 
     const safeText = scene.add
-      .text(500, 270, "CONFIDENTIAL\nSAFE", {
-        color: "#ffffff",
+      .text(880, 370, "CONFIDENTIAL\nSAFE", {
+        color: "#eef3f5",
         fontSize: "10px",
         fontStyle: "bold",
         fontFamily: "Consolas, monospace",
@@ -208,7 +211,7 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
 
     context.addInteraction({
       id: "confidential-document-safe",
-      position: { x: 500, y: 270 },
+      position: { x: 880, y: 370 },
       radius: 65,
       prompt: (state) => {
         if (state.confidentialDocumentObtained) {

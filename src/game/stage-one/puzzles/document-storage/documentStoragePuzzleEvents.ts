@@ -1,3 +1,5 @@
+import type { StageOneModalInputRelease } from "../../contracts/room";
+
 export const OPEN_DOCUMENT_STORAGE_PUZZLE_EVENT =
   "open-document-puzzle" as const;
 export const DOCUMENT_STORAGE_PUZZLE_CLEARED_EVENT =
@@ -15,6 +17,7 @@ export type DocumentStoragePuzzleType =
 export interface OpenDocumentStoragePuzzleDetail {
   puzzleType: DocumentStoragePuzzleType;
   title: string;
+  releaseInputLock: StageOneModalInputRelease;
 }
 
 export interface DocumentStoragePuzzleClearedDetail {

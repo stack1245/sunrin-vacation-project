@@ -10,13 +10,13 @@ export class AgoPuzzleScene extends Phaser.Scene {
   private readonly COLS = 4;
   private readonly TILE_SIZE = 80;
   private readonly TILE_SPACING = 10;
-  
+
   // 퍼즐 그리드 상태 (true: 켜짐, false: 꺼짐)
   private gridState: boolean[][] = [];
   private tiles: Phaser.GameObjects.Rectangle[][] = [];
 
   private isCleared = false;
-  
+
   private submitButtonBg!: Phaser.GameObjects.Rectangle;
   private submitButtonText!: Phaser.GameObjects.Text;
   private successWindow!: Phaser.GameObjects.Container;
@@ -27,7 +27,7 @@ export class AgoPuzzleScene extends Phaser.Scene {
 
   create(): void {
     this.isCleared = false;
-    this.cameras.main.setBackgroundColor("#1e1e2e");
+    this.cameras.main.setBackgroundColor("#050b10");
 
     this.drawHeader();
     this.initGridState();
@@ -42,7 +42,7 @@ export class AgoPuzzleScene extends Phaser.Scene {
     this.add
       .text(GAME_WIDTH / 2, 60, "보안 노드 해제 퍼즐", {
         fontSize: "28px",
-        color: "#ffffff",
+        color: "#eef3f5",
         fontFamily: "Arial",
         fontStyle: "bold",
       })
@@ -51,7 +51,7 @@ export class AgoPuzzleScene extends Phaser.Scene {
     this.add
       .text(GAME_WIDTH / 2, 100, "타일을 눌러 모든 노드를 활성화(초록색) 하십시오.", {
         fontSize: "18px",
-        color: "#a6e3a1",
+        color: "#b7d8c1",
         fontFamily: "Arial",
       })
       .setOrigin(0.5);
@@ -82,7 +82,7 @@ export class AgoPuzzleScene extends Phaser.Scene {
         const y = startY + r * (this.TILE_SIZE + this.TILE_SPACING);
 
         const tile = this.add
-          .rectangle(x, y, this.TILE_SIZE, this.TILE_SIZE, 0x44475a)
+          .rectangle(x, y, this.TILE_SIZE, this.TILE_SIZE, 0x0b1823)
           .setOrigin(0.5)
           .setInteractive({ useHandCursor: true });
 
@@ -120,10 +120,10 @@ export class AgoPuzzleScene extends Phaser.Scene {
     const resetX = GAME_WIDTH / 2 + 70;
 
     // 1. 정답 확인 버튼
-    this.submitButtonBg = this.add.rectangle(submitX, uiY, 120, 45, 0x555555).setOrigin(0.5);
+    this.submitButtonBg = this.add.rectangle(submitX, uiY, 120, 45, 0x223341).setOrigin(0.5);
     this.submitButtonText = this.add.text(submitX, uiY, "정답", {
       fontSize: "18px",
-      color: "#aaaaaa",
+      color: "#6f838f",
       fontFamily: "Arial",
       fontStyle: "bold",
     }).setOrigin(0.5);
@@ -140,19 +140,19 @@ export class AgoPuzzleScene extends Phaser.Scene {
     });
 
     // 2. 초기화 버튼
-    const resetButtonBg = this.add.rectangle(resetX, uiY, 120, 45, 0x883333).setOrigin(0.5);
+    const resetButtonBg = this.add.rectangle(resetX, uiY, 120, 45, 0x251517).setOrigin(0.5);
     resetButtonBg.setInteractive({ useHandCursor: true });
-    
+
     this.add.text(resetX, uiY, "초기화", {
       fontSize: "18px",
-      color: "#ffffff",
+      color: "#e0a08f",
       fontFamily: "Arial",
       fontStyle: "bold",
     }).setOrigin(0.5);
 
     resetButtonBg.on("pointerdown", () => this.resetPuzzle());
-    resetButtonBg.on("pointerover", () => resetButtonBg.setFillStyle(0xaa4444));
-    resetButtonBg.on("pointerout", () => resetButtonBg.setFillStyle(0x883333));
+    resetButtonBg.on("pointerover", () => resetButtonBg.setFillStyle(0x321b1d));
+    resetButtonBg.on("pointerout", () => resetButtonBg.setFillStyle(0x251517));
   }
 
   private updateGameState(): void {
@@ -161,23 +161,23 @@ export class AgoPuzzleScene extends Phaser.Scene {
       for (let c = 0; c < this.COLS; c++) {
         const isActive = this.gridState[r][c];
         const tile = this.tiles[r][c];
-        
+
         if (isActive) {
-          tile.setFillStyle(0x50fa7b); // 활성화 (초록)
+          tile.setFillStyle(0x5dbd8b); // 활성화된 보안 노드
         } else {
-          tile.setFillStyle(0x44475a); // 비활성화 (회색)
+          tile.setFillStyle(0x0b1823); // 비활성화된 보안 노드
         }
       }
     }
 
     // 2. 정답 확인 버튼 상태 업데이트
     if (this.checkIfSolved() && !this.isCleared) {
-      this.submitButtonBg.setFillStyle(0x33aa33);
-      this.submitButtonText.setColor("#ffffff");
+      this.submitButtonBg.setFillStyle(0x315447);
+      this.submitButtonText.setColor("#eef3f5");
       this.submitButtonBg.setInteractive({ useHandCursor: true });
     } else if (!this.isCleared) {
-      this.submitButtonBg.setFillStyle(0x555555);
-      this.submitButtonText.setColor("#aaaaaa");
+      this.submitButtonBg.setFillStyle(0x223341);
+      this.submitButtonText.setColor("#6f838f");
       this.submitButtonBg.disableInteractive();
     }
   }
@@ -195,10 +195,10 @@ export class AgoPuzzleScene extends Phaser.Scene {
     this.isCleared = true;
     this.successWindow.setVisible(true);
     this.game.events.emit(DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT);
-    
+
     // 버튼 비활성화 시각 효과
-    this.submitButtonBg.setFillStyle(0x555555);
-    this.submitButtonText.setColor("#aaaaaa");
+    this.submitButtonBg.setFillStyle(0x223341);
+    this.submitButtonText.setColor("#6f838f");
     this.submitButtonBg.disableInteractive();
   }
 
@@ -215,16 +215,16 @@ export class AgoPuzzleScene extends Phaser.Scene {
     const overlay = this.add
       .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.75)
       .setInteractive();
-      
+
     // 타 퍼즐들과 동일한 팝업 (어두운 배경 + 노란 테두리)
     const panel = this.add
-      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 350, 150, 0x222222)
-      .setStrokeStyle(4, 0xffcc00);
-      
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 350, 150, 0x071018)
+      .setStrokeStyle(3, 0xf0cf72);
+
     const successText = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "@ : or", {
         fontSize: "28px",
-        color: "#ffffff",
+        color: "#eef3f5",
         fontFamily: "Arial",
         fontStyle: "bold",
         align: "center",

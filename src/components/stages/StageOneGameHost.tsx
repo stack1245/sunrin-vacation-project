@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { DocumentStoragePuzzleModal } from "./DocumentStoragePuzzleModal";
+import { ScienceLabPuzzleModal } from "./ScienceLabPuzzleModal";
 import type {
   StageOneGameEventMap,
   StageOneGameMessage,
@@ -18,6 +19,14 @@ import type {
 } from "@/types/stage-one";
 import { STAGE_ONE_ROOM_DISPLAY_NAMES } from "@/types/stage-one";
 import { formatClearTime } from "@/utils/formatClearTime";
+
+const DocumentStoragePuzzleModal = dynamic(
+  () =>
+    import("./DocumentStoragePuzzleModal").then(
+      (module) => module.DocumentStoragePuzzleModal,
+    ),
+  { ssr: false },
+);
 
 interface StageOneGameHostProps {
   stageOrder: number;
@@ -189,189 +198,119 @@ export function StageOneGameHost({
     void gameHandleRef.current?.retrySave();
   };
 
-  const handleDocumentStoragePuzzleOpen = useCallback(() => {
-    gameHandleRef.current?.pause();
-  }, []);
-
-  const handleDocumentStoragePuzzleClose = useCallback(() => {
-    gameHandleRef.current?.resume();
-  }, []);
-
   return (
-    <section className="mx-auto w-full max-w-6xl" aria-labelledby="stage-one-title">
-      <div className="mb-4 flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur-md sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-[0.68rem] font-semibold tracking-[0.3em] text-violet-300/70">
-            STAGE {String(stageOrder).padStart(2, "0")}
-          </p>
-          <h1
-            id="stage-one-title"
-            className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl"
-          >
-            {title}
-          </h1>
-        </div>
-        <div className="grid grid-cols-3 gap-5 text-left text-xs sm:text-right">
-          <div>
-            <span className="block text-stone-500">현재 위치</span>
-            <strong className="mt-1 block font-medium text-stone-100">
-              {hud.roomName}
-            </strong>
-          </div>
-          <div>
-            <span className="block text-stone-500">경과 시간</span>
-            <strong className="mt-1 block font-medium tabular-nums text-stone-100">
-              {formatClearTime(hud.elapsedTimeMs)}
-            </strong>
-          </div>
-          <div>
-            <span className="block text-stone-500">진행</span>
-            <strong className="mt-1 block font-medium text-stone-100">
-              {completedFlags} / 8
-            </strong>
-          </div>
-        </div>
-      </div>
+    <section
+      className="game-interface mx-auto w-full max-w-[80rem] px-2 py-3 sm:px-4 sm:py-5"
+      aria-labelledby="stage-one-title"
+    >
+      <h1 id="stage-one-title" className="sr-only">
+        {title} · Stage {stageOrder}
+      </h1>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="overflow-hidden rounded-lg border border-white/15 bg-[#030708] shadow-2xl shadow-black/40">
-          <div
-            ref={containerRef}
-            className="relative aspect-video w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
-            tabIndex={0}
-            role="application"
-            aria-label="OutOfBounds Stage 1 게임 화면"
-            onPointerDown={(event) => event.currentTarget.focus()}
-          >
-            {bootStatus !== "ready" ? (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#030708] px-6 text-center">
-                <p
-                  role={bootStatus === "error" ? "alert" : undefined}
-                  className={
-                    bootStatus === "error"
-                      ? "text-sm leading-6 text-red-200"
-                      : "text-sm tracking-[0.12em] text-stone-400"
-                  }
-                >
-                  {bootStatus === "error"
-                    ? "게임 화면을 불러오지 못했습니다."
-                    : "PHASER 시스템을 준비하고 있습니다…"}
-                </p>
-              </div>
-            ) : null}
-
-            {hud.paused ? (
-              <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                <div className="rounded-md border border-white/20 bg-black/70 px-8 py-6 text-center">
-                  <p className="text-xs font-semibold tracking-[0.28em] text-violet-200">
-                    PAUSED
-                  </p>
-                  <p className="mt-3 text-sm text-stone-300">
-                    Escape 또는 계속하기 버튼으로 돌아갑니다.
-                  </p>
-                </div>
-              </div>
-            ) : null}
-
-            {hud.interactionPrompt && !hud.paused ? (
-              <p className="pointer-events-none absolute bottom-5 left-1/2 z-20 w-[min(90%,32rem)] -translate-x-1/2 rounded-md border border-violet-200/20 bg-black/80 px-4 py-3 text-center text-sm text-violet-100 shadow-lg">
-                {hud.interactionPrompt}
-              </p>
-            ) : null}
-          </div>
-        </div>
-
-        <aside className="flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur-md">
-          <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.22em] text-stone-500">
-              CURRENT OBJECTIVE
-            </p>
-            <p className="mt-2 text-sm leading-6 text-stone-200">{hud.objective}</p>
-          </div>
-
-          <div className="border-t border-white/10 pt-4">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-stone-500">저장 상태</span>
-              <strong
-                className={
-                  saveStatus.phase === "failed"
-                    ? "text-xs font-medium text-red-200"
-                    : saveStatus.phase === "retrying"
-                      ? "text-xs font-medium text-amber-200"
-                      : "text-xs font-medium text-emerald-200"
-                }
-              >
-                {getSaveStatusLabel(saveStatus)}
-              </strong>
-            </div>
-            <p className="mt-2 text-xs leading-5 text-stone-500">
-              {saveStatus.message}
+      <div
+        ref={containerRef}
+        className="game-grid-surface relative aspect-video w-full overflow-hidden border border-[var(--game-border-strong)] bg-[var(--game-void)] shadow-[0_28px_80px_rgba(0,0,0,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--game-accent)]"
+        tabIndex={0}
+        role="application"
+        aria-label="OutOfBounds Stage 1 횡스크롤 게임 화면"
+        onPointerDown={(event) => event.currentTarget.focus()}
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 grid min-h-14 grid-cols-[1fr_auto] border-b border-white/10 bg-[#03080d]/90 px-3 font-mono backdrop-blur-sm sm:grid-cols-[1.45fr_repeat(3,1fr)_auto] sm:px-5">
+          <div className="flex min-w-0 items-center border-r border-white/10 pr-3">
+            <p className="truncate text-[0.58rem] font-semibold tracking-[0.18em] text-[var(--game-text-strong)] sm:text-[0.68rem]">
+              OUTOFBOUNDS <span className="text-[var(--game-muted)]">{"//"} STAGE {String(stageOrder).padStart(2, "0")}</span>
             </p>
           </div>
-
-          <div className="border-t border-white/10 pt-4 text-xs leading-5 text-stone-400">
-            <p>이동 · WASD / 방향키</p>
-            <p>달리기 · Space</p>
-            <p>상호작용 · E</p>
-            <p>일시정지 · Escape</p>
+          <div className="hidden items-center border-r border-white/10 px-4 sm:flex">
+            <p><span className="block text-[0.48rem] tracking-[0.16em] text-[var(--game-muted)]">TIME</span><strong className="text-xs font-medium tabular-nums text-[var(--game-text)]">{formatClearTime(hud.elapsedTimeMs)}</strong></p>
           </div>
-
-          <div className="mt-auto grid gap-2 pt-2">
+          <div className="hidden min-w-0 items-center border-r border-white/10 px-4 sm:flex">
+            <p className="min-w-0"><span className="block text-[0.48rem] tracking-[0.16em] text-[var(--game-muted)]">SECTOR</span><strong className="block truncate text-xs font-medium text-[var(--game-text)]">{hud.roomName}</strong></p>
+          </div>
+          <div className="hidden items-center border-r border-white/10 px-4 sm:flex">
+            <p><span className="block text-[0.48rem] tracking-[0.16em] text-[var(--game-muted)]">PROGRESS</span><strong className="text-xs font-medium text-[var(--game-accent)]">{String(completedFlags).padStart(2, "0")} / 08</strong></p>
+          </div>
+          <div className="pointer-events-auto flex items-center gap-1 pl-2 sm:pl-3">
+            <span
+              className={saveStatus.phase === "failed" ? "mr-1 text-[0.55rem] text-[var(--game-warning)]" : "mr-1 text-[0.55rem] text-[var(--game-success)]"}
+              title={saveStatus.message}
+            >
+              {getSaveStatusLabel(saveStatus)}
+            </span>
             <button
               type="button"
               onClick={handlePauseToggle}
               disabled={bootStatus !== "ready"}
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/30 bg-white/5 px-4 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-8 border border-white/15 px-2 text-[0.55rem] tracking-[0.12em] text-[var(--game-text)] transition-colors hover:border-[var(--game-accent)] disabled:opacity-40"
             >
-              {hud.paused ? "계속하기" : "일시정지"}
+              {hud.paused ? "RESUME" : "PAUSE"}
             </button>
-            {saveStatus.phase === "failed" ? (
-              <button
-                type="button"
-                onClick={handleRetrySave}
-                className="inline-flex min-h-11 items-center justify-center rounded-md border border-amber-200/30 bg-amber-200/5 px-4 text-sm font-medium text-amber-100 transition-colors hover:border-amber-200/60 hover:bg-amber-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-100"
-              >
-                저장 다시 시도
-              </button>
-            ) : null}
             <Link
               href="/stages"
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/20 px-4 text-sm text-stone-300 transition-colors hover:border-white/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+              className="inline-flex min-h-8 items-center border border-white/15 px-2 text-[0.55rem] tracking-[0.12em] text-[var(--game-muted)] transition-colors hover:border-white/40 hover:text-[var(--game-text)]"
             >
-              Stage 나가기
+              EXIT
             </Link>
           </div>
-        </aside>
-      </div>
+        </div>
 
-      <div className="mt-4 min-h-12" aria-live="polite" aria-atomic="true">
-        {message ? (
-          <p
-            className={
-              message.tone === "error"
-                ? "rounded-md border border-red-200/15 bg-red-950/30 px-4 py-3 text-sm text-red-100"
-                : message.tone === "warning"
-                  ? "rounded-md border border-amber-200/15 bg-amber-950/25 px-4 py-3 text-sm text-amber-100"
-                  : message.tone === "success"
-                    ? "rounded-md border border-emerald-200/15 bg-emerald-950/25 px-4 py-3 text-sm text-emerald-100"
-                    : "rounded-md border border-white/10 bg-black/35 px-4 py-3 text-sm text-stone-300"
-            }
-          >
-            {message.text}
+        <div className="pointer-events-none absolute left-4 top-[4.5rem] z-20 max-w-[16rem] font-mono sm:left-6 sm:top-20 sm:max-w-xs">
+          <p className="text-[0.52rem] tracking-[0.2em] text-[var(--game-accent)]">CURRENT OBJECTIVE</p>
+          <p className="mt-1.5 text-[0.62rem] leading-5 text-[var(--game-text)] sm:text-xs">{hud.objective}</p>
+          <div className="mt-4 hidden border-l border-white/15 pl-3 text-[0.55rem] leading-5 text-[var(--game-muted)] sm:block">
+            <p>A / D · MOVE</p>
+            <p>W / SPACE · JUMP</p>
+            <p>S · CROUCH &nbsp; SHIFT · RUN</p>
+            <p>E · INTERACT &nbsp; ESC · PAUSE</p>
+          </div>
+        </div>
+
+        {bootStatus !== "ready" ? (
+          <div className="game-grid-surface absolute inset-0 z-40 flex items-center justify-center px-6 text-center">
+            <p role={bootStatus === "error" ? "alert" : undefined} className={bootStatus === "error" ? "text-sm leading-6 text-[var(--game-warning)]" : "font-mono text-sm tracking-[0.12em] text-[var(--game-muted)]"}>
+              {bootStatus === "error" ? "게임 화면을 불러오지 못했습니다." : "PHASER SYSTEM BOOTING…"}
+            </p>
+          </div>
+        ) : null}
+
+        {hud.paused ? (
+          <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#03080d]/84 backdrop-blur-[2px]">
+            <div className="border-y border-white/15 px-12 py-7 text-center font-mono">
+              <p className="text-lg font-semibold tracking-[0.32em] text-[var(--game-text-strong)]">PAUSED</p>
+              <p className="mt-3 text-[0.62rem] tracking-[0.08em] text-[var(--game-muted)]">ESCAPE 또는 RESUME으로 복귀</p>
+              <button type="button" onClick={handlePauseToggle} className="mt-5 min-h-9 border border-[var(--game-border-strong)] px-6 text-xs text-[var(--game-accent)] hover:border-[var(--game-accent)]">RESUME</button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4 sm:bottom-5" aria-live="polite" aria-atomic="true">
+          {message ? (
+            <p className={message.tone === "error" || message.tone === "warning" ? "max-w-[34rem] border-l-2 border-[var(--game-warning)] bg-[#050b10]/88 px-3 py-2 text-center text-[0.64rem] text-[var(--game-warning)] backdrop-blur-sm sm:text-xs" : message.tone === "success" ? "max-w-[34rem] border-l-2 border-[var(--game-success)] bg-[#050b10]/88 px-3 py-2 text-center text-[0.64rem] text-[var(--game-accent)] backdrop-blur-sm sm:text-xs" : "max-w-[34rem] bg-[#050b10]/80 px-3 py-2 text-center text-[0.64rem] text-[var(--game-muted)] backdrop-blur-sm sm:text-xs"}>
+              {message.text}
+            </p>
+          ) : null}
+          {hud.interactionPrompt && !hud.paused ? (
+            <p className="border-b border-[var(--game-accent)] bg-[#03080d]/92 px-5 py-2 text-center font-mono text-[0.68rem] tracking-[0.04em] text-[var(--game-text-strong)] shadow-lg sm:text-sm">
+              {hud.interactionPrompt}
+            </p>
+          ) : null}
+        </div>
+
+        {saveStatus.phase === "failed" ? (
+          <button type="button" onClick={handleRetrySave} className="absolute bottom-4 right-4 z-30 border border-[#8b514d] bg-[#251517]/95 px-3 py-2 text-xs text-[var(--game-warning)] hover:border-[#d17e74]">
+            저장 다시 시도
+          </button>
+        ) : null}
+
+        {completed ? (
+          <p className="pointer-events-none absolute right-4 top-[4.5rem] z-20 font-mono text-[0.58rem] tracking-[0.16em] text-[var(--game-success)] sm:right-6 sm:top-20">
+            STAGE CLEARED // SAVE LOADED
           </p>
         ) : null}
       </div>
 
-      {completed ? (
-        <p className="mt-2 text-center text-sm font-medium text-emerald-200">
-          Stage 1 클리어 상태입니다. 기존 저장을 유지한 채 다시 입장했습니다.
-        </p>
-      ) : null}
-
-      <DocumentStoragePuzzleModal
-        onOpen={handleDocumentStoragePuzzleOpen}
-        onClose={handleDocumentStoragePuzzleClose}
-      />
+      <DocumentStoragePuzzleModal />
+      <ScienceLabPuzzleModal />
     </section>
   );
 }
