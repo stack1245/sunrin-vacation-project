@@ -7,7 +7,10 @@ import {
   type StageOneRoomId,
 } from "../../../types/stage-one.ts";
 import type { StageOneRoomModule } from "../contracts/room.ts";
-import { normalizeStageOneInitialProgress } from "./initialProgress.ts";
+import {
+  getStageOneLaunchRoomId,
+  normalizeStageOneInitialProgress,
+} from "./initialProgress.ts";
 
 function createProgress(
   currentRoom: StageOneRoomId,
@@ -52,6 +55,10 @@ const rooms = [
   createRoom("outside"),
   createRoom("hallway", true),
 ] satisfies readonly StageOneRoomModule[];
+
+test("Stage 1 시작 위치는 저장된 진행과 관계없이 연구소 외부다", () => {
+  assert.equal(getStageOneLaunchRoomId(), "outside");
+});
 
 test("최초 입장 정책이 지정한 연구소 외부에서 시작한다", () => {
   const savedProgress = createProgress("hallway", true);

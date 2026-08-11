@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { StageOneGameHost } from "@/components/stages/StageOneGameHost";
 import { createSupabaseStageOneProgressBridge } from "@/game/stage-one/adapters/supabaseStageOneProgressBridge";
+import { getStageOneLaunchRoomId } from "@/game/stage-one/core/initialProgress";
 import {
   getSupabaseBrowserClient,
   isSupabaseConfigured,
@@ -148,10 +149,7 @@ export function StageEntryView({ stageId }: StageEntryViewProps) {
           stageOne = {
             bridge: bootstrap.bridge,
             initialProgress,
-            initialRoomId:
-              progress.status === "unlocked"
-                ? "outside"
-                : initialProgress.state.currentRoom,
+            initialRoomId: getStageOneLaunchRoomId(),
           };
         }
 
