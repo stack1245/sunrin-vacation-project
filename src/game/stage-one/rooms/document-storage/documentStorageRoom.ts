@@ -17,6 +17,7 @@ import {
   STAGE_ONE_WORLD_HEIGHT,
   STAGE_ONE_WORLD_WIDTH,
 } from "../../core/referenceRooms.ts";
+import { STAGE_ONE_ENVIRONMENT_ASSETS } from "../../core/environmentAssets.ts";
 
 const DEFAULT_SPAWN: StageOnePoint = { x: 120, y: 270 };
 
@@ -145,8 +146,9 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
     terminals.forEach((term) => {
       // 터미널 시각적 베이스
       const rect = scene.add
-        .rectangle(term.x, term.y, 44, 44, term.color, 0.8)
-        .setStrokeStyle(2, 0x8fa1aa, 0.9)
+        .image(term.x, term.y, STAGE_ONE_ENVIRONMENT_ASSETS.securityTerminal.key)
+        .setDisplaySize(44, 44)
+        .setTint(term.color)
         .setDepth(5);
       context.track(rect);
 
