@@ -20,6 +20,7 @@ import type {
   StageOneRoomId,
 } from "@/types/stage-one";
 import { STAGE_ONE_ROOM_DISPLAY_NAMES } from "@/types/stage-one";
+import { createAnimationFrameBatcher } from "@/utils/animationFrameBatcher";
 import { formatClearTime } from "@/utils/formatClearTime";
 
 const DocumentStoragePuzzleModal = dynamic(
@@ -44,6 +45,25 @@ const INITIAL_SAVE_STATUS: StageOneSaveStatus = {
   maxAttempts: 4,
   message: "현재 저장 상태와 동기화되었습니다.",
 };
+
+const GAME_MESSAGE_BASE_CLASS_NAME =
+  "max-w-[min(92vw,50rem)] border-y border-white/15 bg-[#03080d]/96 px-5 py-3 text-center text-base font-medium leading-7 shadow-[0_10px_36px_rgba(0,0,0,0.42)] backdrop-blur-sm sm:px-7 sm:py-3.5 sm:text-lg";
+
+const GAME_MESSAGE_TONE_CLASS_NAMES: Record<
+  StageOneGameMessage["tone"],
+  string
+> = {
+  error: "border-l-4 border-l-[var(--game-warning)] text-[var(--game-warning)]",
+  warning:
+    "border-l-4 border-l-[var(--game-warning)] text-[var(--game-warning)]",
+  success:
+    "border-l-4 border-l-[var(--game-success)] text-[var(--game-accent)]",
+  info: "border-l-4 border-l-[var(--game-border-strong)] text-[var(--game-text)]",
+};
+
+function getGameMessageClassName(tone: StageOneGameMessage["tone"]): string {
+  return `${GAME_MESSAGE_BASE_CLASS_NAME} ${GAME_MESSAGE_TONE_CLASS_NAMES[tone]}`;
+}
 
 function createInitialHud(
   initialProgress: StageOneProgressResult,
@@ -112,6 +132,10 @@ export function StageOneGameHost({
 
     let cancelled = false;
     let resizeObserver: ResizeObserver | null = null;
+    const resizeBatcher = createAnimationFrameBatcher(
+      window.requestAnimationFrame.bind(window),
+      window.cancelAnimationFrame.bind(window),
+    );
     const events = new StageOneEventBus<StageOneGameEventMap>();
     const unsubscribers = [
       events.on("ready", (nextHud) => {
@@ -152,7 +176,9 @@ export function StageOneGameHost({
 
         if ("ResizeObserver" in window) {
           resizeObserver = new ResizeObserver(() => {
-            handle.refreshSize();
+            resizeBatcher.schedule(() => {
+              handle.refreshSize();
+            });
           });
           resizeObserver.observe(parent);
         }
@@ -170,6 +196,7 @@ export function StageOneGameHost({
     return () => {
       cancelled = true;
       resizeObserver?.disconnect();
+      resizeBatcher.cancel();
       gameHandleRef.current?.destroy();
       gameHandleRef.current = null;
 
@@ -293,21 +320,16 @@ export function StageOneGameHost({
           </div>
         ) : null}
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4 sm:bottom-5" aria-live="polite" aria-atomic="true">
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-30 flex flex-col items-center px-4 sm:bottom-8" aria-live="polite" aria-atomic="true">
           {message ? (
-            <p className={message.tone === "error" || message.tone === "warning" ? "max-w-[34rem] border-l-2 border-[var(--game-warning)] bg-[#050b10]/88 px-3 py-2 text-center text-[0.64rem] text-[var(--game-warning)] backdrop-blur-sm sm:text-xs" : message.tone === "success" ? "max-w-[34rem] border-l-2 border-[var(--game-success)] bg-[#050b10]/88 px-3 py-2 text-center text-[0.64rem] text-[var(--game-accent)] backdrop-blur-sm sm:text-xs" : "max-w-[34rem] bg-[#050b10]/80 px-3 py-2 text-center text-[0.64rem] text-[var(--game-muted)] backdrop-blur-sm sm:text-xs"}>
+            <p className={getGameMessageClassName(message.tone)}>
               {message.text}
             </p>
           ) : null}
           {hud.interactionPrompt && !hud.paused ? (
-            <div className="flex max-w-[min(92vw,36rem)] items-center gap-3 border border-[var(--game-accent)]/70 bg-[#03080d]/96 px-3 py-2.5 font-mono text-[0.68rem] text-[var(--game-text-strong)] shadow-[0_0_28px_rgba(183,216,193,0.2)] backdrop-blur-sm sm:px-4 sm:text-sm">
-              <kbd className="inline-flex min-h-8 min-w-8 shrink-0 items-center justify-center border border-[var(--game-accent)] bg-[#14261f] px-2 font-mono text-sm font-bold text-white motion-safe:animate-pulse">
-                E
-              </kbd>
-              <span className="leading-5 tracking-[0.02em]">
-                {getInteractionActionLabel(hud.interactionPrompt)}
-              </span>
-            </div>
+            <p className="sr-only">
+              상호작용 가능: {getInteractionActionLabel(hud.interactionPrompt)}
+            </p>
           ) : null}
         </div>
 

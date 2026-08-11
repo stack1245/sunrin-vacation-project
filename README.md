@@ -68,6 +68,16 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 - 실제 Room 구현 선택과 수명 주기 조립은 `createStageOneRooms.ts`와 `createStageOneGame.ts`에 모은다.
 - `architectureBoundaries.test.ts`가 별칭·상대 경로를 통한 인프라 역참조를 검사하며 `npm test`에서 자동 실행된다.
 
+### 성능과 로딩 경계
+
+- 메인 Stage 1 Phaser 런타임은 스테이지 진입이 승인된 뒤 동적으로 불러온다.
+- 문서 보관실 퍼즐 5종은 모달을 여는 것만으로 한꺼번에 불러오지 않는다. 선택한 퍼즐의 Host와 Scene만 동적으로 가져오며, 각 Host는 배럴 모듈 대신 자신의 Scene을 직접 참조한다.
+- 캔버스 크기 갱신은 같은 렌더링 프레임에 발생한 `ResizeObserver` 알림을 한 번으로 합쳐 처리한다.
+- 월드 상호작용 표시는 대상이나 안내 문구가 바뀔 때만 Phaser 텍스트와 위치를 다시 설정한다.
+- 애플리케이션 소스는 TypeScript의 `.ts`·`.tsx`만 허용한다. 프레임워크 설정용 `.mjs`는 TypeScript 입력 범위에 포함하지 않는다.
+
+`documentStorageLoadingBoundaries.test.ts`는 문서 보관실의 지연 로딩 경계를, `animationFrameBatcher.test.ts`는 프레임 단위 작업 병합과 취소 동작을 검증한다.
+
 ## 시각 시스템
 
 OutOfBounds는 메인·로그인·회원가입에서 기존의 배경 이미지와 중앙형 랜딩 디자인을 유지한다. [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/layer7-kr/2026codegate-layer7-booth)은 스테이지 선택 이후 실제 게임 화면의 UI/UX 참고점으로만 사용한다. 참고 프로젝트의 콘텐츠·게임 규칙·코드는 복제하지 않고, 횡스크롤 시점·캔버스 일체형 HUD·월드 안 조작 안내·상호작용 표시·중앙 퍼즐 오버레이 구조를 OutOfBounds 연구소 동선에 맞게 재구성한다.
@@ -100,7 +110,7 @@ OutOfBounds는 메인·로그인·회원가입에서 기존의 배경 이미지�
 | 명령 | 설명 |
 | --- | --- |
 | `npm run dev` | 개발 서버 실행 |
-| `npm start` | 프로덕션 빌드 결과 실행 |
+| `npm start` | `npm run build`로 생성한 프로덕션 결과 실행 |
 | `npm test` | 모든 TypeScript 단위·계약 테스트 자동 탐색 |
 | `npm run env:check` | 실제·예제 환경변수 파일 구조 비교 |
 | `npm run typecheck` | TypeScript 타입 검사 |

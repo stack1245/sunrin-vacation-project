@@ -11,7 +11,8 @@
  * 3. 네트워크 탭 `POST /security/otp/issue` 응답 또는 콘솔 `otp.rule()` 로 파생 규칙을 얻는다.
  * 4. 규칙대로 계산한 6자리를 인증 탭이나 `otp.verify("......")` 로 제출한다.
  *
- * 기본 데이터 기준 정답은 `deriveControlRoomOtp()` 가 계산하며 여기에 하드코딩하지 않는다.
+ * 실제 게임에서는 단말 세션마다 새 시드를 발급한다. 아래 기준 데이터는 테스트와
+ * 명시적 주입을 위한 호환 값이며, 운영 세션의 정답으로 사용하지 않는다.
  */
 
 import type {
@@ -21,7 +22,7 @@ import type {
 } from "./types.ts";
 
 /**
- * 기본 OTP 설정.
+ * 테스트·명시적 주입용 기준 OTP 설정.
  *
  * `shift` 는 D 파트(과학 실험실)가 인계하는 "보안 통제실 코드 단서"와 연결할 수 있는 지점이다.
  * D의 값이 확정되면 이 상수만 교체하면 되고 퍼즐 로직은 그대로 둔다.
@@ -32,35 +33,44 @@ export const CONTROL_ROOM_OTP_CONFIG: ControlRoomOtpConfig = {
   shift: 7,
 };
 
-/** 가상 쿠키 목록. 실제 document.cookie를 읽거나 쓰지 않는다. */
-export const CONTROL_ROOM_COOKIES: readonly VirtualCookie[] = [
-  {
-    name: "sec.session",
-    value: "0x1A4",
-    note: "세션 시드 (16진수). 마스킹 해제 필요",
-    masked: true,
-  },
-  {
-    name: "sec.shift",
-    value: "7",
-    note: "체크섬 시프트 계수",
-  },
-  {
-    name: "sec.lockdown",
-    value: "engaged",
-    note: "문서 보관실 봉쇄 상태",
-  },
-  {
-    name: "sec.otp_channel",
-    value: "terminal-only",
-    note: "OTP 발급 경로. 외부 전송 없음",
-  },
-  {
-    name: "sec.audit",
-    value: "off",
-    note: "감사 로그 비활성. 흔적이 남지 않는다",
-  },
-];
+/** OTP 설정과 항상 일치하는 가상 쿠키 목록을 만든다. */
+export function createControlRoomCookies(
+  config: ControlRoomOtpConfig,
+): readonly VirtualCookie[] {
+  return [
+    {
+      name: "sec.session",
+      value: `0x${config.seedHex.trim().replace(/^0[xX]/, "").toUpperCase()}`,
+      note: "세션 시드 (16진수). 마스킹 해제 필요",
+      masked: true,
+    },
+    {
+      name: "sec.shift",
+      value: String(config.shift),
+      note: "체크섬 시프트 계수",
+    },
+    {
+      name: "sec.lockdown",
+      value: "engaged",
+      note: "문서 보관실 봉쇄 상태",
+    },
+    {
+      name: "sec.otp_channel",
+      value: "terminal-only",
+      note: "OTP 발급 경로. 외부 전송 없음",
+    },
+    {
+      name: "sec.audit",
+      value: "off",
+      note: "감사 로그 비활성. 흔적이 남지 않는다",
+    },
+  ];
+}
+
+/** 기준 설정으로 만든 가상 쿠키 목록. 테스트와 명시적 주입에 사용한다. */
+export const CONTROL_ROOM_COOKIES = createControlRoomCookies(
+  CONTROL_ROOM_OTP_CONFIG,
+);
 
 /** 가상 네트워크 로그. 실제 fetch/XHR을 발생시키지 않는 정적 텍스트다. */
 export const CONTROL_ROOM_NETWORK_ENTRIES: readonly VirtualNetworkEntry[] = [
