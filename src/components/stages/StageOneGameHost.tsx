@@ -20,6 +20,7 @@ import type {
   StageOneRoomId,
 } from "@/types/stage-one";
 import { STAGE_ONE_ROOM_DISPLAY_NAMES } from "@/types/stage-one";
+import { createAnimationFrameBatcher } from "@/utils/animationFrameBatcher";
 import { formatClearTime } from "@/utils/formatClearTime";
 
 const DocumentStoragePuzzleModal = dynamic(
@@ -112,6 +113,10 @@ export function StageOneGameHost({
 
     let cancelled = false;
     let resizeObserver: ResizeObserver | null = null;
+    const resizeBatcher = createAnimationFrameBatcher(
+      window.requestAnimationFrame.bind(window),
+      window.cancelAnimationFrame.bind(window),
+    );
     const events = new StageOneEventBus<StageOneGameEventMap>();
     const unsubscribers = [
       events.on("ready", (nextHud) => {
@@ -152,7 +157,9 @@ export function StageOneGameHost({
 
         if ("ResizeObserver" in window) {
           resizeObserver = new ResizeObserver(() => {
-            handle.refreshSize();
+            resizeBatcher.schedule(() => {
+              handle.refreshSize();
+            });
           });
           resizeObserver.observe(parent);
         }
@@ -170,6 +177,7 @@ export function StageOneGameHost({
     return () => {
       cancelled = true;
       resizeObserver?.disconnect();
+      resizeBatcher.cancel();
       gameHandleRef.current?.destroy();
       gameHandleRef.current = null;
 

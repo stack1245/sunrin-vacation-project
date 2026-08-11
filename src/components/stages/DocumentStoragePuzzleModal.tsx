@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -7,11 +8,38 @@ import {
   subscribeToDocumentStoragePuzzleOpen,
   type OpenDocumentStoragePuzzleDetail,
 } from "@/game/stage-one/puzzles/document-storage/documentStoragePuzzleEvents";
-import AgoGameHost from "./AgoGameHost";
-import MathdokuGameHost from "./MathdokuGameHost";
-import NQueensGameHost from "./NQueensGameHost";
-import ResourceAllocationGameHost from "./ResourceAllocationGameHost";
-import TtfGameHost from "./TtfGameHost";
+
+function DocumentStoragePuzzleLoadingFallback() {
+  return (
+    <p className="font-mono text-sm tracking-[0.12em] text-[var(--game-muted)]">
+      PUZZLE SYSTEM LOADING…
+    </p>
+  );
+}
+
+const AgoGameHost = dynamic(() => import("./AgoGameHost"), {
+  loading: DocumentStoragePuzzleLoadingFallback,
+  ssr: false,
+});
+const MathdokuGameHost = dynamic(() => import("./MathdokuGameHost"), {
+  loading: DocumentStoragePuzzleLoadingFallback,
+  ssr: false,
+});
+const NQueensGameHost = dynamic(() => import("./NQueensGameHost"), {
+  loading: DocumentStoragePuzzleLoadingFallback,
+  ssr: false,
+});
+const ResourceAllocationGameHost = dynamic(
+  () => import("./ResourceAllocationGameHost"),
+  {
+    loading: DocumentStoragePuzzleLoadingFallback,
+    ssr: false,
+  },
+);
+const TtfGameHost = dynamic(() => import("./TtfGameHost"), {
+  loading: DocumentStoragePuzzleLoadingFallback,
+  ssr: false,
+});
 
 export function DocumentStoragePuzzleModal() {
   const [activePuzzle, setActivePuzzle] =

@@ -1,6 +1,6 @@
 "use client";
 
-import { ResourceAllocationPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { ResourceAllocationPuzzleScene } from "@/game/stage-one/puzzles/document-storage/resourceAllocationPuzzleScene";
 import { PhaserPuzzleHost } from "./PhaserPuzzleHost";
 
 interface ResourceAllocationGameHostProps {

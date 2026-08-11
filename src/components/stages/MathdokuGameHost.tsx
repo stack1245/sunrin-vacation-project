@@ -1,6 +1,6 @@
 "use client";
 
-import { MathdokuPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { MathdokuPuzzleScene } from "@/game/stage-one/puzzles/document-storage/mathdokuPuzzleScene";
 import { PhaserPuzzleHost } from "./PhaserPuzzleHost";
 
 interface MathdokuGameHostProps {
