@@ -21,6 +21,7 @@ import type {
   UserStageProgress,
 } from "@/types/stage";
 import { formatClearTime } from "@/utils/formatClearTime";
+import { createStagePath } from "@/utils/stageRoute";
 
 interface StageDashboardData {
   profile: Profile;
@@ -179,7 +180,7 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
 
   return (
     <Link
-      href={`/stages/${stage.slug}`}
+      href={createStagePath(stage.id)}
       aria-label={`${stage.title} ${
         progress.status === "in_progress" ? "이어하기" : "입장"
       }`}

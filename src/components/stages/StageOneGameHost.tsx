@@ -14,6 +14,7 @@ import type { StageOneGameHandle } from "@/game/stage-one/core/createStageOneGam
 import type {
   StageOneProgressBridge,
   StageOneProgressResult,
+  StageOneRoomId,
 } from "@/types/stage-one";
 import { STAGE_ONE_ROOM_DISPLAY_NAMES } from "@/types/stage-one";
 import { formatClearTime } from "@/utils/formatClearTime";
@@ -22,6 +23,7 @@ interface StageOneGameHostProps {
   stageOrder: number;
   title: string;
   initialProgress: StageOneProgressResult;
+  initialRoomId: StageOneRoomId;
   bridge: StageOneProgressBridge;
 }
 
@@ -34,17 +36,22 @@ const INITIAL_SAVE_STATUS: StageOneSaveStatus = {
 
 function createInitialHud(
   initialProgress: StageOneProgressResult,
+  initialRoomId: StageOneRoomId,
 ): StageOneHudState {
   const { state, elapsedTimeMs } = initialProgress;
+  const initialState = {
+    ...state,
+    currentRoom: initialRoomId,
+  };
 
   return {
-    roomId: state.currentRoom,
-    roomName: STAGE_ONE_ROOM_DISPLAY_NAMES[state.currentRoom],
+    roomId: initialRoomId,
+    roomName: STAGE_ONE_ROOM_DISPLAY_NAMES[initialRoomId],
     objective: "Stage 1 게임 시스템을 준비하고 있습니다.",
     elapsedTimeMs,
     paused: false,
     interactionPrompt: null,
-    state,
+    state: initialState,
   };
 }
 
@@ -67,6 +74,7 @@ export function StageOneGameHost({
   stageOrder,
   title,
   initialProgress,
+  initialRoomId,
   bridge,
 }: StageOneGameHostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,7 +83,7 @@ export function StageOneGameHost({
     "loading",
   );
   const [hud, setHud] = useState<StageOneHudState>(() =>
-    createInitialHud(initialProgress),
+    createInitialHud(initialProgress, initialRoomId),
   );
   const [saveStatus, setSaveStatus] =
     useState<StageOneSaveStatus>(INITIAL_SAVE_STATUS);
@@ -124,6 +132,7 @@ export function StageOneGameHost({
         const handle = createStageOneGame({
           parent,
           initialProgress,
+          initialRoomId,
           bridge,
           events,
         });
@@ -159,7 +168,7 @@ export function StageOneGameHost({
 
       events.clear();
     };
-  }, [bridge, initialProgress]);
+  }, [bridge, initialProgress, initialRoomId]);
 
   const completedFlags = useMemo(
     () =>
@@ -189,8 +198,11 @@ export function StageOneGameHost({
   };
 
   return (
-    <section className="mx-auto w-full max-w-6xl" aria-labelledby="stage-one-title">
-      <div className="mb-4 flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur-md sm:flex-row sm:items-end sm:justify-between">
+    <section
+      className="relative h-dvh w-full overflow-hidden bg-[#030708]"
+      aria-labelledby="stage-one-title"
+    >
+      <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-4 backdrop-blur-md sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[0.68rem] font-semibold tracking-[0.3em] text-violet-300/70">
             STAGE {String(stageOrder).padStart(2, "0")}
@@ -224,11 +236,11 @@ export function StageOneGameHost({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="overflow-hidden rounded-lg border border-white/15 bg-[#030708] shadow-2xl shadow-black/40">
+      <div className="relative h-full w-full">
+        <div className="h-full w-full overflow-hidden bg-[#030708]">
           <div
             ref={containerRef}
-            className="relative aspect-video w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="relative h-full w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-300"
             tabIndex={0}
             role="application"
             aria-label="OutOfBounds Stage 1 게임 화면"
@@ -272,7 +284,7 @@ export function StageOneGameHost({
           </div>
         </div>
 
-        <aside className="flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur-md">
+        <aside className="absolute bottom-4 right-4 top-32 z-30 hidden w-72 flex-col gap-4 overflow-y-auto rounded-lg border border-white/10 bg-black/70 p-5 backdrop-blur-md lg:flex">
           <div>
             <p className="text-[0.65rem] font-semibold tracking-[0.22em] text-stone-500">
               CURRENT OBJECTIVE
@@ -335,7 +347,11 @@ export function StageOneGameHost({
         </aside>
       </div>
 
-      <div className="mt-4 min-h-12" aria-live="polite" aria-atomic="true">
+      <div
+        className="pointer-events-none absolute bottom-4 left-1/2 z-30 w-[min(90%,40rem)] -translate-x-1/2"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {message ? (
           <p
             className={
@@ -354,7 +370,7 @@ export function StageOneGameHost({
       </div>
 
       {completed ? (
-        <p className="mt-2 text-center text-sm font-medium text-emerald-200">
+        <p className="pointer-events-none absolute bottom-4 left-4 z-30 text-sm font-medium text-emerald-200">
           Stage 1 클리어 상태입니다. 기존 저장을 유지한 채 다시 입장했습니다.
         </p>
       ) : null}

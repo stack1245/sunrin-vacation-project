@@ -3,6 +3,7 @@ import Phaser from "phaser";
 import type {
   StageOneProgressBridge,
   StageOneProgressResult,
+  StageOneRoomId,
 } from "@/types/stage-one";
 import type {
   StageOneGameEventMap,
@@ -18,6 +19,7 @@ import {
   STAGE_ONE_WORLD_HEIGHT,
   STAGE_ONE_WORLD_WIDTH,
 } from "./referenceRooms";
+import { normalizeStageOneInitialProgress } from "./initialProgress";
 import { StageOneSession } from "./stageOneSession";
 
 export interface CreateStageOneGameOptions {
@@ -25,6 +27,7 @@ export interface CreateStageOneGameOptions {
   initialProgress: StageOneProgressResult;
   bridge: StageOneProgressBridge;
   events: StageOneGameEvents<StageOneGameEventMap>;
+  initialRoomId?: StageOneRoomId;
   rooms?: readonly StageOneRoomModule[];
 }
 
@@ -41,13 +44,19 @@ export function createStageOneGame({
   initialProgress,
   bridge,
   events,
+  initialRoomId,
   rooms = createStageOneReferenceRooms(),
 }: CreateStageOneGameOptions): StageOneGameHandle {
   if (typeof window === "undefined") {
     throw new Error("Stage 1 Phaser 게임은 브라우저에서만 시작할 수 있습니다.");
   }
 
-  const session = new StageOneSession(bridge, initialProgress, {
+  const normalizedInitialProgress = normalizeStageOneInitialProgress(
+    initialProgress,
+    rooms,
+    initialRoomId,
+  );
+  const session = new StageOneSession(bridge, normalizedInitialProgress, {
     onStatusChange: (status) => {
       events.emit("save-status", status);
     },
@@ -63,7 +72,7 @@ export function createStageOneGame({
     roundPixels: true,
     autoFocus: true,
     canvasStyle:
-      "display:block;width:100%;height:100%;image-rendering:pixelated;outline:none;",
+      "display:block;image-rendering:pixelated;outline:none;",
     physics: {
       default: "arcade",
       arcade: {
