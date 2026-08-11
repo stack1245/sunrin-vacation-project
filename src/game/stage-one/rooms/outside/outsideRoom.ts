@@ -147,7 +147,7 @@
         .text(
             48,
             96,
-            "WASD 또는 방향키로 이동 · Space 달리기 · E 상호작용 · Esc 일시정지",
+            "A/D 또는 좌우 이동 · W/Space 점프 · S 숙이기 · Shift 달리기 · E 상호작용",
             {
             color: "#6f838f",
             fontFamily: "Consolas, monospace",
@@ -160,7 +160,7 @@
         // 1) 키카드
         const keycard = addMarker(context, {
         x: 250,
-        y: 200,
+        y: 414,
         width: 44,
         height: 28,
         color: 0x5dbd8b,
@@ -173,7 +173,7 @@
 
         context.addInteraction({
         id: "outside-keycard",
-        position: { x: 250, y: 200 },
+        position: { x: 250, y: 414 },
         prompt: "E · 카드 줍기",
         enabled: (state) => !state.hasKeycard,
         async onInteract(game) {
@@ -191,7 +191,7 @@
         // 2) 정문
         addMarker(context, {
         x: 820,
-        y: 270,
+        y: 374,
         width: 96,
         height: 120,
         color: 0x4a5f6d,

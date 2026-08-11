@@ -68,7 +68,7 @@ export function createStageOneGame({
       default: "arcade",
       arcade: {
         debug: false,
-        gravity: { x: 0, y: 0 },
+        gravity: { x: 0, y: 1400 },
       },
     },
     scale: {

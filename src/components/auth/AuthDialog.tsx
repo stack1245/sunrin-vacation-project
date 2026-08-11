@@ -60,34 +60,34 @@ export function AuthDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="facility-panel-raised relative w-full max-w-md p-6 sm:p-9"
+        className="relative w-full max-w-md rounded-lg border border-white/15 bg-black/55 p-6 shadow-2xl shadow-black/30 backdrop-blur-md sm:p-9"
       >
         <button
           type="button"
           onClick={closeDialog}
           aria-label={`${title} 창 닫기`}
-          className="facility-focus absolute right-4 top-4 inline-flex size-10 items-center justify-center rounded-[3px] border border-transparent font-mono text-xl leading-none text-[var(--game-muted)] transition-colors duration-200 hover:border-[#8b514d] hover:bg-[var(--game-danger-surface)] hover:text-[var(--game-warning)] sm:right-5 sm:top-5"
+          className="absolute right-4 top-4 inline-flex size-10 items-center justify-center rounded-md text-xl leading-none text-stone-400 transition-colors duration-200 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 sm:right-5 sm:top-5"
         >
           <span aria-hidden="true">×</span>
         </button>
 
-        <p className="facility-kicker pr-10 text-[var(--game-accent)]">
+        <p className="pr-10 text-[0.65rem] font-semibold tracking-[0.28em] text-stone-400">
           {eyebrow}
         </p>
         <h1
           id={titleId}
-          className="mt-3 pr-10 text-3xl font-semibold tracking-[-0.035em] text-[var(--game-text-strong)] sm:text-4xl"
+          className="mt-3 pr-10 text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
         >
           {title}
         </h1>
         <p
           id={descriptionId}
-          className="mt-3 text-sm leading-6 text-[var(--game-muted)]"
+          className="mt-3 text-sm leading-6 text-stone-400"
         >
           {description}
         </p>
 
-        <div className="mt-8 border-t border-[var(--game-border)] pt-7">{children}</div>
+        <div className="mt-8">{children}</div>
       </section>
     </main>
   );
