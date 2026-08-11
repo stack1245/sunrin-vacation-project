@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { FacilityShell } from "@/components/common/FacilityShell";
 import { StageEntryView } from "@/components/stages/StageEntryView";
+import { parseStageIdPathSegment } from "@/utils/stageRoute";
 
 export const metadata: Metadata = {
   title: "스테이지 입장 | OutOfBounds",
@@ -10,19 +12,24 @@ export const metadata: Metadata = {
 
 interface StageEntryPageProps {
   params: Promise<{
-    slug: string;
+    stageId: string;
   }>;
 }
 
 export default async function StageEntryPage({
   params,
 }: StageEntryPageProps) {
-  const { slug } = await params;
+  const { stageId: stageIdSegment } = await params;
+  const stageId = parseStageIdPathSegment(stageIdSegment);
+
+  if (stageId === null) {
+    notFound();
+  }
 
   return (
     <FacilityShell>
-      <main className="relative z-10 flex min-h-dvh items-center justify-center bg-[#03080d] px-1 py-2 sm:px-3 sm:py-3">
-        <StageEntryView slug={slug} />
+      <main className="relative z-10 flex h-dvh w-full items-center justify-center overflow-hidden bg-[#03080d]">
+        <StageEntryView stageId={stageId} />
       </main>
     </FacilityShell>
   );
