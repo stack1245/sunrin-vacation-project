@@ -10,6 +10,7 @@ import type {
   StageOneSaveStatus,
 } from "@/game/stage-one/contracts/events";
 import { StageOneEventBus } from "@/game/stage-one/core/eventBus";
+import { getInteractionActionLabel } from "@/game/stage-one/core/interactionFeedback";
 import type { StageOneGameHandle } from "@/game/stage-one/core/createStageOneGame";
 import type {
   StageOneProgressBridge,
@@ -277,9 +278,14 @@ export function StageOneGameHost({
             ) : null}
 
             {hud.interactionPrompt && !hud.paused ? (
-              <p className="pointer-events-none absolute bottom-5 left-1/2 z-20 w-[min(90%,32rem)] -translate-x-1/2 rounded-md border border-violet-200/20 bg-black/80 px-4 py-3 text-center text-sm text-violet-100 shadow-lg">
-                {hud.interactionPrompt}
-              </p>
+              <div className="pointer-events-none absolute bottom-5 left-1/2 z-20 flex w-[min(90%,36rem)] -translate-x-1/2 items-center justify-center gap-3 rounded-md border border-emerald-200/70 bg-[#03080d]/96 px-4 py-3 text-sm text-stone-100 shadow-[0_0_28px_rgba(183,216,193,0.24)] backdrop-blur-sm">
+                <kbd className="inline-flex min-h-8 min-w-8 shrink-0 items-center justify-center rounded-sm border border-emerald-200 bg-[#14261f] px-2 font-mono text-sm font-bold text-white motion-safe:animate-pulse">
+                  E
+                </kbd>
+                <span className="leading-5 tracking-[0.02em]">
+                  {getInteractionActionLabel(hud.interactionPrompt)}
+                </span>
+              </div>
             ) : null}
           </div>
         </div>
