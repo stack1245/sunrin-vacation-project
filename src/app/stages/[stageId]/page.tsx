@@ -28,7 +28,7 @@ export default async function StageEntryPage({
 
   return (
     <FacilityShell>
-      <main className="relative z-10 flex h-dvh w-full items-center justify-center overflow-hidden bg-[#03080d]">
+      <main id="main-content" className="relative z-10 flex h-dvh w-full items-center justify-center overflow-hidden bg-[#03080d]">
         <StageEntryView stageId={stageId} />
       </main>
     </FacilityShell>

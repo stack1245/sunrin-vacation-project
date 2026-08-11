@@ -100,6 +100,9 @@ export class StageOneScene extends Phaser.Scene {
   private interactionTargetVisual!: Phaser.GameObjects.Container;
   private interactionPromptVisual!: Phaser.GameObjects.Container;
   private interactionActionLabel!: Phaser.GameObjects.Text;
+  private interactionFeedbackVisible = false;
+  private lastInteractionFeedbackId: string | null = null;
+  private lastInteractionFeedbackLabel: string | null = null;
   private movementKeys!: MovementKeys;
   private currentRoom!: StageOneRoomModule;
   private activeInteraction: StageOneInteractionDefinition | null = null;
@@ -535,22 +538,48 @@ export class StageOneScene extends Phaser.Scene {
     const markerPosition = getInteractionMarkerPosition(
       this.activeInteraction,
     );
+    const actionLabel = getInteractionActionLabel(prompt);
 
-    this.interactionTargetVisual
-      .setPosition(
+    if (
+      !this.interactionFeedbackVisible ||
+      this.lastInteractionFeedbackId !== this.activeInteraction.id
+    ) {
+      this.interactionTargetVisual.setPosition(
         this.activeInteraction.position.x,
         this.activeInteraction.position.y,
-      )
-      .setVisible(true);
-    this.interactionPromptVisual
-      .setPosition(markerPosition.x, markerPosition.y)
-      .setVisible(true);
-    this.interactionActionLabel.setText(getInteractionActionLabel(prompt));
+      );
+      this.interactionPromptVisual.setPosition(
+        markerPosition.x,
+        markerPosition.y,
+      );
+      this.lastInteractionFeedbackId = this.activeInteraction.id;
+    }
+
+    if (
+      !this.interactionFeedbackVisible ||
+      this.lastInteractionFeedbackLabel !== actionLabel
+    ) {
+      this.interactionActionLabel.setText(actionLabel);
+      this.lastInteractionFeedbackLabel = actionLabel;
+    }
+
+    if (!this.interactionFeedbackVisible) {
+      this.interactionTargetVisual.setVisible(true);
+      this.interactionPromptVisual.setVisible(true);
+      this.interactionFeedbackVisible = true;
+    }
   }
 
   private hideInteractionFeedback(): void {
-    this.interactionTargetVisual?.setVisible(false);
-    this.interactionPromptVisual?.setVisible(false);
+    if (!this.interactionFeedbackVisible) {
+      return;
+    }
+
+    this.interactionTargetVisual.setVisible(false);
+    this.interactionPromptVisual.setVisible(false);
+    this.interactionFeedbackVisible = false;
+    this.lastInteractionFeedbackId = null;
+    this.lastInteractionFeedbackLabel = null;
   }
 
   private createInteractionContext(): StageOneInteractionContext {

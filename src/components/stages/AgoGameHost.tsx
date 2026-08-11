@@ -1,6 +1,6 @@
 "use client";
 
-import { AgoPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { AgoPuzzleScene } from "@/game/stage-one/puzzles/document-storage/agoPuzzleScene";
 import { PhaserPuzzleHost } from "./PhaserPuzzleHost";
 
 interface AgoGameHostProps {
