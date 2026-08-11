@@ -32,18 +32,18 @@ export const CONTROL_ROOM_DEFAULT_SPAWN = { x: 420, y: 380 } as const;
 
 /** 색상 팔레트. 어두운 연구소 픽셀 톤과 라일락 포인트를 따른다. */
 export const CONTROL_ROOM_COLORS = {
-  floor: 0x080b11,
-  grid: 0x1b2230,
-  wall: 0x151a24,
-  serverRack: 0x232b3a,
-  serverLight: 0x8b7ec8,
-  monitorFrame: 0x2a3346,
-  monitorScreen: 0x1a2a3a,
-  terminal: 0x6f5fa8,
-  terminalScreen: 0x2a2440,
-  panelLocked: 0x7a3b4a,
-  panelReleased: 0x3c7a5a,
-  notice: 0x3a4256,
+  floor: 0x050b10,
+  grid: 0x223341,
+  wall: 0x0b1823,
+  serverRack: 0x17242c,
+  serverLight: 0x5dbd8b,
+  monitorFrame: 0x344854,
+  monitorScreen: 0x071218,
+  terminal: 0x315447,
+  terminalScreen: 0x0c2529,
+  panelLocked: 0x6d3e3b,
+  panelReleased: 0x315447,
+  notice: 0x29404a,
 } as const;
 
 /** 서버 랙 배치. 장식이자 충돌 벽이다. */

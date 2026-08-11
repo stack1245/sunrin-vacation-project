@@ -40,10 +40,14 @@ const statusLabels: Record<StageStatus, string> = {
 };
 
 const statusStyles: Record<StageStatus, string> = {
-  locked: "border-white/10 bg-black/35 text-stone-500",
-  unlocked: "border-white/30 bg-black/45 text-stone-100",
-  in_progress: "border-amber-100/30 bg-amber-950/20 text-amber-100",
-  cleared: "border-emerald-100/25 bg-emerald-950/20 text-emerald-100",
+  locked:
+    "border-[var(--game-border)] bg-[var(--game-void)] text-[var(--game-muted)]",
+  unlocked:
+    "border-[var(--game-border-strong)] bg-[var(--game-surface-raised)] text-[var(--game-text)]",
+  in_progress:
+    "border-[#8b6d3e] bg-[#241d12] text-[var(--game-gold)]",
+  cleared:
+    "border-[#315447] bg-[var(--game-success-surface)] text-[var(--game-accent)]",
 };
 
 function mapProfile(row: ProfileRow): Profile {
@@ -112,36 +116,36 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
     <>
       <div className="flex items-start justify-between gap-5">
         <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.28em] text-stone-500">
+          <p className="facility-kicker text-[var(--game-muted)]">
             STAGE {String(stage.stageOrder).padStart(2, "0")}
           </p>
-          <h2 className="mt-3 text-xl font-semibold tracking-[-0.025em] text-white sm:text-2xl">
+          <h2 className="mt-3 text-xl font-semibold tracking-[-0.025em] text-[var(--game-text-strong)] sm:text-2xl">
             {stage.title}
           </h2>
         </div>
 
         <span
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[0.68rem] font-medium ${statusStyles[progress.status]}`}
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-[2px] border px-3 py-1 font-mono text-[0.65rem] font-bold tracking-[0.08em] ${statusStyles[progress.status]}`}
         >
           {isLocked && <LockIcon />}
           {statusLabels[progress.status]}
         </span>
       </div>
 
-      <p className="mt-5 min-h-12 text-sm leading-6 text-stone-400">
+      <p className="mt-5 min-h-12 text-sm leading-6 text-[var(--game-muted)]">
         {stage.description}
       </p>
 
-      <div className="mt-7 flex min-h-8 items-end justify-between gap-4 border-t border-white/10 pt-5 text-xs">
+      <div className="mt-7 flex min-h-8 items-end justify-between gap-4 border-t border-[var(--game-border)] pt-5 font-mono text-xs">
         {progress.status === "cleared" ? (
-          <p className="text-stone-400">
+          <p className="text-[var(--game-muted)]">
             BEST{" "}
-            <span className="ml-1 font-mono text-sm text-stone-100">
+            <span className="ml-1 text-sm text-[var(--game-accent)]">
               {bestTime ?? "--:--.---"}
             </span>
           </p>
         ) : (
-          <span className="text-stone-500">
+          <span className="text-[var(--game-muted)]">
             {isLocked
               ? "이전 스테이지를 완료하면 입장할 수 있습니다."
               : "스테이지에 입장할 수 있습니다."}
@@ -149,7 +153,7 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
         )}
 
         {!isLocked && (
-          <span className="shrink-0 font-semibold tracking-[0.12em] text-stone-200">
+          <span className="shrink-0 font-semibold tracking-[0.12em] text-[var(--game-accent)]">
             {progress.status === "in_progress"
               ? "이어하기"
               : progress.status === "cleared"
@@ -165,12 +169,12 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
   );
 
   const cardStyles =
-    "block h-full rounded-lg border p-5 text-left backdrop-blur-md sm:p-6";
+    "block h-full rounded-[4px] border p-5 text-left sm:p-6";
 
   if (isLocked) {
     return (
       <article
-        className={`${cardStyles} cursor-not-allowed border-white/10 bg-black/40 opacity-70`}
+        className={`${cardStyles} cursor-not-allowed border-[var(--game-border)] bg-[#071018]/80 opacity-65`}
       >
         {cardContent}
       </article>
@@ -183,7 +187,7 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
       aria-label={`${stage.title} ${
         progress.status === "in_progress" ? "이어하기" : "입장"
       }`}
-      className={`${cardStyles} group border-white/20 bg-black/45 shadow-xl shadow-black/15 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-1 hover:border-white/45 hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030708] active:translate-y-0`}
+      className={`${cardStyles} facility-focus group border-[var(--game-border)] bg-[#071018]/94 shadow-xl shadow-black/25 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-1 hover:border-[var(--game-border-strong)] hover:bg-[var(--game-surface-raised)] active:translate-y-0`}
     >
       {cardContent}
     </Link>
@@ -341,7 +345,7 @@ export function StagesView() {
         {[1, 2, 3].map((stageNumber) => (
           <div
             key={stageNumber}
-            className="h-64 animate-pulse rounded-lg border border-white/10 bg-black/35"
+            className="h-64 animate-pulse rounded-[4px] border border-[var(--game-border)] bg-[var(--game-surface)]"
           />
         ))}
       </div>
@@ -352,13 +356,13 @@ export function StagesView() {
     return (
       <div
         role="alert"
-        className="rounded-lg border border-red-200/15 bg-black/45 px-6 py-8 text-center backdrop-blur-md"
+        className="facility-panel px-6 py-8 text-center"
       >
-        <p className="text-sm leading-6 text-red-100">{state.message}</p>
+        <p className="text-sm leading-6 text-[var(--game-warning)]">{state.message}</p>
         <button
           type="button"
           onClick={() => setReloadKey((current) => current + 1)}
-          className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md border border-white/40 bg-white/10 px-5 text-sm font-medium text-white transition-colors hover:border-white/70 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+          className="facility-button facility-focus mt-5 px-5"
         >
           다시 시도하기
         </button>
@@ -368,17 +372,17 @@ export function StagesView() {
 
   return (
     <>
-      <div className="mb-7 flex flex-col gap-2 border-l border-white/30 pl-4 text-sm text-stone-400 sm:mb-9 sm:flex-row sm:items-center sm:gap-5">
+      <div className="mb-7 flex flex-col gap-2 border-l border-[var(--game-success)] pl-4 font-mono text-sm text-[var(--game-muted)] sm:mb-9 sm:flex-row sm:items-center sm:gap-5">
         <p>
           플레이어{" "}
-          <strong className="font-medium text-stone-100">
+          <strong className="font-medium text-[var(--game-text-strong)]">
             {state.data.profile.nickname}
           </strong>
         </p>
         {currentStage && (
           <p>
             현재 진행{" "}
-            <strong className="font-medium text-stone-100">
+            <strong className="font-medium text-[var(--game-accent)]">
               Stage {currentStage.stageOrder}
             </strong>
           </p>

@@ -32,6 +32,9 @@ export interface StageOneProgressPatch {
   escaped?: boolean;
 }
 
+/** 모달 입력 잠금을 해제한다. 여러 번 호출해도 첫 호출만 반영되어야 한다. */
+export type StageOneModalInputRelease = () => void;
+
 export interface StageOneInteractionContext {
   getState(): StageOneSaveState;
   updateProgress(
@@ -40,6 +43,7 @@ export interface StageOneInteractionContext {
   ): Promise<StageOneSaveState>;
   transitionTo(roomId: StageOneRoomId): Promise<void>;
   completeEscape(): Promise<void>;
+  acquireModalInputLock(): StageOneModalInputRelease;
   showMessage(text: string, tone?: "info" | "success" | "warning" | "error"): void;
 }
 
