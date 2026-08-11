@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { DocumentStoragePuzzleModal } from "./DocumentStoragePuzzleModal";
+import { ScienceLabPuzzleModal } from "./ScienceLabPuzzleModal";
 import type {
   StageOneGameEventMap,
   StageOneGameMessage,
@@ -18,6 +19,14 @@ import type {
 } from "@/types/stage-one";
 import { STAGE_ONE_ROOM_DISPLAY_NAMES } from "@/types/stage-one";
 import { formatClearTime } from "@/utils/formatClearTime";
+
+const DocumentStoragePuzzleModal = dynamic(
+  () =>
+    import("./DocumentStoragePuzzleModal").then(
+      (module) => module.DocumentStoragePuzzleModal,
+    ),
+  { ssr: false },
+);
 
 interface StageOneGameHostProps {
   stageOrder: number;
@@ -190,35 +199,38 @@ export function StageOneGameHost({
   };
 
   return (
-    <section className="mx-auto w-full max-w-6xl" aria-labelledby="stage-one-title">
-      <div className="mb-4 flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur-md sm:flex-row sm:items-end sm:justify-between">
+    <section
+      className="game-interface mx-auto w-full max-w-6xl"
+      aria-labelledby="stage-one-title"
+    >
+      <div className="mb-4 flex flex-col gap-4 rounded-[3px] border border-[var(--game-border)] bg-[var(--game-surface)] p-5 shadow-2xl shadow-black/25 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[0.68rem] font-semibold tracking-[0.3em] text-violet-300/70">
-            STAGE {String(stageOrder).padStart(2, "0")}
+          <p className="font-mono text-[0.68rem] font-semibold tracking-[0.24em] text-[var(--game-accent)]">
+            OUTOFBOUNDS // STAGE {String(stageOrder).padStart(2, "0")}
           </p>
           <h1
             id="stage-one-title"
-            className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl"
+            className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[var(--game-text-strong)] sm:text-3xl"
           >
             {title}
           </h1>
         </div>
-        <div className="grid grid-cols-3 gap-5 text-left text-xs sm:text-right">
+        <div className="grid grid-cols-3 gap-5 font-mono text-left text-xs sm:text-right">
           <div>
-            <span className="block text-stone-500">현재 위치</span>
-            <strong className="mt-1 block font-medium text-stone-100">
+            <span className="block text-[0.6rem] tracking-[0.12em] text-[var(--game-muted)]">LOCATION</span>
+            <strong className="mt-1 block font-medium text-[var(--game-text)]">
               {hud.roomName}
             </strong>
           </div>
           <div>
-            <span className="block text-stone-500">경과 시간</span>
-            <strong className="mt-1 block font-medium tabular-nums text-stone-100">
+            <span className="block text-[0.6rem] tracking-[0.12em] text-[var(--game-muted)]">ELAPSED</span>
+            <strong className="mt-1 block font-medium tabular-nums text-[var(--game-text)]">
               {formatClearTime(hud.elapsedTimeMs)}
             </strong>
           </div>
           <div>
-            <span className="block text-stone-500">진행</span>
-            <strong className="mt-1 block font-medium text-stone-100">
+            <span className="block text-[0.6rem] tracking-[0.12em] text-[var(--game-muted)]">PROGRESS</span>
+            <strong className="mt-1 block font-medium text-[var(--game-accent)]">
               {completedFlags} / 8
             </strong>
           </div>
@@ -226,23 +238,23 @@ export function StageOneGameHost({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="overflow-hidden rounded-lg border border-white/15 bg-[#030708] shadow-2xl shadow-black/40">
+        <div className="overflow-hidden rounded-[4px] border border-[var(--game-border-strong)] bg-[var(--game-void)] shadow-2xl shadow-black/50">
           <div
             ref={containerRef}
-            className="relative aspect-video w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="game-grid-surface relative aspect-video w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--game-accent)]"
             tabIndex={0}
             role="application"
             aria-label="OutOfBounds Stage 1 게임 화면"
             onPointerDown={(event) => event.currentTarget.focus()}
           >
             {bootStatus !== "ready" ? (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#030708] px-6 text-center">
+              <div className="game-grid-surface absolute inset-0 z-10 flex items-center justify-center px-6 text-center">
                 <p
                   role={bootStatus === "error" ? "alert" : undefined}
                   className={
                     bootStatus === "error"
-                      ? "text-sm leading-6 text-red-200"
-                      : "text-sm tracking-[0.12em] text-stone-400"
+                      ? "text-sm leading-6 text-[var(--game-warning)]"
+                      : "font-mono text-sm tracking-[0.12em] text-[var(--game-muted)]"
                   }
                 >
                   {bootStatus === "error"
@@ -253,12 +265,12 @@ export function StageOneGameHost({
             ) : null}
 
             {hud.paused ? (
-              <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                <div className="rounded-md border border-white/20 bg-black/70 px-8 py-6 text-center">
-                  <p className="text-xs font-semibold tracking-[0.28em] text-violet-200">
+              <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#050b10]/80 backdrop-blur-[2px]">
+                <div className="rounded-[3px] border border-[var(--game-border-strong)] bg-[var(--game-surface)] px-8 py-6 text-center shadow-2xl shadow-black/40">
+                  <p className="font-mono text-xs font-semibold tracking-[0.28em] text-[var(--game-warning)]">
                     PAUSED
                   </p>
-                  <p className="mt-3 text-sm text-stone-300">
+                  <p className="mt-3 text-sm text-[var(--game-text)]">
                     Escape 또는 계속하기 버튼으로 돌아갑니다.
                   </p>
                 </div>
@@ -266,42 +278,42 @@ export function StageOneGameHost({
             ) : null}
 
             {hud.interactionPrompt && !hud.paused ? (
-              <p className="pointer-events-none absolute bottom-5 left-1/2 z-20 w-[min(90%,32rem)] -translate-x-1/2 rounded-md border border-violet-200/20 bg-black/80 px-4 py-3 text-center text-sm text-violet-100 shadow-lg">
+              <p className="pointer-events-none absolute bottom-5 left-1/2 z-20 w-[min(90%,32rem)] -translate-x-1/2 rounded-[3px] border border-[var(--game-border-strong)] bg-[#050b10]/95 px-4 py-3 text-center font-mono text-sm text-[var(--game-accent)] shadow-lg">
                 {hud.interactionPrompt}
               </p>
             ) : null}
           </div>
         </div>
 
-        <aside className="flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur-md">
+        <aside className="flex flex-col gap-4 rounded-[3px] border border-[var(--game-border)] bg-[var(--game-surface)] p-5 shadow-2xl shadow-black/25">
           <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.22em] text-stone-500">
+            <p className="font-mono text-[0.65rem] font-semibold tracking-[0.22em] text-[var(--game-muted)]">
               CURRENT OBJECTIVE
             </p>
-            <p className="mt-2 text-sm leading-6 text-stone-200">{hud.objective}</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--game-text)]">{hud.objective}</p>
           </div>
 
-          <div className="border-t border-white/10 pt-4">
+          <div className="border-t border-[var(--game-border)] pt-4">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-stone-500">저장 상태</span>
+              <span className="font-mono text-xs text-[var(--game-muted)]">SAVE STATUS</span>
               <strong
                 className={
                   saveStatus.phase === "failed"
-                    ? "text-xs font-medium text-red-200"
+                    ? "text-xs font-medium text-[var(--game-warning)]"
                     : saveStatus.phase === "retrying"
-                      ? "text-xs font-medium text-amber-200"
-                      : "text-xs font-medium text-emerald-200"
+                      ? "text-xs font-medium text-[var(--game-warning)]"
+                      : "text-xs font-medium text-[var(--game-success)]"
                 }
               >
                 {getSaveStatusLabel(saveStatus)}
               </strong>
             </div>
-            <p className="mt-2 text-xs leading-5 text-stone-500">
+            <p className="mt-2 text-xs leading-5 text-[var(--game-muted)]">
               {saveStatus.message}
             </p>
           </div>
 
-          <div className="border-t border-white/10 pt-4 text-xs leading-5 text-stone-400">
+          <div className="border-t border-[var(--game-border)] pt-4 font-mono text-xs leading-5 text-[var(--game-muted)]">
             <p>이동 · WASD / 방향키</p>
             <p>달리기 · Space</p>
             <p>상호작용 · E</p>
@@ -313,7 +325,7 @@ export function StageOneGameHost({
               type="button"
               onClick={handlePauseToggle}
               disabled={bootStatus !== "ready"}
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/30 bg-white/5 px-4 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-11 items-center justify-center rounded-[3px] border border-[var(--game-border-strong)] bg-[var(--game-surface-raised)] px-4 text-sm font-medium text-[var(--game-text)] transition-colors hover:border-[var(--game-accent)] hover:text-[var(--game-text-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--game-accent)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {hud.paused ? "계속하기" : "일시정지"}
             </button>
@@ -321,14 +333,14 @@ export function StageOneGameHost({
               <button
                 type="button"
                 onClick={handleRetrySave}
-                className="inline-flex min-h-11 items-center justify-center rounded-md border border-amber-200/30 bg-amber-200/5 px-4 text-sm font-medium text-amber-100 transition-colors hover:border-amber-200/60 hover:bg-amber-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-100"
+                className="inline-flex min-h-11 items-center justify-center rounded-[3px] border border-[#8b514d] bg-[#251517] px-4 text-sm font-medium text-[var(--game-warning)] transition-colors hover:border-[#d17e74] hover:bg-[#321b1d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--game-warning)]"
               >
                 저장 다시 시도
               </button>
             ) : null}
             <Link
               href="/stages"
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/20 px-4 text-sm text-stone-300 transition-colors hover:border-white/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+              className="inline-flex min-h-11 items-center justify-center rounded-[3px] border border-[var(--game-border)] px-4 text-sm text-[var(--game-muted)] transition-colors hover:border-[var(--game-border-strong)] hover:text-[var(--game-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--game-accent)]"
             >
               Stage 나가기
             </Link>
@@ -341,12 +353,12 @@ export function StageOneGameHost({
           <p
             className={
               message.tone === "error"
-                ? "rounded-md border border-red-200/15 bg-red-950/30 px-4 py-3 text-sm text-red-100"
+                ? "rounded-[3px] border border-[#8b514d] bg-[#251517] px-4 py-3 text-sm text-[var(--game-warning)]"
                 : message.tone === "warning"
-                  ? "rounded-md border border-amber-200/15 bg-amber-950/25 px-4 py-3 text-sm text-amber-100"
+                  ? "rounded-[3px] border border-[#8b514d] bg-[#251517] px-4 py-3 text-sm text-[var(--game-warning)]"
                   : message.tone === "success"
-                    ? "rounded-md border border-emerald-200/15 bg-emerald-950/25 px-4 py-3 text-sm text-emerald-100"
-                    : "rounded-md border border-white/10 bg-black/35 px-4 py-3 text-sm text-stone-300"
+                    ? "rounded-[3px] border border-[#315447] bg-[#0c211a] px-4 py-3 text-sm text-[var(--game-accent)]"
+                    : "rounded-[3px] border border-[var(--game-border)] bg-[var(--game-surface)] px-4 py-3 text-sm text-[var(--game-text)]"
             }
           >
             {message.text}
@@ -355,12 +367,13 @@ export function StageOneGameHost({
       </div>
 
       {completed ? (
-        <p className="mt-2 text-center text-sm font-medium text-emerald-200">
+        <p className="mt-2 text-center text-sm font-medium text-[var(--game-success)]">
           Stage 1 클리어 상태입니다. 기존 저장을 유지한 채 다시 입장했습니다.
         </p>
       ) : null}
 
       <DocumentStoragePuzzleModal />
+      <ScienceLabPuzzleModal />
     </section>
   );
 }

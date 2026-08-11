@@ -3,6 +3,17 @@
 :root {
   --background: #030708;
   --foreground: #f5f5f4;
+  --game-void: #050b10;
+  --game-surface: #071018;
+  --game-surface-raised: #0b1823;
+  --game-border: #223341;
+  --game-border-strong: #4a5f6d;
+  --game-text: #d4dde1;
+  --game-text-strong: #eef3f5;
+  --game-muted: #6f838f;
+  --game-accent: #b7d8c1;
+  --game-success: #5dbd8b;
+  --game-warning: #e0a08f;
   color-scheme: dark;
 }
 
@@ -34,6 +45,18 @@ a {
 ::selection {
   background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
+}
+
+.game-interface {
+  color: var(--game-text);
+}
+
+.game-grid-surface {
+  background:
+    linear-gradient(rgba(34, 51, 65, 0.24) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 51, 65, 0.24) 1px, transparent 1px),
+    radial-gradient(circle at 50% 28%, #0c2529 0, #071218 48%, #050b10 100%);
+  background-size: 34px 34px, 34px 34px, auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -6,7 +6,7 @@ import {
   markDocumentStoragePuzzleCleared,
   subscribeToDocumentStoragePuzzleOpen,
   type OpenDocumentStoragePuzzleDetail,
-} from "@/game/stage-one/puzzles/document-storage";
+} from "@/game/stage-one/puzzles/document-storage/documentStoragePuzzleEvents";
 import AgoGameHost from "./AgoGameHost";
 import MathdokuGameHost from "./MathdokuGameHost";
 import NQueensGameHost from "./NQueensGameHost";
@@ -94,20 +94,20 @@ export function DocumentStoragePuzzleModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#050b10]/90 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="document-storage-puzzle-title"
     >
-      <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col items-center justify-center overflow-hidden rounded-xl border border-violet-500/40 bg-[#0f172a] p-6 shadow-2xl">
-        <div className="mb-4 flex w-full items-center justify-between border-b border-slate-700/60 pb-3">
+      <div className="game-interface relative flex max-h-[90vh] w-full max-w-4xl flex-col items-center justify-center overflow-hidden rounded-[4px] border border-[var(--game-border-strong)] bg-[var(--game-surface)] p-6 shadow-2xl shadow-black/60">
+        <div className="mb-4 flex w-full items-center justify-between border-b border-[var(--game-border)] pb-3">
           <div>
-            <span className="text-xs font-semibold tracking-widest text-indigo-400">
+            <span className="font-mono text-xs font-semibold tracking-widest text-[var(--game-muted)]">
               DOCUMENT STORAGE SECURITY TERMINAL
             </span>
             <h2
               id="document-storage-puzzle-title"
-              className="text-xl font-bold text-slate-100"
+              className="text-xl font-bold text-[var(--game-text-strong)]"
             >
               {activePuzzle.title}
             </h2>
@@ -117,7 +117,7 @@ export function DocumentStoragePuzzleModal() {
               <button
                 type="button"
                 onClick={handlePuzzleComplete}
-                className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
+                className="rounded-[3px] border border-[#315447] bg-[#14261f] px-3 py-1.5 text-xs font-semibold text-[var(--game-accent)] transition-colors hover:border-[var(--game-success)]"
               >
                 개발용 퍼즐 해제
               </button>
@@ -125,7 +125,7 @@ export function DocumentStoragePuzzleModal() {
             <button
               type="button"
               onClick={closeActivePuzzle}
-              className="rounded bg-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-600"
+              className="rounded-[3px] border border-[var(--game-border)] bg-[var(--game-void)] px-3 py-1.5 text-xs font-semibold text-[var(--game-muted)] transition-colors hover:border-[var(--game-border-strong)] hover:text-[var(--game-text)]"
             >
               닫기 (ESC)
             </button>

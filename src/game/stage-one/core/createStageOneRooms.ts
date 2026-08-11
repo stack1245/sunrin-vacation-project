@@ -5,6 +5,7 @@ import { createDocumentStorageRoom } from "../rooms/document-storage/index.ts";
 import { entranceRoom } from "../rooms/entrance/entranceRoom.ts";
 import { hallwayRoom } from "../rooms/hallway/hallwayRoom.ts";
 import { outsideRoom } from "../rooms/outside/outsideRoom.ts";
+import { createScienceLabRoom } from "../rooms/science-lab/index.ts";
 import { createStageOneReferenceRooms } from "./referenceRooms.ts";
 
 /**
@@ -14,6 +15,7 @@ import { createStageOneReferenceRooms } from "./referenceRooms.ts";
 export function createStageOneRooms(): readonly StageOneRoomModule[] {
   const archiveRoom = createArchiveRoom();
   const documentStorageRoom = createDocumentStorageRoom();
+  const scienceLabRoom = createScienceLabRoom();
   const implementedRooms = new Map<
     StageOneRoomModule["id"],
     StageOneRoomModule
@@ -22,6 +24,7 @@ export function createStageOneRooms(): readonly StageOneRoomModule[] {
     [entranceRoom.id, entranceRoom],
     [hallwayRoom.id, hallwayRoom],
     [archiveRoom.id, archiveRoom],
+    [scienceLabRoom.id, scienceLabRoom],
     [controlRoomRoom.id, controlRoomRoom],
     [documentStorageRoom.id, documentStorageRoom],
   ]);
