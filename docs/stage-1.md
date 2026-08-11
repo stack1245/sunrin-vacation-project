@@ -9,7 +9,7 @@
 | A | 공통 Phaser 기반, Room 조립, 진행도·저장, 통합·QA | 10320 박도현 | `feat/stage-1/A-10320` |
 | B | 연구소 외부·입구·중앙 복도 | 10404 김준서 | `feat/stage-1/B-10404` |
 | C | 연구 자료실 | 10409 서정권 | `feat/stage-1/C-10409` |
-| D | 과학 실험실 | 10514 이동혁 | `feat/stage-1/D-10514` |
+| D | 과학 실험실 | 10320 박도현 (인계) | `feat/stage-1/D-10320` |
 | E | 보안 통제실 | 10602 김보민 | `feat/stage-1/E-10602` |
 | F | 문서 보관실과 최종 탈출 | 10405 김지산 | `feat/stage-1/F-10405` |
 
@@ -26,7 +26,7 @@ github/feat/stage-1/A-10320           → feat/stage-1/A-10320
 github/feat/stage-1/B-10404           → feat/stage-1/B-10404
 github/feat/stage-1/F-10405           → feat/stage-1/F-10405
 github/feat/stage-1/C-10409           → feat/stage-1/C-10409
-github/feat/stage-1/D-10514           → feat/stage-1/D-10514
+github/feat/stage-1/D-10320           → feat/stage-1/D-10320
 github/feat/stage-1/E-10602           → feat/stage-1/E-10602
 ```
 
@@ -103,7 +103,31 @@ Stage 1 진행 상태는 `src/types/stage-one.ts`의 타입과 정규화 함수�
 - 입력 잠금은 공통 컨텍스트를 통해 처리하며 Room이 전역 키보드 상태를 직접 제어하지 않는다.
 - Room을 나가거나 게임을 종료할 때 이벤트 리스너, 타이머, DOM 모달을 정리한다.
 
-## 7. 인수인계 규칙
+## 7. 게임 시각 방향
+
+Stage 1은 [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/layer7-kr/2026codegate-layer7-booth)의 절제된 산업 시설 UI를 시각 참고점으로 삼는다. 콘텐츠·게임 규칙·코드를 복제하지 않고 다음 표현 원칙만 공통으로 사용한다.
+
+- `#050b10`·`#071018`·`#0b1823`의 어두운 청회색 표면
+- `#223341`·`#4a5f6d`의 얇은 구조선과 작은 모서리 반경
+- 기본 텍스트 `#d4dde1`, 강조 텍스트 `#eef3f5`, 보조 텍스트 `#6f838f`
+- 정상·활성 상태는 절제된 민트 `#b7d8c1`·`#5dbd8b`, 경고는 `#e0a08f`
+- 장소·시간·진행도·장치 상태는 모노스페이스 영문 레이블과 한국어 설명을 함께 사용
+- 배경은 저대비 격자와 시설 패널로 깊이를 만들고 과한 네온·블러·둥근 카드는 피한다.
+- 상태는 색상만으로 구분하지 않고 `잠김`, `조작 가능`, `완료`, 오류 이유 문구를 함께 표시한다.
+
+웹 화면은 `src/app/globals.css`의 `--game-*` 토큰과 `.facility-*` 컴포넌트 클래스, `FacilityShell`을 사용한다. Phaser 화면은 같은 색상값과 상태 의미를 적용하고, 공통 HUD·Room·퍼즐 사이에서 다음 기준을 유지한다.
+
+| 영역 | 공통 기준 |
+| --- | --- |
+| 메인·인증·스테이지 | `FacilityShell` 배경, `facility-panel`, `facility-input`, `facility-button*` 사용 |
+| Stage HUD·React 모달 | `.game-interface`, `.game-grid-surface`, `--game-*` 토큰 사용 |
+| Phaser Room | `#050b10` 바닥, `#223341` 격자, `#0b1823` 패널, 민트 활성 상태 사용 |
+| Phaser 퍼즐 | Room과 같은 표면·테두리·상태색을 사용하고 퍼즐별 무지개 색상은 사용하지 않음 |
+| 경고·성공 | 경고는 녹슨 적색 표면과 원인 문구, 성공은 민트 표면과 완료 문구를 함께 표시 |
+
+각 Room은 기획상 필요한 보조색을 추가할 수 있지만 색상의 상태 의미와 텍스트 대비를 바꾸지 않는다. 장식보다 현재 위치·목표·상호작용 가능 상태가 먼저 읽혀야 한다.
+
+## 8. 인수인계 규칙
 
 완료된 파트는 자신의 브랜치 `docs` 폴더에 `기능2A_handoff.md` 형식으로 문서를 남긴다.
 
@@ -126,7 +150,7 @@ docs/F2A_handoff.md
 
 구현과 맞지 않는 오래된 요청, 개인 메모, 중복 명세는 남기지 않는다.
 
-## 8. 완료 기준
+## 9. 완료 기준
 
 ```text
 npm test

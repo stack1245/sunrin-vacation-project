@@ -58,7 +58,7 @@ export function createStageOneGame({
     parent,
     width: STAGE_ONE_WORLD_WIDTH,
     height: STAGE_ONE_WORLD_HEIGHT,
-    backgroundColor: "#030708",
+    backgroundColor: "#050b10",
     pixelArt: true,
     roundPixels: true,
     autoFocus: true,

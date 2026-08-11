@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { FacilityShell } from "@/components/common/FacilityShell";
 import { SiteHeader } from "@/components/common/SiteHeader";
 import { StageEntryView } from "@/components/stages/StageEntryView";
 
@@ -21,14 +22,14 @@ export default async function StageEntryPage({
   const { slug } = await params;
 
   return (
-    <div className="relative min-h-dvh overflow-x-hidden bg-[url('/background.svg')] bg-cover bg-center bg-no-repeat text-stone-100">
+    <FacilityShell>
       <SiteHeader />
 
       <main className="relative z-10 flex min-h-[calc(100dvh-4.5rem)] flex-col px-4 py-8 sm:min-h-[calc(100dvh-5rem)] sm:px-6 sm:py-10">
         <div className="mx-auto mb-6 w-full max-w-6xl">
           <Link
             href="/stages"
-            className="inline-flex min-h-10 items-center rounded-sm text-xs font-medium tracking-[0.12em] text-stone-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+            className="facility-back-link facility-focus"
           >
             <span aria-hidden="true" className="mr-2">
               ←
@@ -41,6 +42,6 @@ export default async function StageEntryPage({
           <StageEntryView slug={slug} />
         </div>
       </main>
-    </div>
+    </FacilityShell>
   );
 }

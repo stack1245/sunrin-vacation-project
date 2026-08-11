@@ -43,7 +43,7 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
     this.allocation = createInitialResourceAllocation();
     this.zoneValueTexts.clear();
     this.ruleStatusTexts.clear();
-    this.cameras.main.setBackgroundColor("#1e1e2e");
+    this.cameras.main.setBackgroundColor("#050b10");
 
     this.drawHeader();
     this.drawZoneControlsAndRules();
@@ -61,7 +61,7 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
     this.add
       .text(GAME_WIDTH / 2, 40, "자원 분배 퍼즐", {
         fontSize: "28px",
-        color: "#ffffff",
+        color: "#eef3f5",
         fontFamily: "Arial",
         fontStyle: "bold",
       })
@@ -70,7 +70,7 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
     this.totalText = this.add
       .text(GAME_WIDTH / 2, 80, "총 자원 합계: 100 / 100", {
         fontSize: "22px",
-        color: "#a6e3a1",
+        color: "#b7d8c1",
         fontFamily: "Arial",
         fontStyle: "bold",
       })
@@ -91,7 +91,7 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
       this.add
         .text(40, y, RESOURCE_ZONE_LABELS[zoneId], {
           fontSize: "18px",
-          color: "#8be9fd",
+          color: "#b7d8c1",
           fontFamily: "Arial",
           fontStyle: "bold",
         })
@@ -103,7 +103,7 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
       const valueText = this.add
         .text(280, y, String(this.allocation[zoneId]), {
           fontSize: "24px",
-          color: "#ffffff",
+          color: "#d4dde1",
           fontFamily: "Arial",
           fontStyle: "bold",
         })
@@ -118,7 +118,7 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
         const statusText = this.add
           .text(430, y, `❌ ${rule.label}`, {
             fontSize: "16px",
-            color: "#ff5555",
+            color: "#e0a08f",
             fontFamily: "Arial",
           })
           .setOrigin(0, 0.5);
@@ -129,13 +129,13 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
 
   private createAdjustmentButton(x: number, y: number, label: string, onSelect: () => void): void {
     const background = this.add
-      .rectangle(x, y, 40, 36, 0x44475a)
+      .rectangle(x, y, 40, 36, 0x0b1823)
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
     this.add.text(x, y, label, {
       fontSize: "16px",
-      color: "#ffffff",
+      color: "#d4dde1",
       fontFamily: "Arial",
       fontStyle: "bold",
     }).setOrigin(0.5);
@@ -143,8 +143,8 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
     background.on("pointerdown", () => {
       if (!this.isCleared) onSelect();
     });
-    background.on("pointerover", () => background.setFillStyle(0x6272a4));
-    background.on("pointerout", () => background.setFillStyle(0x44475a));
+    background.on("pointerover", () => background.setFillStyle(0x132635));
+    background.on("pointerout", () => background.setFillStyle(0x0b1823));
   }
 
   private changeZoneValue(zoneId: ResourceZoneId, delta: number): void {
@@ -159,10 +159,10 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
     const submitX = GAME_WIDTH / 2 - 60;
     const resetX = GAME_WIDTH / 2 + 60;
 
-    this.submitButtonBg = this.add.rectangle(submitX, uiY, 100, 40, 0x555555).setOrigin(0.5);
+    this.submitButtonBg = this.add.rectangle(submitX, uiY, 100, 40, 0x223341).setOrigin(0.5);
     this.submitButtonText = this.add.text(submitX, uiY, "정답", {
       fontSize: "16px",
-      color: "#aaaaaa",
+      color: "#6f838f",
       fontFamily: "Arial",
       fontStyle: "bold",
     }).setOrigin(0.5);
@@ -173,18 +173,18 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
         }
     });
 
-    const resetButtonBg = this.add.rectangle(resetX, uiY, 100, 40, 0x883333).setOrigin(0.5);
+    const resetButtonBg = this.add.rectangle(resetX, uiY, 100, 40, 0x251517).setOrigin(0.5);
     resetButtonBg.setInteractive({ useHandCursor: true });
     this.add.text(resetX, uiY, "초기화", {
       fontSize: "16px",
-      color: "#ffffff",
+      color: "#e0a08f",
       fontFamily: "Arial",
       fontStyle: "bold",
     }).setOrigin(0.5);
 
     resetButtonBg.on("pointerdown", () => this.resetAllocation());
-    resetButtonBg.on("pointerover", () => resetButtonBg.setFillStyle(0xaa4444));
-    resetButtonBg.on("pointerout", () => resetButtonBg.setFillStyle(0x883333));
+    resetButtonBg.on("pointerover", () => resetButtonBg.setFillStyle(0x321b1d));
+    resetButtonBg.on("pointerout", () => resetButtonBg.setFillStyle(0x251517));
   }
 
   // 🔥 정답 확인 시 호출되는 통합 클리어 로직
@@ -221,7 +221,7 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
 
     this.totalText.setText(`총 자원 합계: ${evaluation.total} / 100`);
     this.totalText.setColor(
-      evaluation.total === 100 ? "#a6e3a1" : evaluation.total > 100 ? "#ff5555" : "#f1fa8c",
+      evaluation.total === 100 ? "#5dbd8b" : evaluation.total > 100 ? "#e0a08f" : "#f0cf72",
     );
 
     for (const rule of RESOURCE_ALLOCATION_RULES) {
@@ -230,17 +230,17 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
       if (statusText) {
         statusText
           .setText(`${isSatisfied ? "✅" : "❌"} ${rule.label}`)
-          .setColor(isSatisfied ? "#50fa7b" : "#ff5555");
+          .setColor(isSatisfied ? "#5dbd8b" : "#e0a08f");
       }
     }
 
     if (evaluation.isSolved && !this.isCleared) {
-        this.submitButtonBg.setFillStyle(0x33aa33);
-        this.submitButtonText.setColor('#ffffff');
+        this.submitButtonBg.setFillStyle(0x315447);
+        this.submitButtonText.setColor('#eef3f5');
         this.submitButtonBg.setInteractive({ useHandCursor: true });
     } else {
-        this.submitButtonBg.setFillStyle(0x555555);
-        this.submitButtonText.setColor('#aaaaaa');
+        this.submitButtonBg.setFillStyle(0x223341);
+        this.submitButtonText.setColor('#6f838f');
         this.submitButtonBg.disableInteractive();
     }
   }
@@ -252,16 +252,16 @@ export class ResourceAllocationPuzzleScene extends Phaser.Scene {
       .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.75)
       .setInteractive();
 
-    // 🔥 N-Queens 스타일: 어두운 배경(0x222222) + 노란색 테두리(0xffcc00)
+    // 완료 결과를 공통 시설 패널 색상으로 강조한다.
     const panel = this.add
-      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 350, 150, 0x222222)
-      .setStrokeStyle(4, 0xffcc00);
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 350, 150, 0x071018)
+      .setStrokeStyle(3, 0xf0cf72);
 
     // 🔥 요청대로 다른 설명 없이 텍스트 하나만 출력
     const successText = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "# : w", {
         fontSize: "28px",
-        color: "#ffffff",
+        color: "#eef3f5",
         fontFamily: "Arial",
         fontStyle: "bold",
         align: "center",

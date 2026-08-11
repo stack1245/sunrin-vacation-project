@@ -30,7 +30,7 @@ export class TtfPuzzleScene extends Phaser.Scene {
     this.selectedOptionIndex = null;
     this.optionBgs = [];
     this.optionTexts = [];
-    this.cameras.main.setBackgroundColor("#1e1e2e");
+    this.cameras.main.setBackgroundColor("#050b10");
 
     this.drawHeader();
     this.drawOptions();
@@ -44,7 +44,7 @@ export class TtfPuzzleScene extends Phaser.Scene {
     this.add
       .text(GAME_WIDTH / 2, 60, "TTF", {
         fontSize: "28px",
-        color: "#ffffff",
+        color: "#eef3f5",
         fontFamily: "Arial",
         fontStyle: "bold",
       })
@@ -53,7 +53,7 @@ export class TtfPuzzleScene extends Phaser.Scene {
     this.add
       .text(GAME_WIDTH / 2, 110, "당신은 로봇이 아닙니까?", {
         fontSize: "18px",
-        color: "#a6e3a1",
+        color: "#b7d8c1",
         fontFamily: "Arial",
       })
       .setOrigin(0.5);
@@ -74,7 +74,7 @@ export class TtfPuzzleScene extends Phaser.Scene {
 
       // 선지 배경 (가로로 넓은 직사각형)
       const bg = this.add
-        .rectangle(GAME_WIDTH / 2, y, 600, 65, 0x44475a)
+        .rectangle(GAME_WIDTH / 2, y, 600, 65, 0x0b1823)
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
 
@@ -82,7 +82,7 @@ export class TtfPuzzleScene extends Phaser.Scene {
       const text = this.add
         .text(GAME_WIDTH / 2, y, placeholders[i], {
           fontSize: "20px",
-          color: "#ffffff",
+          color: "#d4dde1",
           fontFamily: "Arial",
         })
         .setOrigin(0.5);
@@ -96,13 +96,13 @@ export class TtfPuzzleScene extends Phaser.Scene {
 
       bg.on("pointerover", () => {
         if (!this.isCleared && this.selectedOptionIndex !== i) {
-          bg.setFillStyle(0x6272a4);
+          bg.setFillStyle(0x132635);
         }
       });
 
       bg.on("pointerout", () => {
         if (!this.isCleared && this.selectedOptionIndex !== i) {
-          bg.setFillStyle(0x44475a);
+          bg.setFillStyle(0x0b1823);
         }
       });
 
@@ -117,10 +117,10 @@ export class TtfPuzzleScene extends Phaser.Scene {
     const resetX = GAME_WIDTH / 2 + 70;
 
     // 1. 정답 확인 버튼
-    this.submitButtonBg = this.add.rectangle(submitX, uiY, 120, 45, 0x555555).setOrigin(0.5);
+    this.submitButtonBg = this.add.rectangle(submitX, uiY, 120, 45, 0x223341).setOrigin(0.5);
     this.submitButtonText = this.add.text(submitX, uiY, "정답", {
       fontSize: "18px",
-      color: "#aaaaaa",
+      color: "#6f838f",
       fontFamily: "Arial",
       fontStyle: "bold",
     }).setOrigin(0.5);
@@ -138,19 +138,19 @@ export class TtfPuzzleScene extends Phaser.Scene {
     });
 
     // 2. 초기화 버튼
-    const resetButtonBg = this.add.rectangle(resetX, uiY, 120, 45, 0x883333).setOrigin(0.5);
+    const resetButtonBg = this.add.rectangle(resetX, uiY, 120, 45, 0x251517).setOrigin(0.5);
     resetButtonBg.setInteractive({ useHandCursor: true });
 
     this.add.text(resetX, uiY, "초기화", {
       fontSize: "18px",
-      color: "#ffffff",
+      color: "#e0a08f",
       fontFamily: "Arial",
       fontStyle: "bold",
     }).setOrigin(0.5);
 
     resetButtonBg.on("pointerdown", () => this.resetPuzzle());
-    resetButtonBg.on("pointerover", () => resetButtonBg.setFillStyle(0xaa4444));
-    resetButtonBg.on("pointerout", () => resetButtonBg.setFillStyle(0x883333));
+    resetButtonBg.on("pointerover", () => resetButtonBg.setFillStyle(0x321b1d));
+    resetButtonBg.on("pointerout", () => resetButtonBg.setFillStyle(0x251517));
   }
 
   private updateGameState(): void {
@@ -159,23 +159,23 @@ export class TtfPuzzleScene extends Phaser.Scene {
       const bg = this.optionBgs[i];
       if (this.selectedOptionIndex === i) {
         // 선택된 선지는 테두리와 밝은 색상 적용
-        bg.setFillStyle(0x32364d);
-        bg.setStrokeStyle(3, 0xffcc00);
+        bg.setFillStyle(0x132635);
+        bg.setStrokeStyle(3, 0xf0cf72);
       } else {
         // 선택되지 않은 선지 리셋
-        bg.setFillStyle(0x44475a);
+        bg.setFillStyle(0x0b1823);
         bg.setStrokeStyle(0);
       }
     }
 
     // 2. 제출 버튼 활성화/비활성화 처리
     if (this.selectedOptionIndex !== null && !this.isCleared) {
-      this.submitButtonBg.setFillStyle(0x33aa33);
-      this.submitButtonText.setColor("#ffffff");
+      this.submitButtonBg.setFillStyle(0x315447);
+      this.submitButtonText.setColor("#eef3f5");
       this.submitButtonBg.setInteractive({ useHandCursor: true });
     } else {
-      this.submitButtonBg.setFillStyle(0x555555);
-      this.submitButtonText.setColor("#aaaaaa");
+      this.submitButtonBg.setFillStyle(0x223341);
+      this.submitButtonText.setColor("#6f838f");
       this.submitButtonBg.disableInteractive();
     }
   }
@@ -210,13 +210,13 @@ export class TtfPuzzleScene extends Phaser.Scene {
 
     // N-Queens 및 Resource 퍼즐과 동일한 팝업 디자인
     const panel = this.add
-      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 350, 150, 0x222222)
-      .setStrokeStyle(4, 0xffcc00);
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 350, 150, 0x071018)
+      .setStrokeStyle(3, 0xf0cf72);
 
     const successText = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "! : ld", {
         fontSize: "28px",
-        color: "#ffffff",
+        color: "#eef3f5",
         fontFamily: "Arial",
         fontStyle: "bold",
         align: "center",

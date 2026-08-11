@@ -49,7 +49,7 @@ export class NQueensPuzzleScene extends Phaser.Scene {
             400,
             25,
             'N-Queens 퍼즐',
-            { fontSize: '24px', color: '#ffffff', fontFamily: 'Arial', fontStyle: 'bold' }
+            { fontSize: '24px', color: '#eef3f5', fontFamily: 'Cascadia Code, Consolas, monospace', fontStyle: 'bold' }
         ).setOrigin(0.5);
 
         this.drawBoard();
@@ -61,13 +61,13 @@ export class NQueensPuzzleScene extends Phaser.Scene {
             this.boardOffsetX,
             uiY,
             '클릭하여 퀸을 배치하세요',
-            { fontSize: '18px', color: '#aaaaaa', fontFamily: 'Arial' }
+            { fontSize: '18px', color: '#6f838f', fontFamily: 'Cascadia Code, Consolas, monospace' }
         ).setOrigin(0, 0.5);
 
         const submitX = 400 + 100;
-        this.submitButtonBg = this.add.rectangle(submitX, uiY, 100, 36, 0x555555).setOrigin(0.5);
+        this.submitButtonBg = this.add.rectangle(submitX, uiY, 100, 36, 0x223341).setOrigin(0.5);
         this.submitButtonText = this.add.text(submitX, uiY, '정답', {
-            fontSize: '16px', color: '#aaaaaa', fontFamily: 'Arial', fontStyle: 'bold'
+            fontSize: '16px', color: '#6f838f', fontFamily: 'Cascadia Code, Consolas, monospace', fontStyle: 'bold'
         }).setOrigin(0.5);
 
         this.createSuccessWindow();
@@ -85,9 +85,9 @@ export class NQueensPuzzleScene extends Phaser.Scene {
         });
 
         const resetX = submitX + 110;
-        const resetButtonBg = this.add.rectangle(resetX, uiY, 90, 36, 0x883333).setOrigin(0.5);
+        const resetButtonBg = this.add.rectangle(resetX, uiY, 90, 36, 0x251517).setOrigin(0.5);
         this.add.text(resetX, uiY, '초기화', {
-            fontSize: '16px', color: '#ffffff', fontFamily: 'Arial'
+            fontSize: '16px', color: '#e0a08f', fontFamily: 'Cascadia Code, Consolas, monospace'
         }).setOrigin(0.5);
 
         resetButtonBg.setInteractive({ useHandCursor: true });
@@ -96,10 +96,10 @@ export class NQueensPuzzleScene extends Phaser.Scene {
         });
 
         resetButtonBg.on('pointerover', () => {
-            if (!this.isCleared) resetButtonBg.setFillStyle(0xaa4444);
+            if (!this.isCleared) resetButtonBg.setFillStyle(0x321b1d);
         });
         resetButtonBg.on('pointerout', () => {
-            if (!this.isCleared) resetButtonBg.setFillStyle(0x883333);
+            if (!this.isCleared) resetButtonBg.setFillStyle(0x251517);
         });
 
         this.updateGameState();
@@ -116,11 +116,11 @@ export class NQueensPuzzleScene extends Phaser.Scene {
         const overlay = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
         overlay.setInteractive();
 
-        const panel = this.add.rectangle(400, 300, 350, 150, 0x222222).setStrokeStyle(4, 0xffcc00);
+        const panel = this.add.rectangle(400, 300, 350, 150, 0x071018).setStrokeStyle(3, 0xf0cf72);
 
         const successText = this.add.text(400, 300, '$ : o', {
             fontSize: '28px',
-            color: '#ffffff',
+            color: '#eef3f5',
             fontFamily: 'Arial',
             align: 'center',
             fontStyle: 'bold'
@@ -148,7 +148,7 @@ export class NQueensPuzzleScene extends Phaser.Scene {
         for (let r: number = 0; r < this.N; r++) {
             for (let c: number = 0; c < this.N; c++) {
                 const isLight: boolean = (r + c) % 2 === 0;
-                const color: number = isLight ? 0xffffff : 0x222222;
+                const color: number = isLight ? 0x8fa1aa : 0x17242c;
 
                 const x: number = this.boardOffsetX + (c * this.tileSize) + (this.tileSize / 2);
                 const y: number = this.boardOffsetY + (r * this.tileSize) + (this.tileSize / 2);
@@ -158,8 +158,8 @@ export class NQueensPuzzleScene extends Phaser.Scene {
 
                 if (this.isWall(r, c)) {
                     // 🔥 깨지는 텍스트 대신, 사각형 2개를 겹쳐서 단단한 벽(블록)처럼 표현
-                    tile.setFillStyle(0x44475a);
-                    this.add.rectangle(x, y, this.tileSize - 20, this.tileSize - 20, 0x282a36);
+                    tile.setFillStyle(0x344854);
+                    this.add.rectangle(x, y, this.tileSize - 20, this.tileSize - 20, 0x0b1823);
                 } else {
                     tile.setInteractive({ useHandCursor: true });
                     tile.on('pointerdown', () => this.handleTileClick(r, c, x, y));
@@ -183,8 +183,8 @@ export class NQueensPuzzleScene extends Phaser.Scene {
 
             const qText: Phaser.GameObjects.Text = this.add.text(x, y, '♛', {
                 fontSize: '45px',
-                color: '#ffcc00',
-                stroke: '#000000',
+                color: '#f0cf72',
+                stroke: '#050b10',
                 strokeThickness: 3
             }).setOrigin(0.5);
 
@@ -219,7 +219,7 @@ export class NQueensPuzzleScene extends Phaser.Scene {
                 if (this.isWall(r, c)) continue;
 
                 const isLight: boolean = (r + c) % 2 === 0;
-                this.tiles[r][c].setFillStyle(isLight ? 0xffffff : 0x222222);
+                this.tiles[r][c].setFillStyle(isLight ? 0x8fa1aa : 0x17242c);
 
                 let isAttacked = false;
                 for (const q of this.queens) {
@@ -241,19 +241,19 @@ export class NQueensPuzzleScene extends Phaser.Scene {
                 }
 
                 if (isAttacked && !this.isCleared) {
-                    const threatColor = isLight ? 0xff9999 : 0xcc3333;
+                    const threatColor = isLight ? 0xe0a08f : 0x8b514d;
                     this.tiles[r][c].setFillStyle(threatColor);
                 }
             }
         }
 
         if (this.queens.length === this.targetQueens && isSafe && !this.isCleared) {
-            this.submitButtonBg.setFillStyle(0x33aa33);
-            this.submitButtonText.setColor('#ffffff');
+            this.submitButtonBg.setFillStyle(0x315447);
+            this.submitButtonText.setColor('#eef3f5');
             this.submitButtonBg.setInteractive({ useHandCursor: true });
         } else {
-            this.submitButtonBg.setFillStyle(0x555555);
-            this.submitButtonText.setColor('#aaaaaa');
+            this.submitButtonBg.setFillStyle(0x223341);
+            this.submitButtonText.setColor('#6f838f');
             this.submitButtonBg.disableInteractive();
         }
     }

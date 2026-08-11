@@ -85,10 +85,10 @@ export function createArchiveRoom(): StageOneRoomModule {
         caesarSolved = true;
       }
 
-      context.addWall({ x: 480, y: 16, width: 960, height: 32 }, 0x151a24);
-      context.addWall({ x: 480, y: 524, width: 960, height: 32 }, 0x151a24);
-      context.addWall({ x: 16, y: 270, width: 32, height: 540 }, 0x151a24);
-      context.addWall({ x: 944, y: 270, width: 32, height: 540 }, 0x151a24);
+      context.addWall({ x: 480, y: 16, width: 960, height: 32 }, 0x0b1823);
+      context.addWall({ x: 480, y: 524, width: 960, height: 32 }, 0x0b1823);
+      context.addWall({ x: 16, y: 270, width: 32, height: 540 }, 0x0b1823);
+      context.addWall({ x: 944, y: 270, width: 32, height: 540 }, 0x0b1823);
 
       context.addPortal({
         id: "archive-to-hallway",
@@ -98,8 +98,8 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       const title = scene.add
         .text(480, 60, "연구 자료실", {
-          color: "#f5f5f4",
-          fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+          color: "#eef3f5",
+          fontFamily: "Cascadia Code, Consolas, monospace",
           fontSize: "24px",
           fontStyle: "bold",
         })
@@ -108,7 +108,7 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       const caesarCipher = scene.add
         .text(480, 150, CAESAR_PUZZLE.cipherText, {
-          color: "#ddd6fe",
+          color: "#b7d8c1",
           fontFamily: "Consolas, monospace",
           fontSize: "20px",
         })
@@ -117,7 +117,7 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       const caesarAnswerLine = scene.add
         .text(480, 185, "", {
-          color: "#f0e9ff",
+          color: "#d4dde1",
           fontFamily: "Consolas, monospace",
           fontSize: "18px",
         })
@@ -126,7 +126,7 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       const vigenereCipher = scene.add
         .text(480, 350, VIGENERE_PUZZLE.cipherText, {
-          color: "#ddd6fe",
+          color: "#b7d8c1",
           fontFamily: "Consolas, monospace",
           fontSize: "20px",
         })
@@ -139,7 +139,7 @@ export function createArchiveRoom(): StageOneRoomModule {
           385,
           context.getState().archiveClueFound ? describeArchiveClues() : "",
           {
-            color: "#f0e9ff",
+            color: "#d4dde1",
             fontFamily: "Consolas, monospace",
             fontSize: "16px",
             align: "center",

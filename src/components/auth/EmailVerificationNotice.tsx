@@ -107,26 +107,26 @@ export function EmailVerificationNotice({
   return (
     <div className="text-center">
       <div
-        className="mx-auto flex size-12 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-300/10 text-lg text-emerald-200"
+        className="mx-auto flex size-12 items-center justify-center rounded-[3px] border border-[#315447] bg-[var(--game-success-surface)] font-mono text-lg text-[var(--game-accent)]"
         aria-hidden="true"
       >
         ✓
       </div>
 
-      <p className="mt-5 text-sm font-medium leading-6 text-stone-100">
+      <p className="mt-5 text-sm font-medium leading-6 text-[var(--game-text-strong)]">
         {reason === "signup"
           ? "인증 메일을 보냈습니다."
           : "이메일 인증이 아직 완료되지 않았습니다."}
       </p>
-      <p className="mt-2 text-sm leading-6 text-stone-400">
+      <p className="mt-2 text-sm leading-6 text-[var(--game-muted)]">
         메일함에서 인증 링크를 눌러 회원가입을 완료해 주세요.
       </p>
 
-      <p className="mt-4 break-all rounded-md border border-white/10 bg-black/25 px-4 py-3 text-sm text-stone-200">
+      <p className="mt-4 break-all rounded-[3px] border border-[var(--game-border)] bg-[var(--game-void)] px-4 py-3 font-mono text-sm text-[var(--game-text)]">
         {email}
       </p>
 
-      <ul className="mt-5 space-y-1.5 text-left text-xs leading-5 text-stone-500">
+      <ul className="mt-5 space-y-1.5 text-left text-xs leading-5 text-[var(--game-muted)]">
         <li>· 메일이 보이지 않으면 스팸함도 확인해 주세요.</li>
         <li>· 위 이메일 주소가 정확한지 확인해 주세요.</li>
         <li>· 메일 도착까지 잠시 시간이 걸릴 수 있습니다.</li>
@@ -135,10 +135,10 @@ export function EmailVerificationNotice({
       {notice && (
         <p
           role={notice.kind === "error" ? "alert" : "status"}
-          className={`mt-5 rounded-md border px-4 py-3 text-sm leading-6 ${
+          className={`mt-5 ${
             notice.kind === "error"
-              ? "border-red-300/20 bg-red-300/10 text-red-100"
-              : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+              ? "facility-alert"
+              : "facility-success"
           }`}
         >
           {notice.message}
@@ -150,7 +150,7 @@ export function EmailVerificationNotice({
         onClick={handleResend}
         disabled={isResending || isCoolingDown}
         aria-describedby="resend-email-help"
-        className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-md border border-white/50 bg-white/10 px-5 text-sm font-medium text-white transition-colors duration-200 hover:border-white hover:bg-white/15 disabled:cursor-wait disabled:border-white/15 disabled:bg-white/5 disabled:text-stone-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030708]"
+        className="facility-button-primary facility-focus mt-6 min-h-12 w-full px-5"
       >
         {isResending
           ? "전송 중..."
@@ -168,7 +168,7 @@ export function EmailVerificationNotice({
       <button
         type="button"
         onClick={onUseDifferentEmail}
-        className="mt-4 rounded-sm px-2 py-2 text-sm text-stone-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+        className="facility-focus mt-4 rounded-[2px] px-2 py-2 text-sm text-[var(--game-muted)] transition-colors hover:text-[var(--game-text-strong)]"
       >
         다른 이메일로 다시 입력
       </button>
