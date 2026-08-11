@@ -1,9 +1,12 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import {
+  PROFILE_UPDATED_EVENT,
+  type ProfileUpdatedEventDetail,
+} from "@/lib/account/profileEvents";
 import {
   getSupabaseBrowserClient,
   isSupabaseConfigured,
@@ -11,20 +14,6 @@ import {
 
 const FOCUS_VISIBLE_CLASS_NAMES =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030708]";
-
-function getUserDisplayName(user: User | null): string | null {
-  if (!user) {
-    return null;
-  }
-
-  const metadataNickname = user.user_metadata.nickname;
-
-  if (typeof metadataNickname === "string" && metadataNickname.trim()) {
-    return metadataNickname.trim();
-  }
-
-  return user.email?.split("@")[0]?.trim() || "플레이어";
-}
 
 export function AuthNavigation() {
   const configured = isSupabaseConfigured();
@@ -42,21 +31,53 @@ export function AuthNavigation() {
 
     const client = supabase;
     let isMounted = true;
+    let profileRequestId = 0;
     let authChangeTimer: ReturnType<typeof setTimeout> | null = null;
 
-    function applyAuthenticatedUser(user: User | null) {
-      if (!isMounted) {
+    async function loadProfile(
+      user: { id: string; email?: string | null } | null,
+    ) {
+      const requestId = ++profileRequestId;
+
+      if (!user) {
+        if (isMounted && requestId === profileRequestId) {
+          setDisplayName(null);
+          setIsLoading(false);
+        }
         return;
       }
 
-      setDisplayName(getUserDisplayName(user));
+      if (isMounted) {
+        setIsLoading(true);
+      }
+
+      const fallbackNickname =
+        user.email?.split("@")[0]?.trim() || "플레이어";
+
+      await client.rpc("ensure_my_profile");
+
+      const { data } = await client
+        .from("profiles")
+        .select("nickname")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!isMounted || requestId !== profileRequestId) {
+        return;
+      }
+
+      setDisplayName(data?.nickname ?? fallbackNickname);
       setIsLoading(false);
     }
 
     void client.auth
       .getUser()
-      .then(({ data }) => applyAuthenticatedUser(data.user))
-      .catch(() => applyAuthenticatedUser(null));
+      .then(({ data }) => {
+        void loadProfile(data.user);
+      })
+      .catch(() => {
+        void loadProfile(null);
+      });
 
     const {
       data: { subscription },
@@ -70,9 +91,19 @@ export function AuthNavigation() {
       }
 
       authChangeTimer = setTimeout(() => {
-        applyAuthenticatedUser(session?.user ?? null);
+        void loadProfile(session?.user ?? null);
       }, 0);
     });
+
+    function handleProfileUpdated(event: Event) {
+      const detail = (event as CustomEvent<ProfileUpdatedEventDetail>).detail;
+
+      if (isMounted && typeof detail?.nickname === "string") {
+        setDisplayName(detail.nickname);
+      }
+    }
+
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
 
     return () => {
       isMounted = false;
@@ -80,6 +111,7 @@ export function AuthNavigation() {
         clearTimeout(authChangeTimer);
       }
       subscription.unsubscribe();
+      window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
     };
   }, []);
 
@@ -126,6 +158,12 @@ export function AuthNavigation() {
           >
             {displayName}
           </span>
+          <Link
+            href="/account"
+            className={`rounded-sm px-1 py-2 font-medium text-stone-200 transition-colors duration-200 hover:text-white ${FOCUS_VISIBLE_CLASS_NAMES}`}
+          >
+            회원정보
+          </Link>
           <button
             type="button"
             onClick={handleSignOut}
