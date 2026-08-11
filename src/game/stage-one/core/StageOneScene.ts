@@ -45,6 +45,12 @@ import {
   STAGE_ONE_SIDE_VIEW_PLAYER_Y,
   STAGE_ONE_SIDE_VIEW_PORTAL_Y,
 } from "./sideViewPresentation";
+import {
+  getInteractionActionLabel,
+  getInteractionMarkerPosition,
+  resolveInteractionPrompt,
+  selectNearestInteraction,
+} from "./interactionFeedback";
 
 export const STAGE_ONE_SCENE_KEY = "stage-one";
 
@@ -91,6 +97,9 @@ export class StageOneScene extends Phaser.Scene {
   private readonly rooms: StageOneRoomRegistry;
   private player!: Phaser.Physics.Arcade.Sprite;
   private playerBody!: Phaser.Physics.Arcade.Body;
+  private interactionTargetVisual!: Phaser.GameObjects.Container;
+  private interactionPromptVisual!: Phaser.GameObjects.Container;
+  private interactionActionLabel!: Phaser.GameObjects.Text;
   private movementKeys!: MovementKeys;
   private currentRoom!: StageOneRoomModule;
   private activeInteraction: StageOneInteractionDefinition | null = null;
@@ -143,6 +152,7 @@ export class StageOneScene extends Phaser.Scene {
     this.playerBody.setSize(25, 48).setOffset(24, 17);
     this.playerBody.setCollideWorldBounds(true);
     this.player.play(getStageOnePlayerAnimationKey("idle"));
+    this.createInteractionFeedback();
 
     const keyboard = this.input.keyboard;
 
@@ -198,6 +208,7 @@ export class StageOneScene extends Phaser.Scene {
 
     if (isTextInputActive()) {
       this.playerBody.setVelocityX(0);
+      this.hideInteractionFeedback();
       this.updateHud(time);
       return;
     }
@@ -215,6 +226,7 @@ export class StageOneScene extends Phaser.Scene {
       this.modalInputLock.isActive()
     ) {
       this.playerBody.setVelocityX(0);
+      this.hideInteractionFeedback();
       this.updateHud(time);
       return;
     }
@@ -242,6 +254,7 @@ export class StageOneScene extends Phaser.Scene {
 
     this.updatePlayerAnimation(horizontal, crouching);
     this.selectActiveInteraction();
+    this.updateInteractionFeedback();
 
     if (
       this.activeInteraction &&
@@ -260,6 +273,7 @@ export class StageOneScene extends Phaser.Scene {
 
     this.paused = paused;
     this.session.setPaused(paused);
+    this.updateInteractionFeedback();
 
     if (paused) {
       this.playerBody.setVelocity(0, 0);
@@ -404,21 +418,11 @@ export class StageOneScene extends Phaser.Scene {
 
   private selectActiveInteraction(): void {
     const state = this.session.getState();
-    let nearest: StageOneInteractionDefinition | null = null;
-    let nearestDistance = Number.POSITIVE_INFINITY;
-
-    for (const interaction of this.interactions) {
-      if (interaction.enabled && !interaction.enabled(state)) {
-        continue;
-      }
-
-      const distance = Math.abs(this.player.x - interaction.position.x);
-
-      if (distance <= (interaction.radius ?? 72) && distance < nearestDistance) {
-        nearest = interaction;
-        nearestDistance = distance;
-      }
-    }
+    const nearest = selectNearestInteraction(
+      this.interactions,
+      state,
+      this.player.x,
+    );
 
     if (nearest !== this.activeInteraction) {
       this.activeInteraction = nearest;
@@ -436,6 +440,7 @@ export class StageOneScene extends Phaser.Scene {
     this.interactionRunning = true;
     this.playerBody.setVelocityX(0);
     this.player.play(getStageOnePlayerAnimationKey("interact"), true);
+    this.hideInteractionFeedback();
 
     try {
       await interaction.onInteract(this.createInteractionContext());
@@ -446,8 +451,106 @@ export class StageOneScene extends Phaser.Scene {
       });
     } finally {
       this.interactionRunning = false;
+      this.updateInteractionFeedback();
       this.publishHud();
     }
+  }
+
+  private createInteractionFeedback(): void {
+    const accentColor = 0xb7d8c1;
+    const halo = this.add
+      .circle(0, 0, 34, accentColor, 0.12)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    const ring = this.add.circle(0, 0, 21, accentColor, 0);
+    ring.setStrokeStyle(3, accentColor, 0.95);
+    const core = this.add.circle(0, 0, 7, accentColor, 0.9);
+
+    this.interactionTargetVisual = this.add
+      .container(0, 0, [halo, ring, core])
+      .setDepth(46)
+      .setVisible(false);
+
+    const keyBadge = this.add
+      .text(0, 0, "E", {
+        backgroundColor: "#071018",
+        color: "#ffffff",
+        fontFamily: "Cascadia Code, Consolas, monospace",
+        fontSize: "18px",
+        fontStyle: "bold",
+        padding: { x: 8, y: 4 },
+        stroke: "#050b10",
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5);
+    this.interactionActionLabel = this.add
+      .text(0, 31, "", {
+        align: "center",
+        backgroundColor: "#03080d",
+        color: "#eef3f5",
+        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        fontSize: "13px",
+        padding: { x: 10, y: 6 },
+        wordWrap: { width: 240, useAdvancedWrap: true },
+      })
+      .setOrigin(0.5, 0);
+
+    this.interactionPromptVisual = this.add
+      .container(0, 0, [keyBadge, this.interactionActionLabel])
+      .setDepth(60)
+      .setVisible(false);
+
+    this.tweens.add({
+      targets: [halo, ring],
+      alpha: { from: 0.9, to: 0.15 },
+      duration: 850,
+      ease: "Sine.easeInOut",
+      repeat: -1,
+      scale: { from: 0.78, to: 1.35 },
+    });
+    this.tweens.add({
+      targets: this.interactionPromptVisual,
+      duration: 700,
+      ease: "Sine.easeInOut",
+      yoyo: true,
+      repeat: -1,
+      scale: { from: 0.97, to: 1.04 },
+    });
+  }
+
+  private updateInteractionFeedback(): void {
+    if (
+      !this.activeInteraction ||
+      this.paused ||
+      this.interactionRunning ||
+      this.modalInputLock.isActive()
+    ) {
+      this.hideInteractionFeedback();
+      return;
+    }
+
+    const prompt = resolveInteractionPrompt(
+      this.activeInteraction,
+      this.session.getState(),
+    );
+    const markerPosition = getInteractionMarkerPosition(
+      this.activeInteraction,
+    );
+
+    this.interactionTargetVisual
+      .setPosition(
+        this.activeInteraction.position.x,
+        this.activeInteraction.position.y,
+      )
+      .setVisible(true);
+    this.interactionPromptVisual
+      .setPosition(markerPosition.x, markerPosition.y)
+      .setVisible(true);
+    this.interactionActionLabel.setText(getInteractionActionLabel(prompt));
+  }
+
+  private hideInteractionFeedback(): void {
+    this.interactionTargetVisual?.setVisible(false);
+    this.interactionPromptVisual?.setVisible(false);
   }
 
   private createInteractionContext(): StageOneInteractionContext {
@@ -641,9 +744,7 @@ export class StageOneScene extends Phaser.Scene {
   private createHudState(): StageOneHudState {
     const state = this.session.getState();
     const prompt = this.activeInteraction
-      ? typeof this.activeInteraction.prompt === "function"
-        ? this.activeInteraction.prompt(state)
-        : this.activeInteraction.prompt
+      ? resolveInteractionPrompt(this.activeInteraction, state)
       : null;
 
     return {
@@ -659,9 +760,10 @@ export class StageOneScene extends Phaser.Scene {
 
   private updateHud(time: number): void {
     const prompt = this.activeInteraction
-      ? typeof this.activeInteraction.prompt === "function"
-        ? this.activeInteraction.prompt(this.session.getState())
-        : this.activeInteraction.prompt
+      ? resolveInteractionPrompt(
+          this.activeInteraction,
+          this.session.getState(),
+        )
       : null;
 
     if (time - this.lastHudAt >= 250 || prompt !== this.lastInteractionPrompt) {
@@ -703,6 +805,7 @@ export class StageOneScene extends Phaser.Scene {
     this.interactions.length = 0;
     this.activeInteraction = null;
     this.lastInteractionPrompt = null;
+    this.hideInteractionFeedback();
   }
 
   private handleShutdown(): void {
