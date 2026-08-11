@@ -31,6 +31,10 @@ import {
   type StageOnePlayerAnimation,
 } from "./playerAnimations";
 import {
+  preloadStageOneEnvironmentAssets,
+  STAGE_ONE_ENVIRONMENT_ASSETS,
+} from "./environmentAssets";
+import {
   STAGE_ONE_WORLD_HEIGHT,
   STAGE_ONE_WORLD_WIDTH,
 } from "./referenceRooms";
@@ -109,6 +113,8 @@ export class StageOneScene extends Phaser.Scene {
   }
 
   preload(): void {
+    preloadStageOneEnvironmentAssets(this);
+
     for (const [animation, definition] of Object.entries(
       STAGE_ONE_PLAYER_ANIMATIONS,
     ) as [StageOnePlayerAnimation, (typeof STAGE_ONE_PLAYER_ANIMATIONS)[StageOnePlayerAnimation]][]) {
@@ -353,15 +359,12 @@ export class StageOneScene extends Phaser.Scene {
     }
 
     const marker = this.add
-      .rectangle(
+      .image(
         definition.position.x,
         STAGE_ONE_SIDE_VIEW_PORTAL_Y,
-        86,
-        146,
-        0x071018,
-        0.98,
+        STAGE_ONE_ENVIRONMENT_ASSETS.securityDoor.key,
       )
-      .setStrokeStyle(2, 0x4a5f6d, 0.9)
+      .setDisplaySize(86, 146)
       .setDepth(8);
     const label = this.add
       .text(

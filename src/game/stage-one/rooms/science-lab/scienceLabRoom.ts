@@ -16,6 +16,7 @@ import {
   type ScienceLabStep,
   type ScienceLabStepRequester,
 } from "../../puzzles/science-lab/index.ts";
+import { STAGE_ONE_ENVIRONMENT_ASSETS } from "../../core/environmentAssets.ts";
 
 const WORLD_WIDTH = 960;
 const WORLD_HEIGHT = 540;
@@ -232,7 +233,7 @@ export class ScienceLabRoomModule implements StageOneRoomModule {
 
     const devicePanels = new Map<
       ScienceLabStep,
-      Phaser.GameObjects.Rectangle
+      Phaser.GameObjects.Image
     >();
     const deviceStates = new Map<ScienceLabStep, Phaser.GameObjects.Text>();
 
@@ -240,8 +241,8 @@ export class ScienceLabRoomModule implements StageOneRoomModule {
       const definition = SCIENCE_LAB_STEP_DEFINITIONS[step];
       const position = SCIENCE_LAB_DEVICE_POSITIONS[step];
       const panel = scene.add
-        .rectangle(position.x, position.y, 124, 104, 0x0b1823, 1)
-        .setStrokeStyle(2, 0x4a5f6d, 0.9)
+        .image(position.x, position.y, STAGE_ONE_ENVIRONMENT_ASSETS.labConsole.key)
+        .setDisplaySize(124, 104)
         .setDepth(7);
       const label = scene.add
         .text(position.x, position.y - 8, definition.title, {
@@ -282,13 +283,13 @@ export class ScienceLabRoomModule implements StageOneRoomModule {
         }
 
         if (snapshot.completedSteps.includes(step)) {
-          panel.setFillStyle(0x14261f, 1).setStrokeStyle(2, 0x5dbd8b, 1);
+          panel.setTint(0x5dbd8b);
           stateLabel.setText("완료");
         } else if (snapshot.currentStep === step) {
-          panel.setFillStyle(0x132635, 1).setStrokeStyle(2, 0xb7d8c1, 1);
+          panel.setTint(0xb7d8c1);
           stateLabel.setText("조작 가능");
         } else {
-          panel.setFillStyle(0x071018, 1).setStrokeStyle(2, 0x223341, 0.9);
+          panel.setTint(0x6f838f);
           stateLabel.setText("순서 대기");
         }
       }

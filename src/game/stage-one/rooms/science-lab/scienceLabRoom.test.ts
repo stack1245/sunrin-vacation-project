@@ -46,6 +46,12 @@ interface FakeRectangle {
   setDepth(value: number): FakeRectangle;
 }
 
+interface FakeImage {
+  setDisplaySize(width: number, height: number): FakeImage;
+  setDepth(value: number): FakeImage;
+  setTint(color: number): FakeImage;
+}
+
 interface FakeGraphics {
   fillStyle(color: number, alpha?: number): FakeGraphics;
   fillRect(x: number, y: number, width: number, height: number): FakeGraphics;
@@ -86,6 +92,22 @@ function createFakeRectangle(): FakeRectangle {
   };
 
   return rectangle;
+}
+
+function createFakeImage(): FakeImage {
+  const image: FakeImage = {
+    setDisplaySize() {
+      return image;
+    },
+    setDepth() {
+      return image;
+    },
+    setTint() {
+      return image;
+    },
+  };
+
+  return image;
 }
 
 function createFakeGraphics(): FakeGraphics {
@@ -157,6 +179,7 @@ function mountScienceLab({
   const scene = {
     add: {
       graphics: () => createFakeGraphics(),
+      image: () => createFakeImage(),
       rectangle: () => createFakeRectangle(),
       text: (_x: number, _y: number, value: string) => createFakeText(value),
     },
