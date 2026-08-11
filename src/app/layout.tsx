@@ -1,6 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
-
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -65,14 +63,19 @@ const browserExtensionAttributeCleanup = `
     subtree: true,
   });
 
-  window.addEventListener(
-    "load",
-    () => {
+  const finishHydrationGuard = () => {
+    cleanTree(document.documentElement);
+    window.setTimeout(() => {
       cleanTree(document.documentElement);
-      window.setTimeout(() => observer.disconnect(), 0);
-    },
-    { once: true },
-  );
+      observer.disconnect();
+    }, 15000);
+  };
+
+  if (document.readyState === "complete") {
+    finishHydrationGuard();
+  } else {
+    window.addEventListener("load", finishHydrationGuard, { once: true });
+  }
 })();
 `;
 
@@ -84,9 +87,8 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        <Script
+        <script
           id="browser-extension-attribute-cleanup"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: browserExtensionAttributeCleanup,
           }}
