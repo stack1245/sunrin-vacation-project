@@ -2,7 +2,7 @@ import { SiteHeader } from "@/components/common/SiteHeader";
 import { FacilityShell } from "@/components/common/FacilityShell";
 import { StartButton } from "@/components/home/StartButton";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <FacilityShell>
       <SiteHeader />
