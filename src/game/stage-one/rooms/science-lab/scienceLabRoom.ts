@@ -10,6 +10,10 @@ import {
   checkIgnitionAnswer,
   readLabAnswerLine,
 } from "../../puzzles/science-lab/scienceLabPuzzle";
+import {
+  getStageOneBackdropTextureKey,
+  STAGE_ONE_ENVIRONMENT_ASSETS,
+} from "../../core/environmentAssets";
 
 const SCIENCE_LAB_SPAWN_FROM_HALLWAY = { x: 220, y: 150 };
 const SCIENCE_LAB_DEFAULT_SPAWN = { x: 480, y: 270 };
@@ -60,6 +64,12 @@ export function createScienceLabRoom(): StageOneRoomModule {
     mount(context) {
       const { scene } = context;
       const isAlreadySolved = context.getState().scienceLabPuzzleSolved;
+
+      const backdrop = scene.add
+        .image(0, 0, getStageOneBackdropTextureKey("science-lab"))
+        .setOrigin(0)
+        .setDepth(-20);
+      context.track(backdrop);
 
       if (isAlreadySolved) {
         currentStep = "SOLVED";
@@ -117,6 +127,20 @@ export function createScienceLabRoom(): StageOneRoomModule {
         })
         .setOrigin(0.5);
       context.track(securityCodeDisplay);
+
+      for (const position of [
+        { x: 250, y: 250 },
+        { x: 400, y: 250 },
+        { x: 550, y: 250 },
+        { x: 700, y: 250 },
+        { x: 480, y: 370 },
+      ]) {
+        const console = scene.add
+          .image(position.x, position.y, STAGE_ONE_ENVIRONMENT_ASSETS.labConsole.key)
+          .setDisplaySize(112, 94)
+          .setDepth(6);
+        context.track(console);
+      }
 
       // [1단계] 화학 기호 선택
       context.addInteraction({

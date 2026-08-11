@@ -25,6 +25,10 @@ import {
   STAGE_ONE_WORLD_HEIGHT,
   STAGE_ONE_WORLD_WIDTH,
 } from "./referenceRooms";
+import {
+  preloadStageOneEnvironmentAssets,
+  STAGE_ONE_ENVIRONMENT_ASSETS,
+} from "./environmentAssets";
 
 export const STAGE_ONE_SCENE_KEY = "stage-one";
 
@@ -87,6 +91,10 @@ export class StageOneScene extends Phaser.Scene {
     this.session = session;
     this.gameEvents = events;
     this.rooms = new Map(rooms.map((room) => [room.id, room]));
+  }
+
+  preload(): void {
+    preloadStageOneEnvironmentAssets(this);
   }
 
   create(): void {
@@ -292,8 +300,12 @@ export class StageOneScene extends Phaser.Scene {
     }
 
     const marker = this.add
-      .rectangle(definition.position.x, definition.position.y, 112, 58, 0x7c6daf, 0.2)
-      .setStrokeStyle(2, 0xa99ad8, 0.9)
+      .image(
+        definition.position.x,
+        definition.position.y,
+        STAGE_ONE_ENVIRONMENT_ASSETS.securityDoor.key,
+      )
+      .setDisplaySize(72, 112)
       .setDepth(8);
     const label = this.add
       .text(

@@ -7,6 +7,7 @@ import type {
   StageOneRoomId,
   StageOneSaveState,
 } from "../../../types/stage-one.ts";
+import { getStageOneBackdropTextureKey } from "./environmentAssets.ts";
 
 export const STAGE_ONE_WORLD_WIDTH = 960;
 export const STAGE_ONE_WORLD_HEIGHT = 540;
@@ -53,10 +54,12 @@ function createReferenceRoom({
     },
     mount(context) {
       const { scene } = context;
+      const backdrop = scene.add
+        .image(0, 0, getStageOneBackdropTextureKey(id))
+        .setOrigin(0)
+        .setDepth(-20);
       const floor = scene.add.graphics();
 
-      floor.fillStyle(0x070b10, 1);
-      floor.fillRect(0, 0, STAGE_ONE_WORLD_WIDTH, STAGE_ONE_WORLD_HEIGHT);
       floor.lineStyle(1, 0x222936, 0.45);
 
       for (let x = 0; x <= STAGE_ONE_WORLD_WIDTH; x += 48) {
@@ -67,7 +70,8 @@ function createReferenceRoom({
         floor.lineBetween(0, y, STAGE_ONE_WORLD_WIDTH, y);
       }
 
-      floor.setDepth(-20);
+      floor.setDepth(-19);
+      context.track(backdrop);
       context.track(floor);
 
       const roomLabel = scene.add
