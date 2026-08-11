@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import {
+  PROFILE_UPDATED_EVENT,
+  type ProfileUpdatedEventDetail,
+} from "@/lib/account/profileEvents";
+import {
   getSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
@@ -50,7 +54,7 @@ export function AuthNavigation() {
       const fallbackNickname =
         user.email?.split("@")[0]?.trim() || "플레이어";
 
-      await client.rpc("ensure_user_setup");
+      await client.rpc("ensure_my_profile");
 
       const { data } = await client
         .from("profiles")
@@ -86,12 +90,23 @@ export function AuthNavigation() {
       }, 0);
     });
 
+    function handleProfileUpdated(event: Event) {
+      const detail = (event as CustomEvent<ProfileUpdatedEventDetail>).detail;
+
+      if (isMounted && typeof detail?.nickname === "string") {
+        setNickname(detail.nickname);
+      }
+    }
+
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+
     return () => {
       isMounted = false;
       if (authChangeTimer) {
         clearTimeout(authChangeTimer);
       }
       subscription.unsubscribe();
+      window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
     };
   }, []);
 
@@ -138,6 +153,12 @@ export function AuthNavigation() {
           >
             {nickname}
           </span>
+          <Link
+            href="/account"
+            className={`rounded-sm px-1 py-2 font-medium text-stone-200 transition-colors duration-200 hover:text-white ${focusStyles}`}
+          >
+            회원정보
+          </Link>
           <button
             type="button"
             onClick={handleSignOut}

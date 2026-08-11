@@ -165,6 +165,10 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
+      ensure_my_profile: {
+        Args: Record<PropertyKey, never>;
+        Returns: string;
+      };
       get_stage_one_progress: {
         Args: Record<PropertyKey, never>;
         Returns: Json;
@@ -175,6 +179,10 @@ export interface Database {
           p_save_version: number;
           p_state: Json;
         };
+        Returns: undefined;
+      };
+      reset_my_game_data: {
+        Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
       start_stage_one: {
