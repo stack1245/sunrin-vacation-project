@@ -50,19 +50,19 @@ const BODY_TOP = TOP + 104;
 const MONO_FONT = "Consolas, D2Coding, Menlo, monospace";
 
 const LEVEL_COLORS: Record<VirtualConsoleLevel, string> = {
-  system: "#7f8ea6",
-  input: "#d8cbff",
-  output: "#e5e7eb",
-  success: "#86efac",
-  warning: "#fcd34d",
-  error: "#fca5a5",
+  system: "#6f838f",
+  input: "#b7d8c1",
+  output: "#d4dde1",
+  success: "#5dbd8b",
+  warning: "#f0cf72",
+  error: "#e0a08f",
 };
 
 const TONE_COLORS: Record<ControlRoomStatusTone, string> = {
-  info: "#a99ad8",
-  success: "#86efac",
-  warning: "#fcd34d",
-  error: "#fca5a5",
+  info: "#8fa1aa",
+  success: "#5dbd8b",
+  warning: "#f0cf72",
+  error: "#e0a08f",
 };
 
 /** 어댑터가 퍼즐 상태 머신에 전달하는 조작. */
@@ -151,38 +151,38 @@ export class FakeDevtoolsOverlay {
 
   private build(): void {
     const backdrop = this.scene.add
-      .rectangle(480, 270, 960, 540, 0x030708, 0.78)
+      .rectangle(480, 270, 960, 540, 0x050b10, 0.82)
       .setScrollFactor(0)
       .setDepth(DEPTH_BASE);
     const panel = this.scene.add
-      .rectangle(PANEL.x, PANEL.y, PANEL.width, PANEL.height, 0x0b1018, 0.98)
-      .setStrokeStyle(2, 0x8b7ec8, 0.9)
+      .rectangle(PANEL.x, PANEL.y, PANEL.width, PANEL.height, 0x071018, 0.98)
+      .setStrokeStyle(2, 0x4a5f6d, 0.9)
       .setScrollFactor(0)
       .setDepth(DEPTH_BASE + 1);
     const titleBar = this.scene.add
-      .rectangle(PANEL.x, TOP + 20, PANEL.width, 40, 0x151a24, 1)
+      .rectangle(PANEL.x, TOP + 20, PANEL.width, 40, 0x0b1823, 1)
       .setScrollFactor(0)
       .setDepth(DEPTH_BASE + 2);
 
     this.objects.push(backdrop, panel, titleBar);
 
-    this.titleText = this.addText(LEFT, TOP + 12, "", 14, "#d8cbff");
+    this.titleText = this.addText(LEFT, TOP + 12, "", 14, "#b7d8c1");
 
     for (let index = 0; index < 4; index += 1) {
       this.tabTexts.push(
-        this.addText(LEFT + index * 132, TOP + 60, "", 13, "#7f8ea6"),
+        this.addText(LEFT + index * 132, TOP + 60, "", 13, "#6f838f"),
       );
     }
 
     const divider = this.scene.add
-      .rectangle(PANEL.x, TOP + 90, PANEL.width - 32, 1, 0x2a3346, 1)
+      .rectangle(PANEL.x, TOP + 90, PANEL.width - 32, 1, 0x223341, 1)
       .setScrollFactor(0)
       .setDepth(DEPTH_BASE + 2);
     this.objects.push(divider);
 
     for (let index = 0; index < CONTROL_ROOM_VISIBLE_LINES; index += 1) {
       this.bodyTexts.push(
-        this.addText(LEFT, BODY_TOP + index * LINE_HEIGHT, "", 13, "#e5e7eb"),
+        this.addText(LEFT, BODY_TOP + index * LINE_HEIGHT, "", 13, "#d4dde1"),
       );
     }
 
@@ -192,7 +192,7 @@ export class FakeDevtoolsOverlay {
         BODY_TOP + CONTROL_ROOM_VISIBLE_LINES * LINE_HEIGHT + 18,
         PANEL.width - 32,
         30,
-        0x121826,
+        0x050b10,
         1,
       )
       .setScrollFactor(0)
@@ -204,21 +204,21 @@ export class FakeDevtoolsOverlay {
       BODY_TOP + CONTROL_ROOM_VISIBLE_LINES * LINE_HEIGHT + 8,
       "",
       14,
-      "#d8cbff",
+      "#b7d8c1",
     );
     this.statusText = this.addText(
       LEFT,
       BODY_TOP + CONTROL_ROOM_VISIBLE_LINES * LINE_HEIGHT + 48,
       "",
       13,
-      "#a99ad8",
+      "#8fa1aa",
     );
     this.footerText = this.addText(
       LEFT,
       TOP + PANEL.height - 30,
       "",
       12,
-      "#5f6b80",
+      "#4a5f6d",
     );
   }
 
@@ -254,7 +254,7 @@ export class FakeDevtoolsOverlay {
       }
 
       target.setText(tab.active ? `[ ${tab.label} ]` : `  ${tab.label}  `);
-      target.setColor(tab.active ? "#d8cbff" : "#5f6b80");
+      target.setColor(tab.active ? "#b7d8c1" : "#4a5f6d");
     });
 
     for (let index = 0; index < this.bodyTexts.length; index += 1) {

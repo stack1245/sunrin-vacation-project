@@ -68,6 +68,20 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 - 실제 Room 구현 선택과 수명 주기 조립은 `createStageOneRooms.ts`와 `createStageOneGame.ts`에 모은다.
 - `architectureBoundaries.test.ts`가 별칭·상대 경로를 통한 인프라 역참조를 검사하며 `npm test`에서 자동 실행된다.
 
+## 시각 시스템
+
+OutOfBounds는 메인·로그인·회원가입에서 기존의 배경 이미지와 중앙형 랜딩 디자인을 유지한다. [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/layer7-kr/2026codegate-layer7-booth)은 스테이지 선택 이후 실제 게임 화면의 UI/UX 참고점으로만 사용한다. 참고 프로젝트의 콘텐츠·게임 규칙·코드는 복제하지 않고, 횡스크롤 시점·캔버스 일체형 HUD·월드 안 조작 안내·상호작용 표시·중앙 퍼즐 오버레이 구조를 OutOfBounds 연구소 동선에 맞게 재구성한다.
+
+- 메인과 인증 화면은 기존 OutOfBounds 랜딩 스타일을 사용하고 시설 HUD를 섞지 않는다.
+- 스테이지 선택과 실제 게임 화면은 `FacilityShell`, `--game-*` 토큰과 절제된 시설 UI를 사용한다.
+- Stage HUD와 React 퍼즐 모달은 `--game-*` 색상 토큰을 사용한다.
+- Phaser Room은 좌우 이동·점프·숙이기를 지원하는 횡스크롤 화면이며 제공된 SVG 캐릭터 프레임을 상태별 애니메이션으로 사용한다.
+- Phaser Room과 퍼즐은 같은 팔레트와 상태 의미를 사용한다.
+- 상태는 색상에만 의존하지 않고 한국어 상태 문구와 함께 표시한다.
+- 과한 네온, 큰 둥근 카드와 퍼즐마다 다른 무지개 팔레트는 사용하지 않는다.
+
+세부 색상과 적용 규칙은 [Stage 1 공통 개발 계약](./docs/stage-1.md#7-게임-시각-방향)을 기준으로 한다.
+
 ## 역할과 브랜치
 
 | 파트 | 담당 영역 | 브랜치 |
@@ -75,7 +89,7 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 | A | 공통 Phaser·진행도·통합 | `feat/stage-1/A-10320` |
 | B | 외부·입구·중앙 복도 | `feat/stage-1/B-10404` |
 | C | 연구 자료실 | `feat/stage-1/C-10409` |
-| D | 과학 실험실 | `feat/stage-1/D-10514` |
+| D | 과학 실험실 | `feat/stage-1/D-10320` |
 | E | 보안 통제실 | `feat/stage-1/E-10602` |
 | F | 문서 보관실 | `feat/stage-1/F-10405` |
 
@@ -110,3 +124,5 @@ feat/stage-1/파트-학번 → develop/stage-1 → main
 - [Stage 1 공통 개발 계약](./docs/stage-1.md)
 - [인증 운영 가이드](./docs/auth-operations.md)
 - [C 파트 인수인계](./docs/C2A_handoff.md)
+- [D 파트 인수인계](./docs/D2A_handoff.md)
+- [F 파트 인수인계](./docs/F2A_handoff.md)

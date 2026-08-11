@@ -74,7 +74,7 @@ test("이미 획득한 키카드는 본체와 이름표를 모두 숨긴다", ()
   outsideRoom.mount(context);
 
   const card = objects.find(
-    (object) => object.kind === "rectangle" && object.x === 250 && object.y === 200,
+    (object) => object.kind === "rectangle" && object.x === 250 && object.y === 414,
   );
   const label = objects.find(
     (object) => object.kind === "text" && object.text === "수상한 카드",

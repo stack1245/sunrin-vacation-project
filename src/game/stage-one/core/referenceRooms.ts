@@ -55,9 +55,9 @@ function createReferenceRoom({
       const { scene } = context;
       const floor = scene.add.graphics();
 
-      floor.fillStyle(0x070b10, 1);
+      floor.fillStyle(0x050b10, 1);
       floor.fillRect(0, 0, STAGE_ONE_WORLD_WIDTH, STAGE_ONE_WORLD_HEIGHT);
-      floor.lineStyle(1, 0x222936, 0.45);
+      floor.lineStyle(1, 0x223341, 0.55);
 
       for (let x = 0; x <= STAGE_ONE_WORLD_WIDTH; x += 48) {
         floor.lineBetween(x, 0, x, STAGE_ONE_WORLD_HEIGHT);
@@ -72,8 +72,8 @@ function createReferenceRoom({
 
       const roomLabel = scene.add
         .text(48, 44, displayName, {
-          color: "#f5f5f4",
-          fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+          color: "#eef3f5",
+          fontFamily: "Cascadia Code, Consolas, monospace",
           fontSize: "28px",
           fontStyle: "bold",
         })
@@ -82,7 +82,7 @@ function createReferenceRoom({
 
       const slotLabel = scene.add
         .text(48, 86, "ROOM MODULE SLOT · 담당 파트 콘텐츠 연결 대기", {
-          color: "#8f83b8",
+          color: "#6f838f",
           fontFamily: "Consolas, monospace",
           fontSize: "13px",
         })
@@ -91,7 +91,7 @@ function createReferenceRoom({
 
       context.addWall(
         { x: STAGE_ONE_WORLD_WIDTH / 2, y: 16, width: 960, height: 32 },
-        0x151a24,
+        0x0b1823,
       );
       context.addWall(
         {
@@ -100,11 +100,11 @@ function createReferenceRoom({
           width: 960,
           height: 32,
         },
-        0x151a24,
+        0x0b1823,
       );
       context.addWall(
         { x: 16, y: STAGE_ONE_WORLD_HEIGHT / 2, width: 32, height: 540 },
-        0x151a24,
+        0x0b1823,
       );
       context.addWall(
         {
@@ -113,7 +113,7 @@ function createReferenceRoom({
           width: 32,
           height: 540,
         },
-        0x151a24,
+        0x0b1823,
       );
 
       for (const portal of portals) {

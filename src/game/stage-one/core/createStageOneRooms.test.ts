@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { controlRoomRoom } from "../rooms/control-room/index.ts";
+import { DocumentStorageRoomModule } from "../rooms/document-storage/index.ts";
 import { entranceRoom } from "../rooms/entrance/entranceRoom.ts";
 import { hallwayRoom } from "../rooms/hallway/hallwayRoom.ts";
 import { outsideRoom } from "../rooms/outside/outsideRoom.ts";
+import { ScienceLabRoomModule } from "../rooms/science-lab/index.ts";
 import { createStageOneRooms } from "./createStageOneRooms.ts";
 
 test("기본 Room 구성에서 B 파트 참조 슬롯 세 개를 실제 구현으로 교체한다", () => {
@@ -23,6 +25,14 @@ test("기본 Room 구성에서 보안 통제실 참조 슬롯을 실제 구현�
   assert.equal(controlRoom, controlRoomRoom);
 });
 
+test("기본 Room 구성에서 문서 보관실 참조 슬롯을 실제 구현으로 교체한다", () => {
+  const documentStorageRoom = createStageOneRooms().find(
+    (room) => room.id === "document-storage",
+  );
+
+  assert.ok(documentStorageRoom instanceof DocumentStorageRoomModule);
+});
+
 test("기본 Room 구성에서 연구 자료실을 게임별 새 구현으로 교체한다", () => {
   const firstArchive = createStageOneRooms().find((room) => room.id === "archive");
   const secondArchive = createStageOneRooms().find((room) => room.id === "archive");
@@ -31,6 +41,19 @@ test("기본 Room 구성에서 연구 자료실을 게임별 새 구현으로 �
   assert.ok(secondArchive);
   assert.equal(firstArchive.displayName, "연구 자료실");
   assert.notEqual(firstArchive, secondArchive);
+});
+
+test("기본 Room 구성에서 과학 실험실을 게임별 새 구현으로 교체한다", () => {
+  const firstScienceLab = createStageOneRooms().find(
+    (room) => room.id === "science-lab",
+  );
+  const secondScienceLab = createStageOneRooms().find(
+    (room) => room.id === "science-lab",
+  );
+
+  assert.ok(firstScienceLab instanceof ScienceLabRoomModule);
+  assert.ok(secondScienceLab instanceof ScienceLabRoomModule);
+  assert.notEqual(firstScienceLab, secondScienceLab);
 });
 
 test("기본 Room 구성은 모든 Stage 1 Room ID를 중복 없이 유지한다", () => {

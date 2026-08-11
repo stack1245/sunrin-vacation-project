@@ -85,10 +85,10 @@ export function createArchiveRoom(): StageOneRoomModule {
         caesarSolved = true;
       }
 
-      context.addWall({ x: 480, y: 16, width: 960, height: 32 }, 0x151a24);
-      context.addWall({ x: 480, y: 524, width: 960, height: 32 }, 0x151a24);
-      context.addWall({ x: 16, y: 270, width: 32, height: 540 }, 0x151a24);
-      context.addWall({ x: 944, y: 270, width: 32, height: 540 }, 0x151a24);
+      context.addWall({ x: 480, y: 16, width: 960, height: 32 }, 0x0b1823);
+      context.addWall({ x: 480, y: 524, width: 960, height: 32 }, 0x0b1823);
+      context.addWall({ x: 16, y: 270, width: 32, height: 540 }, 0x0b1823);
+      context.addWall({ x: 944, y: 270, width: 32, height: 540 }, 0x0b1823);
 
       context.addPortal({
         id: "archive-to-hallway",
@@ -98,8 +98,8 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       const title = scene.add
         .text(480, 60, "연구 자료실", {
-          color: "#f5f5f4",
-          fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+          color: "#eef3f5",
+          fontFamily: "Cascadia Code, Consolas, monospace",
           fontSize: "24px",
           fontStyle: "bold",
         })
@@ -107,8 +107,8 @@ export function createArchiveRoom(): StageOneRoomModule {
       context.track(title);
 
       const caesarCipher = scene.add
-        .text(480, 150, CAESAR_PUZZLE.cipherText, {
-          color: "#ddd6fe",
+        .text(350, 330, CAESAR_PUZZLE.cipherText, {
+          color: "#b7d8c1",
           fontFamily: "Consolas, monospace",
           fontSize: "20px",
         })
@@ -116,8 +116,8 @@ export function createArchiveRoom(): StageOneRoomModule {
       context.track(caesarCipher);
 
       const caesarAnswerLine = scene.add
-        .text(480, 185, "", {
-          color: "#f0e9ff",
+        .text(350, 365, "", {
+          color: "#d4dde1",
           fontFamily: "Consolas, monospace",
           fontSize: "18px",
         })
@@ -125,8 +125,8 @@ export function createArchiveRoom(): StageOneRoomModule {
       context.track(caesarAnswerLine);
 
       const vigenereCipher = scene.add
-        .text(480, 350, VIGENERE_PUZZLE.cipherText, {
-          color: "#ddd6fe",
+        .text(650, 330, VIGENERE_PUZZLE.cipherText, {
+          color: "#b7d8c1",
           fontFamily: "Consolas, monospace",
           fontSize: "20px",
         })
@@ -135,11 +135,11 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       const vigenereAnswerLine = scene.add
         .text(
-          480,
-          385,
+          650,
+          365,
           context.getState().archiveClueFound ? describeArchiveClues() : "",
           {
-            color: "#f0e9ff",
+            color: "#d4dde1",
             fontFamily: "Consolas, monospace",
             fontSize: "16px",
             align: "center",
@@ -150,7 +150,7 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       context.addInteraction({
         id: "archive-caesar-terminal",
-        position: { x: 480, y: 150 },
+        position: { x: 350, y: 365 },
         radius: 90,
         enabled: (state) => !state.archiveClueFound,
         prompt: () => (caesarSolved ? "카이사르 단말기 (해독 완료)" : "E · 카이사르 암호 입력"),
@@ -181,7 +181,7 @@ export function createArchiveRoom(): StageOneRoomModule {
 
       context.addInteraction({
         id: "archive-vigenere-terminal",
-        position: { x: 480, y: 350 },
+        position: { x: 650, y: 365 },
         radius: 90,
         prompt: (state) => {
           if (state.archiveClueFound) {
