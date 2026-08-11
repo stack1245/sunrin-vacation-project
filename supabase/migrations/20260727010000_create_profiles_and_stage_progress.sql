@@ -75,14 +75,6 @@ values
     '잠긴 감방과 복도를 지나 자유로 향하는 길을 찾으세요.',
     2,
     true
-  ),
-  (
-    3,
-    'hundredth-floor',
-    '100층 탈출',
-    '끝을 알 수 없는 고층 건물의 비밀을 풀고 지상으로 돌아오세요.',
-    3,
-    true
   )
 on conflict (id) do update
 set
