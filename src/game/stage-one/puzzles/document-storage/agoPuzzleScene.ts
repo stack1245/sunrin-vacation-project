@@ -1,5 +1,7 @@
 import * as Phaser from "phaser";
 
+import { DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT } from "./documentStoragePuzzleEvents";
+
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 
@@ -68,8 +70,6 @@ export class AgoPuzzleScene extends Phaser.Scene {
   private drawGrid(): void {
     // 그리드를 화면 정중앙에 배치하기 위한 시작 좌표 계산
     const gridWidth = this.COLS * this.TILE_SIZE + (this.COLS - 1) * this.TILE_SPACING;
-    const gridHeight = this.ROWS * this.TILE_SIZE + (this.ROWS - 1) * this.TILE_SPACING;
-    
     const startX = (GAME_WIDTH - gridWidth) / 2 + this.TILE_SIZE / 2;
     const startY = 160 + this.TILE_SIZE / 2;
 
@@ -188,8 +188,13 @@ export class AgoPuzzleScene extends Phaser.Scene {
   }
 
   private handleClearState(): void {
+    if (this.isCleared) {
+      return;
+    }
+
     this.isCleared = true;
     this.successWindow.setVisible(true);
+    this.game.events.emit(DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT);
     
     // 버튼 비활성화 시각 효과
     this.submitButtonBg.setFillStyle(0x555555);

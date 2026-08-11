@@ -1,41 +1,22 @@
 "use client";
 
-import * as Phaser from "phaser";
-import { useEffect, useRef } from "react";
-
 import { NQueensPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { PhaserPuzzleHost } from "./PhaserPuzzleHost";
 
-export default function NQueensGameHost() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const gameRef = useRef<Phaser.Game | null>(null);
+interface NQueensGameHostProps {
+  onComplete(): void;
+}
 
-  useEffect(() => {
-    const parent = containerRef.current;
-
-    if (!parent || gameRef.current) {
-      return;
-    }
-
-    gameRef.current = new Phaser.Game({
-      type: Phaser.AUTO,
-      width: 800,
-      height: 600,
-      backgroundColor: "#1e1e2e",
-      parent,
-      scene: [NQueensPuzzleScene],
-    });
-
-    return () => {
-      gameRef.current?.destroy(true);
-      gameRef.current = null;
-    };
-  }, []);
-
+export default function NQueensGameHost({
+  onComplete,
+}: NQueensGameHostProps) {
   return (
-    <div
-      ref={containerRef}
-      role="application"
-      aria-label="벽이 있는 N-Queens 퍼즐"
+    <PhaserPuzzleHost
+      ariaLabel="벽이 있는 N-Queens 퍼즐"
+      scene={NQueensPuzzleScene}
+      width={800}
+      height={600}
+      onComplete={onComplete}
     />
   );
 }

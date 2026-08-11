@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DocumentStoragePuzzleModal } from "./DocumentStoragePuzzleModal";
 import type {
@@ -189,6 +189,14 @@ export function StageOneGameHost({
     void gameHandleRef.current?.retrySave();
   };
 
+  const handleDocumentStoragePuzzleOpen = useCallback(() => {
+    gameHandleRef.current?.pause();
+  }, []);
+
+  const handleDocumentStoragePuzzleClose = useCallback(() => {
+    gameHandleRef.current?.resume();
+  }, []);
+
   return (
     <section className="mx-auto w-full max-w-6xl" aria-labelledby="stage-one-title">
       <div className="mb-4 flex flex-col gap-4 rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur-md sm:flex-row sm:items-end sm:justify-between">
@@ -360,7 +368,10 @@ export function StageOneGameHost({
         </p>
       ) : null}
 
-      <DocumentStoragePuzzleModal />
+      <DocumentStoragePuzzleModal
+        onOpen={handleDocumentStoragePuzzleOpen}
+        onClose={handleDocumentStoragePuzzleClose}
+      />
     </section>
   );
 }

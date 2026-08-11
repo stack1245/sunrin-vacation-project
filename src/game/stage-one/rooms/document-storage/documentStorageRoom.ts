@@ -3,24 +3,20 @@ import type {
   StageOnePoint,
   StageOneRoomMountContext,
   StageOneRoomModule,
-} from "../contracts/room";
+} from "../../contracts/room";
+import {
+  openDocumentStoragePuzzle,
+  subscribeToDocumentStoragePuzzleCleared,
+  type DocumentStoragePuzzleType,
+} from "../../puzzles/document-storage/documentStoragePuzzleEvents.ts";
 import type {
   StageOneRoomId,
   StageOneSaveState,
-} from "../../../types/stage-one";
-import { STAGE_ONE_WORLD_HEIGHT, STAGE_ONE_WORLD_WIDTH } from "../core/referenceRooms.ts";
-
-export type DocumentStoragePuzzleType =
-  | "ago"
-  | "mathdoku"
-  | "nqueens"
-  | "resource"
-  | "ttf";
-
-export interface OpenPuzzleEventDetail {
-  puzzleType: DocumentStoragePuzzleType;
-  title: string;
-}
+} from "@/types/stage-one";
+import {
+  STAGE_ONE_WORLD_HEIGHT,
+  STAGE_ONE_WORLD_WIDTH,
+} from "../../core/referenceRooms.ts";
 
 const DEFAULT_SPAWN: StageOnePoint = { x: 120, y: 270 };
 
@@ -28,7 +24,7 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
   public readonly id: StageOneRoomId = "document-storage";
   public readonly displayName: string = "문서 보관실";
 
-  // 문서 보관실 내부 퍼즐 클리어 상태 tracking (로컬 진행 상태)
+  // 세부 퍼즐은 저장 계약에 포함되지 않으므로 게임 세션 동안만 유지한다.
   private solvedPuzzles: Record<DocumentStoragePuzzleType, boolean> = {
     ago: false,
     mathdoku: false,
@@ -181,14 +177,10 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
             return;
           }
 
-          // 전역 window 이벤트를 발행하여 UI 모달 또는 퍼즐 씬을 오픈
-          const event = new CustomEvent<OpenPuzzleEventDetail>("open-document-puzzle", {
-            detail: {
-              puzzleType: term.type,
-              title: term.name,
-            },
+          openDocumentStoragePuzzle({
+            puzzleType: term.type,
+            title: term.name,
           });
-          window.dispatchEvent(event);
 
           ctx.showMessage(`${term.name} 퍼즐 터미널에 접속합니다...`, "info");
         },
@@ -252,20 +244,9 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
       },
     });
 
-    // 퍼즐 클리어 이벤트 수신기 등록
-    const handlePuzzleClear = (evt: Event) => {
-      const customEvt = evt as CustomEvent<{ puzzleType: DocumentStoragePuzzleType }>;
-      if (customEvt.detail?.puzzleType) {
-        this.solvedPuzzles[customEvt.detail.puzzleType] = true;
-      }
-    };
-
-    window.addEventListener("puzzle-cleared-event", handlePuzzleClear);
-
-    // cleanup 리스너
-    return () => {
-      window.removeEventListener("puzzle-cleared-event", handlePuzzleClear);
-    };
+    return subscribeToDocumentStoragePuzzleCleared(({ puzzleType }) => {
+      this.solvedPuzzles[puzzleType] = true;
+    });
   }
 
   /**
@@ -279,3 +260,8 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
 export function createDocumentStorageRoom(): StageOneRoomModule {
   return new DocumentStorageRoomModule();
 }
+
+export type {
+  DocumentStoragePuzzleType,
+  OpenPuzzleEventDetail,
+} from "../../puzzles/document-storage/documentStoragePuzzleEvents.ts";

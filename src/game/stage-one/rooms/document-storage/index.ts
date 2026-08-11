@@ -3,4 +3,4 @@ export {
   createDocumentStorageRoom,
   type DocumentStoragePuzzleType,
   type OpenPuzzleEventDetail,
-} from "./document-storage/index.ts";
+} from "./documentStorageRoom.ts";

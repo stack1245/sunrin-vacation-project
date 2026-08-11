@@ -1,7 +1,7 @@
 import { SiteHeader } from "@/components/common/SiteHeader";
 import { StartButton } from "@/components/home/StartButton";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-[url('/background.svg')] bg-cover bg-center bg-no-repeat text-stone-100">
       <SiteHeader />

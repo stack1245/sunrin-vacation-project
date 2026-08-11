@@ -1,9 +1,11 @@
 import * as Phaser from "phaser";
 
+import { DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT } from "./documentStoragePuzzleEvents";
+
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 
-export class TTFPuzzleScene extends Phaser.Scene {
+export class TtfPuzzleScene extends Phaser.Scene {
   private isCleared = false;
   
   // 🔥 사용자가 선택한 선지의 인덱스 (0, 1, 2)
@@ -179,8 +181,13 @@ export class TTFPuzzleScene extends Phaser.Scene {
   }
 
   private handleClearState(): void {
+    if (this.isCleared) {
+      return;
+    }
+
     this.isCleared = true;
     this.successWindow.setVisible(true);
+    this.game.events.emit(DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT);
     
     // 정답을 맞추면 선택 상태 초기화
     this.selectedOptionIndex = null;

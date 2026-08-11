@@ -109,3 +109,4 @@ feat/stage-1/파트-학번 → develop/stage-1 → main
 
 - [Stage 1 공통 개발 계약](./docs/stage-1.md)
 - [인증 운영 가이드](./docs/auth-operations.md)
+- [F 파트 인수인계](./docs/F2A_handoff.md)

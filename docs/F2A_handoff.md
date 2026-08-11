@@ -12,7 +12,7 @@
 | 작업 브랜치 | `feat/stage-1/F-10405` |
 | 원격 추적 브랜치 | `origin/feat/stage-1/F-10405` |
 | 통합 대상 | `develop/stage-1` |
-| 기능 구현 기준 커밋 | `49837a0 feat : 자원분배퍼즐 완성` |
+| 기능 구현 기준 커밋 | `c79d3ad feat : 퍼즐5종 모두 제작 완료, 인수인계` |
 | 최종 확인일 | 2026-08-12 |
 | 구현 상태 | 완료 |
 | PR 상태 | 없음 |
@@ -23,7 +23,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | A 통합 판정 | 조건부 통합 |
-| A가 해야 할 작업 | `src/game/stage-one/core/referenceRooms.ts` 및 A 파트의 `createStageOneRooms` 조립 지점에서 `createDocumentStorageRoom()`을 등록하고 레퍼런스 더미 룸을 교체 바인딩 |
+| A가 해야 할 작업 | A 파트의 `src/game/stage-one/core/createStageOneRooms.ts` 조립 지점에 `createDocumentStorageRoom()`을 등록하여 레퍼런스 더미 Room을 교체 |
 | 차단 요인 | 없음 |
 | 통합 후 필수 회귀 확인 | E 파트 보안 통제실 완료(`controlRoomSolved: true`) 후 문서 보관실 해금(`documentStorageUnlocked: true`), 문서 보관실 진입 및 HELLO WORLD와 %$#@! 기호 퍼즐 순서 완주, 중앙 금고 기밀 문서 획득(`confidentialDocumentObtained: true`), 외부 귀환 및 Stage 1 최종 클리어 동선 |
 
@@ -44,7 +44,7 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
   - 모든 퍼즐 성공 뒤 중앙 금고 상호작용을 활성화하고, 기밀 문서 획득 시 `confidentialDocumentObtained: true` 상태 저장.
   - 저장 성공 후 외부 귀환 목표 이벤트를 A·B 파트로 전달.
 - **자동 테스트 범위**:
-  - 자원 배분 규칙 해법 단위 테스트(`resourceAllocationPuzzle.test.ts`) 및 Room 모듈/진행도 전체 48개 자동 테스트 통과.
+  - 자원 배분 규칙 해법 단위 테스트(`resourceAllocationPuzzle.test.ts`), 실제 Room 조립 계약 및 진행도 전체 49개 자동 테스트 통과.
 
 ## 4. 미완료·제외 범위
 
@@ -57,15 +57,15 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 
 | 구분 | ID·이름 | 공개 심벌 | import 경로 | 구현 파일 | 진입 조건 | 복귀 대상 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Room Module | `document-storage` | `DocumentStorageRoomModule` | `@/game/stage-one/rooms` | `src/game/stage-one/rooms/documentStorageRoomModule.ts` | `documentStorageUnlocked: true` | `hallway` |
-| Room Creator | `document-storage` | `createDocumentStorageRoom` | `@/game/stage-one/rooms` | `src/game/stage-one/rooms/documentStorageRoomModule.ts` | `documentStorageUnlocked: true` | `hallway` |
+| Room Module | `document-storage` | `DocumentStorageRoomModule` | `@/game/stage-one/rooms` | `src/game/stage-one/rooms/document-storage/documentStorageRoom.ts` | `documentStorageUnlocked: true` | `hallway` |
+| Room Creator | `document-storage` | `createDocumentStorageRoom` | `@/game/stage-one/rooms` | `src/game/stage-one/rooms/document-storage/documentStorageRoom.ts` | `documentStorageUnlocked: true` | `hallway` |
 
 ### 5.2 A 조립 지점
 
 | 항목 | 내용 |
 | --- | --- |
-| 조립 파일 | `src/game/stage-one/core/referenceRooms.ts` (또는 A 파트 `src/game/stage-one/rooms/createStageOneRooms.ts`) |
-| 현재 등록 상태 | 등록됨 (`referenceRooms.ts` 내 레퍼런스 더미 구현 대체 완료) |
+| 조립 파일 | `src/game/stage-one/core/createStageOneRooms.ts` |
+| 현재 등록 상태 | F 브랜치의 composition root에 등록됨 |
 | 필요한 변경 | A 파트 통합 브랜치 조립 시 `createStageOneRooms` 등록 목록에 `createDocumentStorageRoom()` 추가 연결 |
 | 충돌 주의 | Room ID `document-storage`, 출구 포탈 ID `document-storage-to-hallway`, 복귀 Target Room ID `hallway` 유지 |
 
@@ -84,7 +84,7 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 | 역할 | 파일 |
 | --- | --- |
 | 공개 export | `src/game/stage-one/rooms/index.ts` |
-| Room·Scene·UI | `src/game/stage-one/rooms/documentStorageRoomModule.ts`, `src/components/stages/DocumentStoragePuzzleModal.tsx` |
+| Room·Scene·UI | `src/game/stage-one/rooms/document-storage/documentStorageRoom.ts`, `src/components/stages/DocumentStoragePuzzleModal.tsx` |
 | 퍼즐·도메인 | `src/game/stage-one/puzzles/document-storage/*`, `src/components/stages/*GameHost.tsx` |
 | 진행도 연결 | `src/game/stage-one/contracts/room.ts`, `src/types/stage-one.ts` |
 | 테스트 | `src/game/stage-one/puzzles/document-storage/resourceAllocationPuzzle.test.ts`, `src/game/stage-one/core/referenceRooms.test.ts` |
@@ -97,7 +97,7 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 - 필요한 선행 플래그: `entranceUnlocked: true`, `controlRoomSolved: true`, `documentStorageUnlocked: true`
 - 정답·테스트 전용 값:
   - `#` Resource 퍼즐 정답: Zone A=19, Zone B=16, Zone C=30, Zone D=27, Zone E=8
-  - `%`, `$`, `@`, `!` 퍼즐: 모달 UI 헤더의 `퍼즐 완료 (해제)` 기능으로 테스트 빠른 패스 가능
+  - `%`, `$`, `@`, `!` 퍼즐: 개발 서버에서만 표시되는 `개발용 퍼즐 해제` 기능으로 빠른 QA 가능
 
 ### 8.2 정상 동선
 
@@ -119,19 +119,19 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 
 | 검사 | 실행 명령 | 결과 |
 | --- | --- | --- |
-| 자동 테스트 | `npm test` | 48/48 전체 통과 |
-| 환경변수 구조 | `npm run env:check` | 실패 (`.env.local` 미존재 사유. `.env.example` 사용) |
+| 자동 테스트 | `npm test` | 49/49 전체 통과 |
+| 환경변수 구조 | `npm run env:check` | 통과 (실제·예제 파일의 값 외 구조 일치) |
 | 타입 검사 | `npm run typecheck` | 통과 (`tsc --noEmit` 0 errors) |
-| 린트 | `npm run lint` | 통과 (`eslint .` 0 errors, 1 warning) |
+| 린트 | `npm run lint` | 통과 (`eslint .` 0 errors, 0 warnings) |
 | 프로덕션 빌드 | `npm run build` | 성공 (`next build` 통과) |
 | 변경 공백 검사 | `git diff --check` | 통과 (trailing whitespace 없음) |
-| 브라우저 QA | 로컬 개발 서버 접속 QA | 퍼즐 모달 열림, 상호작용 및 금고 해금 정상 작동 확인 |
+| 브라우저 QA | 로컬 개발 서버 접속 QA | 기존 담당자 확인 완료, 최적화 후에는 자동 검증만 재실행 |
 
 ## 10. 알려진 이슈와 위험
 
 | 우선순위 | 내용 | 영향 | 후속 조치 |
 | --- | --- | --- | --- |
-| 낮음 | `.env.local` 파일이 로컬 워크트리에 미생성된 환경에서 `npm run env:check` 실행 시 파일 누락 오류 발생 | 로컬 환경 스크립트 검사 영향 | 배포 및 CI/CD 환경 설정 시 `.env.local` 파일 주입 확인 |
+| 낮음 | 세부 퍼즐 완료 상태는 저장 버전 2에 포함되지 않아 새 게임 세션에서 초기화됨 | 미완료 상태로 재접속하면 문서 보관실 퍼즐을 처음부터 다시 진행 | Stage 1 정답 DB 계약을 확정할 때 세부 저장 여부를 함께 결정 |
 
 통합을 차단하는 알려진 주요 이슈 없음.
 
@@ -139,8 +139,8 @@ F 파트 개발 명세서 기준 문서 보관실 Room 진입·잠금 조건 판
 
 | 구분 | 값 |
 | --- | --- |
-| 기능 구현 커밋 | `49837a0 feat : 자원분배퍼즐 완성` |
-| 후속 수정 커밋 | 없음 |
+| 기능 구현 커밋 | `c79d3ad feat : 퍼즐5종 모두 제작 완료, 인수인계` |
+| 후속 수정 커밋 | 본 문서가 포함된 최신 F 파트 최적화 커밋 |
 | PR | 없음 |
 | 통합 브랜치 반영 | 미반영 (`develop/stage-1` PR 생성 대기) |
 

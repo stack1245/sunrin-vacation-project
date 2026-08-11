@@ -1,42 +1,20 @@
 "use client";
 
-import * as Phaser from "phaser";
-import { useEffect, useRef } from "react";
+import { AgoPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { PhaserPuzzleHost } from "./PhaserPuzzleHost";
 
-// 💡 SecurityGridPuzzleScene 파일이 있는 실제 경로로 반드시 수정해 주세요!
-import { AgoPuzzleScene } from "@/game/stage-one/puzzles/document-storage"; 
+interface AgoGameHostProps {
+  onComplete(): void;
+}
 
-export default function SecurityGridGameHost() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const gameRef = useRef<Phaser.Game | null>(null);
-
-  useEffect(() => {
-    const parent = containerRef.current;
-
-    if (!parent || gameRef.current) {
-      return;
-    }
-
-    gameRef.current = new Phaser.Game({
-      type: Phaser.AUTO,
-      width: 800,
-      height: 600,
-      backgroundColor: "#1e1e2e",
-      parent,
-      scene: [AgoPuzzleScene], // 씬 교체 완료
-    });
-
-    return () => {
-      gameRef.current?.destroy(true);
-      gameRef.current = null;
-    };
-  }, []);
-
+export default function AgoGameHost({ onComplete }: AgoGameHostProps) {
   return (
-    <div
-      ref={containerRef}
-      role="application"
-      aria-label="보안 노드 해제 퍼즐"
+    <PhaserPuzzleHost
+      ariaLabel="보안 노드 해제 퍼즐"
+      scene={AgoPuzzleScene}
+      width={800}
+      height={600}
+      onComplete={onComplete}
     />
   );
 }

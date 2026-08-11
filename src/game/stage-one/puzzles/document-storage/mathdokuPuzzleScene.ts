@@ -1,5 +1,7 @@
 import * as Phaser from 'phaser';
 
+import { DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT } from './documentStoragePuzzleEvents';
+
 interface CellPosition {
     r: number;
     c: number;
@@ -509,6 +511,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         if (isCorrect) {
             this.isCleared = true;
             this.successWindow.setVisible(true);
+            this.game.events.emit(DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT);
             
             this.currentBoard = Array.from({ length: this.N }, () => Array(this.N).fill(0));
             this.selectedCell = null;

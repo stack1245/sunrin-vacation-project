@@ -1,5 +1,7 @@
 import * as Phaser from 'phaser';
 
+import { DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT } from './documentStoragePuzzleEvents';
+
 interface Position {
     row: number;
     col: number;
@@ -74,6 +76,7 @@ export class NQueensPuzzleScene extends Phaser.Scene {
             if (this.submitButtonBg.input?.enabled && !this.isCleared) {
                 this.isCleared = true;
                 this.successWindow.setVisible(true);
+                this.game.events.emit(DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT);
 
                 this.queens.forEach(q => q.sprite.destroy());
                 this.queens = [];

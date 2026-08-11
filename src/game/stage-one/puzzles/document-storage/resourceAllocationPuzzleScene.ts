@@ -11,11 +11,12 @@ import {
   type ResourceAllocationRuleId,
   type ResourceZoneId,
 } from "./resourceAllocationPuzzle";
+import { DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT } from "./documentStoragePuzzleEvents";
 
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 
-export class ResourcePuzzleScene extends Phaser.Scene {
+export class ResourceAllocationPuzzleScene extends Phaser.Scene {
   private allocation: ResourceAllocation = createInitialResourceAllocation();
   private isCleared = false;
   
@@ -188,8 +189,13 @@ export class ResourcePuzzleScene extends Phaser.Scene {
 
   // 🔥 정답 확인 시 호출되는 통합 클리어 로직
   private handleClearState(): void {
+    if (this.isCleared) {
+      return;
+    }
+
     this.isCleared = true;
     this.successWindow.setVisible(true);
+    this.game.events.emit(DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT);
 
     // 🔥 정답을 맞추면 퍼즐판을 초기 상태로 리셋 (데이터 및 텍스트 UI)
     this.allocation = createInitialResourceAllocation();

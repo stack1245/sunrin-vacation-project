@@ -1,42 +1,20 @@
 "use client";
 
-import * as Phaser from "phaser";
-import { useEffect, useRef } from "react";
+import { TtfPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { PhaserPuzzleHost } from "./PhaserPuzzleHost";
 
-// 💡 TTFPuzzleScene 파일이 있는 실제 경로로 반드시 수정해 주세요!
-import { TTFPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+interface TtfGameHostProps {
+  onComplete(): void;
+}
 
-export default function TTFPuzzleGameHost() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const gameRef = useRef<Phaser.Game | null>(null);
-
-  useEffect(() => {
-    const parent = containerRef.current;
-
-    if (!parent || gameRef.current) {
-      return;
-    }
-
-    gameRef.current = new Phaser.Game({
-      type: Phaser.AUTO,
-      width: 800,
-      height: 600,
-      backgroundColor: "#1e1e2e",
-      parent,
-      scene: [TTFPuzzleScene],
-    });
-
-    return () => {
-      gameRef.current?.destroy(true);
-      gameRef.current = null;
-    };
-  }, []);
-
+export default function TtfGameHost({ onComplete }: TtfGameHostProps) {
   return (
-    <div
-      ref={containerRef}
-      role="application"
-      aria-label="TTF 퍼즐"
+    <PhaserPuzzleHost
+      ariaLabel="TTF 퍼즐"
+      scene={TtfPuzzleScene}
+      width={800}
+      height={600}
+      onComplete={onComplete}
     />
   );
 }
