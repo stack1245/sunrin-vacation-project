@@ -44,7 +44,7 @@ const statusStyles: Record<StageStatus, string> = {
   locked:
     "border-[var(--game-border)] bg-[var(--game-void)] text-[var(--game-muted)]",
   unlocked:
-    "border-[var(--game-border-strong)] bg-[var(--game-surface-raised)] text-[var(--game-text)]",
+    "border-[var(--game-border-strong)] bg-[var(--game-accent-soft)] text-[var(--game-text-strong)]",
   in_progress:
     "border-[#8b6d3e] bg-[#241d12] text-[var(--game-gold)]",
   cleared:
@@ -115,6 +115,10 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
 
   const cardContent = (
     <>
+      <span
+        className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-[var(--game-border-strong)] to-transparent transition-colors group-hover:via-[var(--game-accent)]"
+        aria-hidden="true"
+      />
       <div className="flex items-start justify-between gap-5">
         <div>
           <p className="facility-kicker text-[var(--game-muted)]">
@@ -126,18 +130,18 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
         </div>
 
         <span
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-[2px] border px-3 py-1 font-mono text-[0.65rem] font-bold tracking-[0.08em] ${statusStyles[progress.status]}`}
+          className={`inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-[2px] border px-3 py-1 font-mono text-[0.65rem] font-bold tracking-[0.08em] ${statusStyles[progress.status]}`}
         >
           {isLocked && <LockIcon />}
           {statusLabels[progress.status]}
         </span>
       </div>
 
-      <p className="mt-5 min-h-12 text-sm leading-6 text-[var(--game-muted)]">
+      <p className="mt-5 min-h-12 text-sm leading-6 text-[var(--game-muted)] sm:leading-7">
         {stage.description}
       </p>
 
-      <div className="mt-7 flex min-h-8 items-end justify-between gap-4 border-t border-[var(--game-border)] pt-5 font-mono text-xs">
+      <div className="mt-auto flex min-h-8 items-end justify-between gap-4 border-t border-[var(--game-border)] pt-5 font-mono text-xs">
         {progress.status === "cleared" ? (
           <p className="text-[var(--game-muted)]">
             BEST{" "}
@@ -149,7 +153,9 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
           <span className="text-[var(--game-muted)]">
             {isLocked
               ? "이전 스테이지를 완료하면 입장할 수 있습니다."
-              : "스테이지에 입장할 수 있습니다."}
+              : progress.status === "in_progress"
+                ? "마지막 저장 지점에서 계속합니다."
+                : "새 스테이지를 시작합니다."}
           </span>
         )}
 
@@ -170,7 +176,7 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
   );
 
   const cardStyles =
-    "block h-full rounded-[4px] border p-5 text-left sm:p-6";
+    "group relative flex min-h-64 h-full flex-col overflow-hidden rounded-[4px] border p-5 text-left sm:p-6";
 
   if (isLocked) {
     return (
@@ -188,7 +194,7 @@ function StageCard({ stage }: { stage: StageWithProgress }) {
       aria-label={`${stage.title} ${
         progress.status === "in_progress" ? "이어하기" : "입장"
       }`}
-      className={`${cardStyles} facility-focus group border-[var(--game-border)] bg-[#071018]/94 shadow-xl shadow-black/25 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-1 hover:border-[var(--game-border-strong)] hover:bg-[var(--game-surface-raised)] active:translate-y-0`}
+      className={`${cardStyles} facility-focus border-[var(--game-border)] bg-[#071018]/94 shadow-xl shadow-black/25 transition-[transform,border-color,background-color,box-shadow] duration-200 hover:-translate-y-1 hover:border-[var(--game-border-strong)] hover:bg-[var(--game-surface-raised)] hover:shadow-[0_24px_70px_rgba(0,0,0,0.42)] active:translate-y-0`}
     >
       {cardContent}
     </Link>
@@ -346,7 +352,7 @@ export function StagesView() {
         {[1, 2, 3].map((stageNumber) => (
           <div
             key={stageNumber}
-            className="h-64 animate-pulse rounded-[4px] border border-[var(--game-border)] bg-[var(--game-surface)]"
+            className="facility-skeleton h-64 rounded-[4px] border border-[var(--game-border)]"
           />
         ))}
       </div>
@@ -373,18 +379,18 @@ export function StagesView() {
 
   return (
     <>
-      <div className="mb-7 flex flex-col gap-2 border-l border-[var(--game-success)] pl-4 font-mono text-sm text-[var(--game-muted)] sm:mb-9 sm:flex-row sm:items-center sm:gap-5">
+      <div className="facility-panel mb-7 flex flex-col gap-2 px-4 py-4 font-mono text-xs text-[var(--game-muted)] sm:mb-9 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:text-sm">
         <p>
-          플레이어{" "}
+          <span className="mr-2 text-[0.62rem] font-bold tracking-[0.12em] text-[var(--game-success)]">PLAYER</span>
           <strong className="font-medium text-[var(--game-text-strong)]">
             {state.data.profile.nickname}
           </strong>
         </p>
         {currentStage && (
           <p>
-            현재 진행{" "}
+            <span className="mr-2 text-[0.62rem] font-bold tracking-[0.12em] text-[var(--game-success)]">CURRENT</span>
             <strong className="font-medium text-[var(--game-accent)]">
-              Stage {currentStage.stageOrder}
+              Stage {String(currentStage.stageOrder).padStart(2, "0")}
             </strong>
           </p>
         )}

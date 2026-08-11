@@ -15,8 +15,8 @@ export default function StagesPage() {
     <FacilityShell>
       <SiteHeader />
 
-      <main className="relative z-10 min-h-[calc(100dvh-4.5rem)] px-4 py-10 sm:min-h-[calc(100dvh-5rem)] sm:px-6 sm:py-14 lg:px-10">
-        <div className="mx-auto w-full max-w-6xl">
+      <main id="main-content" className="facility-page lg:px-10">
+        <div className="facility-page-container">
           <Link
             href="/"
             className="facility-back-link facility-focus"
@@ -27,11 +27,11 @@ export default function StagesPage() {
             HOME
           </Link>
 
-          <div className="mb-9 mt-5 sm:mb-11">
+          <div className="facility-page-intro mb-9 mt-5 sm:mb-11">
             <p className="facility-kicker text-[var(--game-accent)]">
               ESCAPE SEQUENCE // ACCESS MAP
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[var(--game-text-strong)] sm:text-5xl">
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.045em] text-[var(--game-text-strong)] sm:text-5xl">
               스테이지 선택
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--game-muted)] sm:text-base sm:leading-7">

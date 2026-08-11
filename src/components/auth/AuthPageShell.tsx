@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { FacilityShell } from "@/components/common/FacilityShell";
 import { SiteHeader } from "@/components/common/SiteHeader";
 
 interface AuthPageShellProps {
@@ -17,7 +18,7 @@ export function AuthPageShell({
   title,
 }: AuthPageShellProps) {
   return (
-    <div className="relative min-h-dvh overflow-x-hidden bg-[url('/background.svg')] bg-cover bg-center bg-no-repeat text-stone-100">
+    <FacilityShell>
       <SiteHeader />
 
       <AuthDialog
@@ -27,6 +28,6 @@ export function AuthPageShell({
       >
         {children}
       </AuthDialog>
-    </div>
+    </FacilityShell>
   );
 }

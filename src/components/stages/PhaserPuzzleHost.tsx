@@ -3,7 +3,7 @@
 import * as Phaser from "phaser";
 import { useEffect, useRef } from "react";
 
-import { DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT } from "@/game/stage-one/puzzles/document-storage";
+import { DOCUMENT_STORAGE_PHASER_PUZZLE_COMPLETED_EVENT } from "@/game/stage-one/puzzles/document-storage/documentStoragePuzzleEvents";
 
 interface PhaserPuzzleHostProps {
   ariaLabel: string;
