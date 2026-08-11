@@ -40,7 +40,7 @@ export class TTFPuzzleScene extends Phaser.Scene {
 
   private drawHeader(): void {
     this.add
-      .text(GAME_WIDTH / 2, 60, "[TTF 퍼즐 제목을 입력하세요]", {
+      .text(GAME_WIDTH / 2, 60, "TTF", {
         fontSize: "28px",
         color: "#ffffff",
         fontFamily: "Arial",
@@ -49,7 +49,7 @@ export class TTFPuzzleScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(GAME_WIDTH / 2, 110, "[질문이나 상황 설명을 이곳에 입력하세요. 셋 중 진실은 무엇일까요?]", {
+      .text(GAME_WIDTH / 2, 110, "당신은 로봇이 아닙니까?", {
         fontSize: "18px",
         color: "#a6e3a1",
         fontFamily: "Arial",
@@ -62,9 +62,9 @@ export class TTFPuzzleScene extends Phaser.Scene {
     const spacingY = 90;
 
     const placeholders = [
-      "[선택지 1: 내용을 입력하세요]",
-      "[선택지 2: 내용을 입력하세요]",
-      "[선택지 3: 내용을 입력하세요]"
+      "예",
+      "아니요",
+      "[Web발신]너는나를존중해야한다...."
     ];
 
     for (let i = 0; i < 3; i++) {
@@ -116,7 +116,7 @@ export class TTFPuzzleScene extends Phaser.Scene {
 
     // 1. 정답 확인 버튼
     this.submitButtonBg = this.add.rectangle(submitX, uiY, 120, 45, 0x555555).setOrigin(0.5);
-    this.submitButtonText = this.add.text(submitX, uiY, "정답 확인", {
+    this.submitButtonText = this.add.text(submitX, uiY, "정답", {
       fontSize: "18px",
       color: "#aaaaaa",
       fontFamily: "Arial",
@@ -207,7 +207,7 @@ export class TTFPuzzleScene extends Phaser.Scene {
       .setStrokeStyle(4, 0xffcc00);
       
     const successText = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "* : r", {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "! : ld", {
         fontSize: "28px",
         color: "#ffffff",
         fontFamily: "Arial",

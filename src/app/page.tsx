@@ -1,25 +1,30 @@
-"use client";
+import { SiteHeader } from "@/components/common/SiteHeader";
+import { StartButton } from "@/components/home/StartButton";
 
-import dynamic from "next/dynamic";
-
-// 💡 방금 만드신 컴포넌트의 실제 경로로 수정해 주세요!
-// 예: "@/components/MathdokuGameHost"
-const MathdokuGameHost = dynamic(
-  () => import("@/components/stages/ResourceGameHost"), 
-  { 
-    ssr: false, // 서버 사이드 렌더링 비활성화 (Phaser 필수 설정)
-    loading: () => <div className="flex h-[600px] w-[600px] items-center justify-center text-white bg-[#333333]">게임 로딩 중...</div>
-  }
-);
-
-export default function MathdokuPage() {
+export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-900 p-8">
-      
-      {/* 게임이 들어갈 컨테이너 테두리 꾸미기 (옵션) */}
-      <div className="overflow-hidden rounded-xl border-4 border-zinc-700 shadow-2xl">
-        <MathdokuGameHost />
-      </div>
-    </main>
+    <div className="relative min-h-dvh overflow-x-hidden bg-[url('/background.svg')] bg-cover bg-center bg-no-repeat text-stone-100">
+      <SiteHeader />
+
+      <main className="relative z-10 flex min-h-[calc(100dvh-4.5rem)] items-center justify-center px-5 py-14 text-center sm:min-h-[calc(100dvh-5rem)] sm:px-8 sm:py-20">
+        <section aria-labelledby="hero-title" className="w-full max-w-3xl">
+          <p
+            className="font-serif text-[clamp(2.25rem,8vw,5.5rem)] leading-none tracking-[-0.035em] text-white [text-shadow:0_3px_28px_rgba(0,0,0,0.85)]"
+            lang="en"
+          >
+            Out Of Bounds
+          </p>
+
+          <h1
+            id="hero-title"
+            className="mt-7 text-[clamp(1.25rem,4.5vw,2.25rem)] font-medium leading-snug tracking-[-0.025em] text-stone-100 [text-shadow:0_2px_18px_rgba(0,0,0,0.9)] sm:mt-9"
+          >
+            경계 밖으로 나아가시겠습니까?
+          </h1>
+
+          <StartButton />
+        </section>
+      </main>
+    </div>
   );
 }

@@ -3,10 +3,10 @@
 import * as Phaser from "phaser";
 import { useEffect, useRef } from "react";
 
-// 💡 TTFPuzzleScene 파일이 있는 실제 경로로 반드시 수정해 주세요!
-import { TTFPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+// 💡 SecurityGridPuzzleScene 파일이 있는 실제 경로로 반드시 수정해 주세요!
+import { AgoPuzzleScene } from "@/game/stage-one/puzzles/document-storage"; 
 
-export default function TTFPuzzleGameHost() {
+export default function SecurityGridGameHost() {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
@@ -23,7 +23,7 @@ export default function TTFPuzzleGameHost() {
       height: 600,
       backgroundColor: "#1e1e2e",
       parent,
-      scene: [TTFPuzzleScene],
+      scene: [AgoPuzzleScene], // 씬 교체 완료
     });
 
     return () => {
@@ -36,7 +36,7 @@ export default function TTFPuzzleGameHost() {
     <div
       ref={containerRef}
       role="application"
-      aria-label="TTF 퍼즐"
+      aria-label="보안 노드 해제 퍼즐"
     />
   );
 }

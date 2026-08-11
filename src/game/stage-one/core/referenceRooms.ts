@@ -3,6 +3,7 @@ import type {
   StageOnePortalDefinition,
   StageOneRoomModule,
 } from "../contracts/room";
+import { createDocumentStorageRoom } from "../rooms/documentStorageRoomModule.ts";
 import type {
   StageOneRoomId,
   StageOneSaveState,
@@ -252,27 +253,6 @@ export function createStageOneReferenceRooms(): readonly StageOneRoomModule[] {
         },
       ],
     }),
-    createReferenceRoom({
-      id: "document-storage",
-      displayName: "문서 보관실",
-      objective: (state) =>
-        state.confidentialDocumentObtained
-          ? "기밀 문서를 가지고 연구소 외부로 탈출하세요."
-          : "최종 보안 퍼즐을 해결하고 기밀 문서를 회수하세요.",
-      access: (state) =>
-        state.documentStorageUnlocked
-          ? { allowed: true }
-          : {
-              allowed: false,
-              reason: "보안 통제실에서 문서 보관실을 먼저 해제하세요.",
-            },
-      portals: [
-        {
-          id: "document-storage-to-hallway",
-          targetRoomId: "hallway",
-          position: { x: 110, y: 270 },
-        },
-      ],
-    }),
+    createDocumentStorageRoom(),
   ];
 }
