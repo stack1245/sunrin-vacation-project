@@ -18,8 +18,10 @@ import { createArchiveRoom } from "./archiveRoom.ts";
 
 interface FakeText {
   value: string;
+  depth: number;
   setText(value: string): FakeText;
   setOrigin(value: number): FakeText;
+  setDepth(value: number): FakeText;
 }
 
 interface FakeImage {
@@ -30,11 +32,16 @@ interface FakeImage {
 function createFakeText(initialValue: string): FakeText {
   const fakeText: FakeText = {
     value: initialValue,
+    depth: 0,
     setText(value) {
       fakeText.value = value;
       return fakeText;
     },
     setOrigin() {
+      return fakeText;
+    },
+    setDepth(value) {
+      fakeText.depth = value;
       return fakeText;
     },
   };
@@ -64,12 +71,15 @@ function mountArchive(initialState: StageOneSaveState) {
   const portals: StageOnePortalDefinition[] = [];
   const patches: StageOneProgressPatch[] = [];
   const messages: string[] = [];
+  const texts: FakeText[] = [];
 
   const scene = {
     add: {
       image: () => createFakeImage(),
       text(_x: number, _y: number, value: string) {
-        return createFakeText(value);
+        const text = createFakeText(value);
+        texts.push(text);
+        return text;
       },
     },
     input: {
@@ -145,6 +155,7 @@ function mountArchive(initialState: StageOneSaveState) {
     portals,
     patches,
     messages,
+    texts,
     interactionContext,
     getState: () => state,
     getInputLockCount: () => inputLockCount,
@@ -235,6 +246,31 @@ test("복도 출구는 참조 Room 계약 좌표를 유지한다", () => {
       position: { x: 110, y: 270 },
     },
   ]);
+});
+
+test("두 암호문과 해독 키를 책장보다 앞쪽에 항상 표시한다", () => {
+  const mounted = mountArchive({
+    ...createDefaultStageOneSaveState(),
+    hasKeycard: true,
+    entranceUnlocked: true,
+    currentRoom: "archive",
+  });
+  const caesarDisplay = mounted.texts.find((text) =>
+    text.value.includes("CAESAR TERMINAL"),
+  );
+  const vigenereDisplay = mounted.texts.find((text) =>
+    text.value.includes("VIGENERE TERMINAL"),
+  );
+
+  assert.ok(caesarDisplay);
+  assert.match(caesarDisplay.value, /DFFHVV JUDQWHG/);
+  assert.match(caesarDisplay.value, /SHIFT 3/);
+  assert.ok(caesarDisplay.depth > 6);
+
+  assert.ok(vigenereDisplay);
+  assert.match(vigenereDisplay.value, /DMOLZZ QBOST PTJG/);
+  assert.match(vigenereDisplay.value, /KEY\s+LOCK/);
+  assert.ok(vigenereDisplay.depth > 6);
 });
 
 test("카이사르와 비즈네르를 순서대로 풀면 단서를 표시하고 완료 상태를 저장한다", async () => {
