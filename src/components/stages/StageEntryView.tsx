@@ -16,10 +16,11 @@ import {
   STAGE_ONE_ID,
   type StageOneProgressBridge,
   type StageOneProgressResult,
+  type StageOneRoomId,
 } from "@/types/stage-one";
 
 interface StageEntryViewProps {
-  slug: string;
+  stageId: number;
 }
 
 type EntryState =
@@ -34,14 +35,16 @@ type EntryState =
         | {
             bridge: StageOneProgressBridge;
             initialProgress: StageOneProgressResult;
+            initialRoomId: StageOneRoomId;
           }
         | null;
     };
 
-export function StageEntryView({ slug }: StageEntryViewProps) {
+export function StageEntryView({ stageId }: StageEntryViewProps) {
   const router = useRouter();
   const configured = isSupabaseConfigured();
   const stageOneBootstrapRef = useRef<{
+    stageId: number;
     bridge: StageOneProgressBridge;
     promise: Promise<StageOneProgressResult>;
   } | null>(null);
@@ -56,6 +59,10 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
   );
 
   useEffect(() => {
+    if (stageOneBootstrapRef.current?.stageId !== stageId) {
+      stageOneBootstrapRef.current = null;
+    }
+
     const supabase = getSupabaseBrowserClient();
 
     if (!supabase) {
@@ -87,7 +94,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
         const { data: stage, error: stageError } = await supabase
           .from("stages")
           .select("id, title, stage_order")
-          .eq("slug", slug)
+          .eq("id", stageId)
           .eq("is_published", true)
           .maybeSingle();
 
@@ -97,10 +104,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
 
         if (!stage) {
           if (isMounted) {
-            setState({
-              status: "error",
-              message: "요청하신 스테이지를 찾을 수 없습니다.",
-            });
+            router.replace("/stages");
           }
           return;
         }
@@ -110,13 +114,13 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           .select("status")
           .eq("user_id", user.id)
           .eq("stage_id", stage.id)
-          .single();
+          .maybeSingle();
 
         if (progressError) {
           throw new Error(progressError.message);
         }
 
-        if (progress.status === "locked") {
+        if (!progress || progress.status === "locked") {
           if (isMounted) {
             router.replace("/stages");
           }
@@ -127,17 +131,27 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
           null;
 
         if (stage.id === STAGE_ONE_ID) {
-          if (!stageOneBootstrapRef.current) {
+          let bootstrap = stageOneBootstrapRef.current;
+
+          if (!bootstrap) {
             const bridge = createSupabaseStageOneProgressBridge();
-            stageOneBootstrapRef.current = {
+            bootstrap = {
+              stageId: stage.id,
               bridge,
               promise: bridge.start(),
             };
+            stageOneBootstrapRef.current = bootstrap;
           }
 
+          const initialProgress = await bootstrap.promise;
+
           stageOne = {
-            bridge: stageOneBootstrapRef.current.bridge,
-            initialProgress: await stageOneBootstrapRef.current.promise,
+            bridge: bootstrap.bridge,
+            initialProgress,
+            initialRoomId:
+              progress.status === "unlocked"
+                ? "outside"
+                : initialProgress.state.currentRoom,
           };
         }
 
@@ -176,7 +190,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
     return () => {
       isMounted = false;
     };
-  }, [router, slug]);
+  }, [router, stageId]);
 
   if (state.status === "loading") {
     return (
@@ -214,6 +228,7 @@ export function StageEntryView({ slug }: StageEntryViewProps) {
         stageOrder={state.stageOrder}
         title={state.title}
         initialProgress={state.stageOne.initialProgress}
+        initialRoomId={state.stageOne.initialRoomId}
         bridge={state.stageOne.bridge}
       />
     );

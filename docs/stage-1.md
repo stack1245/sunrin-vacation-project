@@ -61,6 +61,8 @@ Next.js StageEntryView
 
 파트별 Room은 공통 계약을 구현하고, A 파트가 `createStageOneRooms`에서 최종 등록 순서와 연결을 관리한다.
 
+스테이지 입장 URL은 `/stages/<stageId>` 형식의 양의 정수 ID만 사용한다. 클라이언트에서 URL을 직접 변경해도 게시되지 않았거나 사용자 진행도가 `locked`인 스테이지는 렌더링하지 않고 스테이지 목록으로 돌려보낸다. DB의 `slug` 필드는 기존 데이터 호환을 위해 유지하되 입장 경로로 사용하지 않는다.
+
 ## 4. Room 계약
 
 각 `StageOneRoomModule`은 다음 책임을 가진다.
