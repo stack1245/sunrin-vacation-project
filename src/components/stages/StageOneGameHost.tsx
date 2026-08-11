@@ -16,6 +16,7 @@ import type { StageOneGameHandle } from "@/game/stage-one/core/createStageOneGam
 import type {
   StageOneProgressBridge,
   StageOneProgressResult,
+  StageOneRoomId,
 } from "@/types/stage-one";
 import { STAGE_ONE_ROOM_DISPLAY_NAMES } from "@/types/stage-one";
 import { formatClearTime } from "@/utils/formatClearTime";
@@ -32,6 +33,7 @@ interface StageOneGameHostProps {
   stageOrder: number;
   title: string;
   initialProgress: StageOneProgressResult;
+  initialRoomId: StageOneRoomId;
   bridge: StageOneProgressBridge;
 }
 
@@ -44,17 +46,22 @@ const INITIAL_SAVE_STATUS: StageOneSaveStatus = {
 
 function createInitialHud(
   initialProgress: StageOneProgressResult,
+  initialRoomId: StageOneRoomId,
 ): StageOneHudState {
   const { state, elapsedTimeMs } = initialProgress;
+  const initialState = {
+    ...state,
+    currentRoom: initialRoomId,
+  };
 
   return {
-    roomId: state.currentRoom,
-    roomName: STAGE_ONE_ROOM_DISPLAY_NAMES[state.currentRoom],
+    roomId: initialRoomId,
+    roomName: STAGE_ONE_ROOM_DISPLAY_NAMES[initialRoomId],
     objective: "Stage 1 게임 시스템을 준비하고 있습니다.",
     elapsedTimeMs,
     paused: false,
     interactionPrompt: null,
-    state,
+    state: initialState,
   };
 }
 
@@ -77,6 +84,7 @@ export function StageOneGameHost({
   stageOrder,
   title,
   initialProgress,
+  initialRoomId,
   bridge,
 }: StageOneGameHostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -85,7 +93,7 @@ export function StageOneGameHost({
     "loading",
   );
   const [hud, setHud] = useState<StageOneHudState>(() =>
-    createInitialHud(initialProgress),
+    createInitialHud(initialProgress, initialRoomId),
   );
   const [saveStatus, setSaveStatus] =
     useState<StageOneSaveStatus>(INITIAL_SAVE_STATUS);
@@ -134,6 +142,7 @@ export function StageOneGameHost({
         const handle = createStageOneGame({
           parent,
           initialProgress,
+          initialRoomId,
           bridge,
           events,
         });
@@ -169,7 +178,7 @@ export function StageOneGameHost({
 
       events.clear();
     };
-  }, [bridge, initialProgress]);
+  }, [bridge, initialProgress, initialRoomId]);
 
   const completedFlags = useMemo(
     () =>
@@ -200,7 +209,7 @@ export function StageOneGameHost({
 
   return (
     <section
-      className="game-interface mx-auto w-full max-w-[80rem] px-2 py-3 sm:px-4 sm:py-5"
+      className="game-interface h-dvh w-full overflow-hidden"
       aria-labelledby="stage-one-title"
     >
       <h1 id="stage-one-title" className="sr-only">
@@ -209,7 +218,7 @@ export function StageOneGameHost({
 
       <div
         ref={containerRef}
-        className="game-grid-surface relative aspect-video w-full overflow-hidden border border-[var(--game-border-strong)] bg-[var(--game-void)] shadow-[0_28px_80px_rgba(0,0,0,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--game-accent)]"
+        className="game-grid-surface relative h-full w-full overflow-hidden bg-[var(--game-void)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--game-accent)]"
         tabIndex={0}
         role="application"
         aria-label="OutOfBounds Stage 1 횡스크롤 게임 화면"
