@@ -13,6 +13,25 @@ import { STAGE_ONE_ENVIRONMENT_ASSETS } from "../../core/environmentAssets.ts";
 const ARCHIVE_EXIT_POSITION = { x: 110, y: 270 };
 const ARCHIVE_SPAWN_FROM_HALLWAY = { x: 220, y: 270 };
 const ARCHIVE_DEFAULT_SPAWN = { x: 480, y: 270 };
+const ARCHIVE_CABINET_DEPTH = 6;
+const ARCHIVE_DISPLAY_DEPTH = ARCHIVE_CABINET_DEPTH + 2;
+const ARCHIVE_INPUT_DEPTH = ARCHIVE_DISPLAY_DEPTH + 1;
+
+function describeCaesarTerminal(): string {
+  return [
+    "CAESAR TERMINAL",
+    `CIPHER  ${CAESAR_PUZZLE.cipherText}`,
+    `KEY     SHIFT ${CAESAR_PUZZLE.shift}`,
+  ].join("\n");
+}
+
+function describeVigenereTerminal(): string {
+  return [
+    "VIGENERE TERMINAL",
+    `CIPHER  ${VIGENERE_PUZZLE.cipherText}`,
+    `KEY     ${VIGENERE_PUZZLE.keyword}`,
+  ].join("\n");
+}
 
 function requiresEntrance(state: StageOneSaveState): StageOneRoomAccess {
   return state.entranceUnlocked
@@ -104,57 +123,75 @@ export function createArchiveRoom(): StageOneRoomModule {
           fontSize: "24px",
           fontStyle: "bold",
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(ARCHIVE_DISPLAY_DEPTH);
       context.track(title);
 
       for (const x of [350, 650]) {
         const cabinet = scene.add
           .image(x, 348, STAGE_ONE_ENVIRONMENT_ASSETS.archiveCabinet.key)
           .setDisplaySize(190, 170)
-          .setDepth(6);
+          .setDepth(ARCHIVE_CABINET_DEPTH);
         context.track(cabinet);
       }
 
       const caesarCipher = scene.add
-        .text(350, 330, CAESAR_PUZZLE.cipherText, {
+        .text(350, 330, describeCaesarTerminal(), {
+          align: "left",
+          backgroundColor: "#071116",
           color: "#b7d8c1",
           fontFamily: "Consolas, monospace",
-          fontSize: "20px",
+          fontSize: "13px",
+          lineSpacing: 4,
+          padding: { x: 9, y: 8 },
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(ARCHIVE_DISPLAY_DEPTH);
       context.track(caesarCipher);
 
       const caesarAnswerLine = scene.add
-        .text(350, 365, "", {
+        .text(350, 390, "", {
+          backgroundColor: "#071116",
           color: "#d4dde1",
           fontFamily: "Consolas, monospace",
           fontSize: "18px",
+          padding: { x: 8, y: 4 },
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(ARCHIVE_INPUT_DEPTH);
       context.track(caesarAnswerLine);
 
       const vigenereCipher = scene.add
-        .text(650, 330, VIGENERE_PUZZLE.cipherText, {
+        .text(650, 330, describeVigenereTerminal(), {
+          align: "left",
+          backgroundColor: "#071116",
           color: "#b7d8c1",
           fontFamily: "Consolas, monospace",
-          fontSize: "20px",
+          fontSize: "13px",
+          lineSpacing: 4,
+          padding: { x: 9, y: 8 },
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(ARCHIVE_DISPLAY_DEPTH);
       context.track(vigenereCipher);
 
       const vigenereAnswerLine = scene.add
         .text(
           650,
-          365,
+          390,
           context.getState().archiveClueFound ? describeArchiveClues() : "",
           {
             color: "#d4dde1",
             fontFamily: "Consolas, monospace",
             fontSize: "16px",
             align: "center",
+            backgroundColor: "#071116",
+            padding: { x: 8, y: 4 },
+            wordWrap: { width: 300, useAdvancedWrap: true },
           },
         )
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(ARCHIVE_INPUT_DEPTH);
       context.track(vigenereAnswerLine);
 
       context.addInteraction({
