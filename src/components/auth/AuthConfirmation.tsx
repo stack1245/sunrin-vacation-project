@@ -183,12 +183,12 @@ export function AuthConfirmation() {
   return (
     <div className="text-center">
       <div
-        className={`mx-auto flex size-12 items-center justify-center rounded-full border text-lg ${
+        className={`mx-auto flex size-12 items-center justify-center rounded-[3px] border font-mono text-lg ${
           isChecking
-            ? "border-white/20 bg-white/5 text-stone-400"
+            ? "border-[var(--game-border)] bg-[var(--game-surface-raised)] text-[var(--game-muted)]"
             : isSuccess
-              ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
-              : "border-red-300/30 bg-red-300/10 text-red-200"
+              ? "border-[#315447] bg-[var(--game-success-surface)] text-[var(--game-accent)]"
+              : "border-[#8b514d] bg-[var(--game-danger-surface)] text-[var(--game-warning)]"
         }`}
         aria-hidden="true"
       >
@@ -197,7 +197,7 @@ export function AuthConfirmation() {
 
       <p
         role={isFailure ? "alert" : "status"}
-        className="mt-5 text-sm leading-6 text-stone-300"
+        className="mt-5 text-sm leading-6 text-[var(--game-text)]"
       >
         {state.message}
       </p>
@@ -206,14 +206,14 @@ export function AuthConfirmation() {
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link
             href={isSuccess ? "/" : "/signup"}
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/50 bg-white/10 px-5 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+            className="facility-button-primary facility-focus px-5"
           >
             {isSuccess ? "메인으로 돌아가기" : "회원가입 다시 하기"}
           </Link>
           {isFailure && (
             <Link
               href="/login"
-              className="inline-flex min-h-11 items-center justify-center rounded-md px-4 text-sm font-medium text-stone-300 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+              className="facility-button facility-focus px-4"
             >
               로그인하기
             </Link>

@@ -115,7 +115,17 @@ Stage 1은 [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/lay
 - 배경은 저대비 격자와 시설 패널로 깊이를 만들고 과한 네온·블러·둥근 카드는 피한다.
 - 상태는 색상만으로 구분하지 않고 `잠김`, `조작 가능`, `완료`, 오류 이유 문구를 함께 표시한다.
 
-공통 색상 토큰과 격자 표면은 `src/app/globals.css`의 `--game-*`, `.game-interface`, `.game-grid-surface`를 우선 사용한다. 각 Room은 테마색을 추가할 수 있지만 공통 HUD·모달과 대비·상태 의미를 바꾸지 않는다.
+웹 화면은 `src/app/globals.css`의 `--game-*` 토큰과 `.facility-*` 컴포넌트 클래스, `FacilityShell`을 사용한다. Phaser 화면은 같은 색상값과 상태 의미를 적용하고, 공통 HUD·Room·퍼즐 사이에서 다음 기준을 유지한다.
+
+| 영역 | 공통 기준 |
+| --- | --- |
+| 메인·인증·스테이지 | `FacilityShell` 배경, `facility-panel`, `facility-input`, `facility-button*` 사용 |
+| Stage HUD·React 모달 | `.game-interface`, `.game-grid-surface`, `--game-*` 토큰 사용 |
+| Phaser Room | `#050b10` 바닥, `#223341` 격자, `#0b1823` 패널, 민트 활성 상태 사용 |
+| Phaser 퍼즐 | Room과 같은 표면·테두리·상태색을 사용하고 퍼즐별 무지개 색상은 사용하지 않음 |
+| 경고·성공 | 경고는 녹슨 적색 표면과 원인 문구, 성공은 민트 표면과 완료 문구를 함께 표시 |
+
+각 Room은 기획상 필요한 보조색을 추가할 수 있지만 색상의 상태 의미와 텍스트 대비를 바꾸지 않는다. 장식보다 현재 위치·목표·상호작용 가능 상태가 먼저 읽혀야 한다.
 
 ## 8. 인수인계 규칙
 

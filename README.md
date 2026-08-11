@@ -68,6 +68,18 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 - 실제 Room 구현 선택과 수명 주기 조립은 `createStageOneRooms.ts`와 `createStageOneGame.ts`에 모은다.
 - `architectureBoundaries.test.ts`가 별칭·상대 경로를 통한 인프라 역참조를 검사하며 `npm test`에서 자동 실행된다.
 
+## 시각 시스템
+
+OutOfBounds는 [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/layer7-kr/2026codegate-layer7-booth)의 절제된 산업 시설 화면을 시각 참고점으로 사용한다. 참고 프로젝트의 콘텐츠·게임 규칙·코드를 복제하지 않고, 어두운 청회색 시설 표면·얇은 구조선·모노스페이스 계기판·민트 정상 상태·녹슨 적색 경고 상태만 OutOfBounds의 연구소 세계관에 맞게 재구성한다.
+
+- 웹 페이지는 `FacilityShell`과 `facility-*` 공통 클래스를 사용한다.
+- Stage HUD와 React 퍼즐 모달은 `--game-*` 색상 토큰을 사용한다.
+- Phaser Room과 퍼즐도 같은 팔레트와 상태 의미를 사용한다.
+- 상태는 색상에만 의존하지 않고 한국어 상태 문구와 함께 표시한다.
+- 과한 네온, 큰 둥근 카드와 퍼즐마다 다른 무지개 팔레트는 사용하지 않는다.
+
+세부 색상과 적용 규칙은 [Stage 1 공통 개발 계약](./docs/stage-1.md#7-게임-시각-방향)을 기준으로 한다.
+
 ## 역할과 브랜치
 
 | 파트 | 담당 영역 | 브랜치 |

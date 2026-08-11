@@ -101,8 +101,8 @@ export class StageOneScene extends Phaser.Scene {
     );
 
     this.player = this.add
-      .rectangle(0, 0, 26, 34, 0xd8cbff)
-      .setStrokeStyle(2, 0xffffff, 0.9)
+      .rectangle(0, 0, 26, 34, 0xb7d8c1)
+      .setStrokeStyle(2, 0xeef3f5, 0.9)
       .setDepth(30);
     this.physics.add.existing(this.player);
     this.playerBody = this.player.body as Phaser.Physics.Arcade.Body;
@@ -282,7 +282,7 @@ export class StageOneScene extends Phaser.Scene {
     this.publishHud();
   }
 
-  private addWall(bounds: StageOneRectangle, color = 0x151a24): void {
+  private addWall(bounds: StageOneRectangle, color = 0x0b1823): void {
     const wall = this.add
       .rectangle(bounds.x, bounds.y, bounds.width, bounds.height, color)
       .setDepth(5);
@@ -304,8 +304,8 @@ export class StageOneScene extends Phaser.Scene {
     }
 
     const marker = this.add
-      .rectangle(definition.position.x, definition.position.y, 112, 58, 0x7c6daf, 0.2)
-      .setStrokeStyle(2, 0xa99ad8, 0.9)
+      .rectangle(definition.position.x, definition.position.y, 112, 58, 0x0b1823, 0.94)
+      .setStrokeStyle(2, 0x4a5f6d, 0.9)
       .setDepth(8);
     const label = this.add
       .text(
@@ -314,7 +314,7 @@ export class StageOneScene extends Phaser.Scene {
         target.displayName,
         {
           align: "center",
-          color: "#ddd6fe",
+          color: "#d4dde1",
           fontFamily: "Pretendard, Noto Sans KR, sans-serif",
           fontSize: "13px",
         },

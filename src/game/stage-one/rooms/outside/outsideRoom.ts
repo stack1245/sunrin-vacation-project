@@ -12,9 +12,9 @@
     const { scene } = context;
     const floor = scene.add.graphics();
 
-    floor.fillStyle(0x070b10, 1);
+    floor.fillStyle(0x050b10, 1);
     floor.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    floor.lineStyle(1, 0x222936, 0.45);
+    floor.lineStyle(1, 0x223341, 0.55);
 
     for (let x = 0; x <= WORLD_WIDTH; x += 48) {
         floor.lineBetween(x, 0, x, WORLD_HEIGHT);
@@ -29,8 +29,8 @@
 
     const label = scene.add
         .text(48, 44, title, {
-        color: "#f5f5f4",
-        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        color: "#eef3f5",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "28px",
         fontStyle: "bold",
         })
@@ -94,8 +94,8 @@
     const label = scene.add
         .text(options.x, options.y + options.height / 2 + 14, options.text, {
         align: "center",
-        color: "#ddd6fe",
-        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        color: "#d4dde1",
+        fontFamily: "Cascadia Code, Consolas, monospace",
         fontSize: "13px",
         })
         .setOrigin(0.5)
@@ -149,7 +149,7 @@
             96,
             "WASD 또는 방향키로 이동 · Space 달리기 · E 상호작용 · Esc 일시정지",
             {
-            color: "#8f83b8",
+            color: "#6f838f",
             fontFamily: "Consolas, monospace",
             fontSize: "13px",
             },
@@ -163,7 +163,7 @@
         y: 200,
         width: 44,
         height: 28,
-        color: 0x39d98a,
+        color: 0x5dbd8b,
         text: "수상한 카드",
         });
 
@@ -194,7 +194,7 @@
         y: 270,
         width: 96,
         height: 120,
-        color: 0x7c6daf,
+        color: 0x4a5f6d,
         text: "정문",
         });
 
@@ -243,7 +243,7 @@
         y: 430,
         width: 96,
         height: 72,
-        color: 0xd98a39,
+        color: 0xe0a08f,
         text: "탈출 경로",
         });
 
