@@ -46,7 +46,14 @@ export {
   CONTROL_ROOM_NETWORK_ENTRIES,
   CONTROL_ROOM_NOTICE_LINES,
   CONTROL_ROOM_OTP_CONFIG,
+  createControlRoomCookies,
 } from "./puzzleData.ts";
+
+export {
+  ControlRoomOtpIssuer,
+  issueControlRoomOtpSession,
+  type ControlRoomOtpSession,
+} from "./otpSession.ts";
 
 export {
   buildControlRoomViewModel,

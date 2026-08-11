@@ -53,6 +53,16 @@ async function runConsole(puzzle: ControlRoomPuzzle, command: string) {
   await puzzle.submit();
 }
 
+test("새 보안 단말 퍼즐은 직전 세션과 다른 OTP를 사용한다", () => {
+  const firstPuzzle = createHarness().puzzle;
+  const secondPuzzle = createHarness().puzzle;
+
+  assert.notEqual(
+    firstPuzzle.getExpectedOtpForTesting(),
+    secondPuzzle.getExpectedOtpForTesting(),
+  );
+});
+
 test("정답 경로: 단서 열람 → 콘솔 인증 → 두 플래그 저장 → 단말 종료", async () => {
   const { puzzle, port, events } = createHarness();
 
