@@ -75,7 +75,7 @@ Room과 퍼즐은 Supabase를 직접 참조하지 않는다. 진행 상태는 `S
 | A | 공통 Phaser·진행도·통합 | `feat/stage-1/A-10320` |
 | B | 외부·입구·중앙 복도 | `feat/stage-1/B-10404` |
 | C | 연구 자료실 | `feat/stage-1/C-10409` |
-| D | 과학 실험실 | `feat/stage-1/D-10514` |
+| D | 과학 실험실 | `feat/stage-1/D-10320` |
 | E | 보안 통제실 | `feat/stage-1/E-10602` |
 | F | 문서 보관실 | `feat/stage-1/F-10405` |
 
@@ -110,4 +110,5 @@ feat/stage-1/파트-학번 → develop/stage-1 → main
 - [Stage 1 공통 개발 계약](./docs/stage-1.md)
 - [인증 운영 가이드](./docs/auth-operations.md)
 - [C 파트 인수인계](./docs/C2A_handoff.md)
+- [D 파트 인수인계](./docs/D2A_handoff.md)
 - [F 파트 인수인계](./docs/F2A_handoff.md)
