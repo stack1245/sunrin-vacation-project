@@ -31,10 +31,10 @@ import {
 } from "./otp.ts";
 import {
   CONTROL_ROOM_CONSOLE_BANNER,
-  CONTROL_ROOM_COOKIES,
   CONTROL_ROOM_NETWORK_ENTRIES,
-  CONTROL_ROOM_OTP_CONFIG,
+  createControlRoomCookies,
 } from "./puzzleData.ts";
+import { issueControlRoomOtpSession } from "./otpSession.ts";
 import type {
   ControlRoomCommitInput,
   ControlRoomCommitResult,
@@ -46,6 +46,7 @@ import type {
   ControlRoomPuzzleEvent,
   ControlRoomTabId,
   VirtualConsoleLine,
+  VirtualCookie,
   VirtualNetworkEntry,
 } from "./types.ts";
 import {
@@ -105,7 +106,7 @@ export interface ControlRoomPuzzleOptions {
     input: ControlRoomCommitInput,
   ) => Promise<ControlRoomCommitResult>;
   readonly otpConfig?: ControlRoomOtpConfig;
-  readonly cookies?: readonly (typeof CONTROL_ROOM_COOKIES)[number][];
+  readonly cookies?: readonly VirtualCookie[];
   readonly network?: readonly VirtualNetworkEntry[];
   readonly maxAttempts?: number;
   /** 화면 갱신 신호. 스냅숏이 바뀔 때마다 호출된다. */
@@ -146,11 +147,18 @@ export class ControlRoomPuzzle {
 
   constructor(options: ControlRoomPuzzleOptions) {
     this.options = options;
+    const otpSession = options.otpConfig
+      ? {
+          otpConfig: options.otpConfig,
+          cookies: createControlRoomCookies(options.otpConfig),
+        }
+      : issueControlRoomOtpSession();
+
+    this.otpConfig = otpSession.otpConfig;
     this.cookies = new VirtualCookieJar(
-      options.cookies ?? CONTROL_ROOM_COOKIES,
+      options.cookies ?? otpSession.cookies,
     );
     this.network = options.network ?? CONTROL_ROOM_NETWORK_ENTRIES;
-    this.otpConfig = options.otpConfig ?? CONTROL_ROOM_OTP_CONFIG;
     this.maxAttempts = options.maxAttempts ?? CONTROL_ROOM_MAX_OTP_ATTEMPTS;
   }
 

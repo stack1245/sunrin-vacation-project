@@ -1,6 +1,6 @@
 "use client";
 
-import { NQueensPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { NQueensPuzzleScene } from "@/game/stage-one/puzzles/document-storage/nQueensPuzzleScene";
 import { PhaserPuzzleHost } from "./PhaserPuzzleHost";
 
 interface NQueensGameHostProps {

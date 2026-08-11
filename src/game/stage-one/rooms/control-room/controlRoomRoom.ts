@@ -262,8 +262,8 @@ export const controlRoomRoom: StageOneRoomModule = {
       .rectangle(
         CONTROL_ROOM_NOTICE_POSITION.x,
         CONTROL_ROOM_NOTICE_POSITION.y,
-        104,
-        64,
+        132,
+        78,
         CONTROL_ROOM_COLORS.notice,
         1,
       )
@@ -271,12 +271,13 @@ export const controlRoomRoom: StageOneRoomModule = {
     const noticeLabel = scene.add
       .text(
         CONTROL_ROOM_NOTICE_POSITION.x,
-        CONTROL_ROOM_NOTICE_POSITION.y + 44,
+        CONTROL_ROOM_NOTICE_POSITION.y + 52,
         "보안 수칙",
         {
           color: "#d4dde1",
           fontFamily: "Cascadia Code, Consolas, monospace",
-          fontSize: "12px",
+          fontSize: "16px",
+          fontStyle: "bold",
         },
       )
       .setOrigin(0.5)
