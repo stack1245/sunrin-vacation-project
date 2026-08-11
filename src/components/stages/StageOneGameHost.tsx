@@ -47,7 +47,7 @@ const INITIAL_SAVE_STATUS: StageOneSaveStatus = {
 };
 
 const GAME_MESSAGE_BASE_CLASS_NAME =
-  "max-w-[min(92vw,50rem)] border-y border-white/15 bg-[#03080d]/96 px-5 py-3 text-center text-base font-medium leading-7 shadow-[0_10px_36px_rgba(0,0,0,0.42)] backdrop-blur-sm sm:px-7 sm:py-3.5 sm:text-lg";
+  "max-w-[min(92vw,50rem)] border border-[var(--game-border-strong)] bg-[#03080d]/96 px-5 py-3 text-center font-sans text-base font-semibold leading-7 shadow-[0_14px_42px_rgba(0,0,0,0.5)] backdrop-blur-md sm:px-7 sm:py-3.5 sm:text-lg";
 
 const GAME_MESSAGE_TONE_CLASS_NAMES: Record<
   StageOneGameMessage["tone"],
@@ -252,54 +252,75 @@ export function StageOneGameHost({
         aria-label="OutOfBounds Stage 1 횡스크롤 게임 화면"
         onPointerDown={(event) => event.currentTarget.focus()}
       >
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 grid min-h-14 grid-cols-[1fr_auto] border-b border-white/10 bg-[#03080d]/90 px-3 font-mono backdrop-blur-sm sm:grid-cols-[1.45fr_repeat(3,1fr)_auto] sm:px-5">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 grid h-16 grid-cols-[minmax(0,1fr)_auto] border-b border-[var(--game-border)] bg-[#03080d]/94 px-3 font-mono shadow-[0_10px_32px_rgba(0,0,0,0.25)] backdrop-blur-md sm:grid-cols-[1.45fr_repeat(3,1fr)_auto] sm:px-5">
           <div className="flex min-w-0 items-center border-r border-white/10 pr-3">
-            <p className="truncate text-[0.58rem] font-semibold tracking-[0.18em] text-[var(--game-text-strong)] sm:text-[0.68rem]">
+            <p className="truncate text-[0.62rem] font-semibold tracking-[0.16em] text-[var(--game-text-strong)] sm:text-xs">
               OUTOFBOUNDS <span className="text-[var(--game-muted)]">{"//"} STAGE {String(stageOrder).padStart(2, "0")}</span>
             </p>
           </div>
           <div className="hidden items-center border-r border-white/10 px-4 sm:flex">
-            <p><span className="block text-[0.48rem] tracking-[0.16em] text-[var(--game-muted)]">TIME</span><strong className="text-xs font-medium tabular-nums text-[var(--game-text)]">{formatClearTime(hud.elapsedTimeMs)}</strong></p>
+            <p><span className="block text-[0.55rem] font-semibold tracking-[0.16em] text-[var(--game-muted)]">TIME</span><strong className="mt-0.5 block text-sm font-medium tabular-nums text-[var(--game-text)]">{formatClearTime(hud.elapsedTimeMs)}</strong></p>
           </div>
           <div className="hidden min-w-0 items-center border-r border-white/10 px-4 sm:flex">
-            <p className="min-w-0"><span className="block text-[0.48rem] tracking-[0.16em] text-[var(--game-muted)]">SECTOR</span><strong className="block truncate text-xs font-medium text-[var(--game-text)]">{hud.roomName}</strong></p>
+            <p className="min-w-0"><span className="block text-[0.55rem] font-semibold tracking-[0.16em] text-[var(--game-muted)]">SECTOR</span><strong className="mt-0.5 block truncate font-sans text-sm font-semibold text-[var(--game-text)]">{hud.roomName}</strong></p>
           </div>
           <div className="hidden items-center border-r border-white/10 px-4 sm:flex">
-            <p><span className="block text-[0.48rem] tracking-[0.16em] text-[var(--game-muted)]">PROGRESS</span><strong className="text-xs font-medium text-[var(--game-accent)]">{String(completedFlags).padStart(2, "0")} / 08</strong></p>
+            <p><span className="block text-[0.55rem] font-semibold tracking-[0.16em] text-[var(--game-muted)]">PROGRESS</span><strong className="mt-0.5 block text-sm font-medium text-[var(--game-accent)]">{String(completedFlags).padStart(2, "0")} / 08</strong></p>
           </div>
-          <div className="pointer-events-auto flex items-center gap-1 pl-2 sm:pl-3">
+          <div className="pointer-events-auto flex items-center gap-1.5 pl-2 sm:gap-2 sm:pl-3">
             <span
-              className={saveStatus.phase === "failed" ? "mr-1 text-[0.55rem] text-[var(--game-warning)]" : "mr-1 text-[0.55rem] text-[var(--game-success)]"}
+              className={saveStatus.phase === "failed" ? "mr-0.5 text-[0.62rem] font-semibold text-[var(--game-warning)] sm:mr-1 sm:text-[0.68rem]" : "mr-0.5 text-[0.62rem] font-semibold text-[var(--game-success)] sm:mr-1 sm:text-[0.68rem]"}
               title={saveStatus.message}
             >
+              <span className="mr-1 hidden size-1.5 rounded-full bg-current sm:inline-block" aria-hidden="true" />
               {getSaveStatusLabel(saveStatus)}
             </span>
             <button
               type="button"
               onClick={handlePauseToggle}
               disabled={bootStatus !== "ready"}
-              className="min-h-8 border border-white/15 px-2 text-[0.55rem] tracking-[0.12em] text-[var(--game-text)] transition-colors hover:border-[var(--game-accent)] disabled:opacity-40"
+              className="facility-focus min-h-10 rounded-[2px] border border-[var(--game-border)] px-2.5 text-[0.62rem] font-semibold tracking-[0.1em] text-[var(--game-text)] transition-colors hover:border-[var(--game-accent)] hover:bg-white/[0.04] disabled:opacity-40 sm:px-3 sm:text-[0.68rem]"
             >
               {hud.paused ? "RESUME" : "PAUSE"}
             </button>
             <Link
               href="/stages"
-              className="inline-flex min-h-8 items-center border border-white/15 px-2 text-[0.55rem] tracking-[0.12em] text-[var(--game-muted)] transition-colors hover:border-white/40 hover:text-[var(--game-text)]"
+              className="facility-focus inline-flex min-h-10 items-center rounded-[2px] border border-[var(--game-border)] px-2.5 text-[0.62rem] font-semibold tracking-[0.1em] text-[var(--game-muted)] transition-colors hover:border-[var(--game-border-strong)] hover:bg-white/[0.04] hover:text-[var(--game-text)] sm:px-3 sm:text-[0.68rem]"
             >
               EXIT
             </Link>
           </div>
         </div>
 
-        <div className="pointer-events-none absolute left-4 top-[4.5rem] z-20 max-w-[16rem] font-mono sm:left-6 sm:top-20 sm:max-w-xs">
-          <p className="text-[0.52rem] tracking-[0.2em] text-[var(--game-accent)]">CURRENT OBJECTIVE</p>
-          <p className="mt-1.5 text-[0.62rem] leading-5 text-[var(--game-text)] sm:text-xs">{hud.objective}</p>
-          <div className="mt-4 hidden border-l border-white/15 pl-3 text-[0.55rem] leading-5 text-[var(--game-muted)] sm:block">
-            <p>A / D · MOVE</p>
-            <p>W / SPACE · JUMP</p>
-            <p>S · CROUCH &nbsp; SHIFT · RUN</p>
-            <p>E · INTERACT &nbsp; ESC · PAUSE</p>
+        <div className="pointer-events-none absolute inset-x-3 top-20 z-20 flex flex-col items-stretch gap-2 sm:inset-x-6 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
+          <div className="max-w-xl border-l-2 border-[var(--game-accent)] bg-[#03080d]/78 px-3.5 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm sm:px-4 sm:py-3.5">
+            <p className="font-mono text-[0.58rem] font-bold tracking-[0.2em] text-[var(--game-accent)] sm:text-[0.62rem]">CURRENT OBJECTIVE</p>
+            <p className="mt-1.5 text-[0.82rem] font-semibold leading-6 text-[var(--game-text-strong)] sm:text-[0.95rem]">{hud.objective}</p>
+
+            <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/10 pt-2.5 font-mono text-[0.62rem] text-[var(--game-muted)] sm:hidden">
+              <span>{hud.roomName}</span>
+              <span className="text-[var(--game-accent)]">{String(completedFlags).padStart(2, "0")} / 08</span>
+              <span className="tabular-nums">{formatClearTime(hud.elapsedTimeMs)}</span>
+            </div>
+
+            <p className="game-device-notice mt-2.5 items-center gap-1.5 border-t border-white/10 pt-2.5 text-xs font-semibold text-[var(--game-warning)]">
+              가로 화면과 키보드 플레이를 권장합니다.
+            </p>
+
+            <div className="mt-3.5 hidden grid-cols-2 gap-x-5 border-t border-white/10 pt-3 font-mono text-[0.6rem] leading-5 text-[var(--game-muted)] sm:grid">
+              <p>A / D · MOVE</p>
+              <p>W / SPACE · JUMP</p>
+              <p>S · CROUCH · SHIFT · RUN</p>
+              <p>E · INTERACT · ESC · PAUSE</p>
+            </div>
           </div>
+
+          {completed ? (
+            <p className="self-end rounded-[2px] border border-[#315447] bg-[var(--game-success-surface)] px-3 py-2 font-mono text-[0.58rem] font-bold tracking-[0.14em] text-[var(--game-success)] shadow-lg sm:self-start sm:text-[0.64rem]">
+              <span className="sm:hidden">CLEARED</span>
+              <span className="hidden sm:inline">STAGE CLEARED // SAVE LOADED</span>
+            </p>
+          ) : null}
         </div>
 
         {bootStatus !== "ready" ? (
@@ -311,11 +332,11 @@ export function StageOneGameHost({
         ) : null}
 
         {hud.paused ? (
-          <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#03080d]/84 backdrop-blur-[2px]">
-            <div className="border-y border-white/15 px-12 py-7 text-center font-mono">
-              <p className="text-lg font-semibold tracking-[0.32em] text-[var(--game-text-strong)]">PAUSED</p>
-              <p className="mt-3 text-[0.62rem] tracking-[0.08em] text-[var(--game-muted)]">ESCAPE 또는 RESUME으로 복귀</p>
-              <button type="button" onClick={handlePauseToggle} className="mt-5 min-h-9 border border-[var(--game-border-strong)] px-6 text-xs text-[var(--game-accent)] hover:border-[var(--game-accent)]">RESUME</button>
+          <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#03080d]/88 px-5 backdrop-blur-sm">
+            <div className="facility-panel-raised w-full max-w-sm p-7 text-center sm:p-9">
+              <p className="font-mono text-xl font-semibold tracking-[0.28em] text-[var(--game-text-strong)]">PAUSED</p>
+              <p className="mt-3 text-sm font-medium leading-6 text-[var(--game-muted)]">ESC 키 또는 아래 버튼으로 게임에 복귀합니다.</p>
+              <button type="button" onClick={handlePauseToggle} className="facility-button-primary facility-focus mt-6 min-w-36 px-6">RESUME</button>
             </div>
           </div>
         ) : null}
@@ -334,15 +355,9 @@ export function StageOneGameHost({
         </div>
 
         {saveStatus.phase === "failed" ? (
-          <button type="button" onClick={handleRetrySave} className="absolute bottom-4 right-4 z-30 border border-[#8b514d] bg-[#251517]/95 px-3 py-2 text-xs text-[var(--game-warning)] hover:border-[#d17e74]">
+          <button type="button" onClick={handleRetrySave} className="facility-button-danger facility-focus absolute bottom-4 right-4 z-30 px-4">
             저장 다시 시도
           </button>
-        ) : null}
-
-        {completed ? (
-          <p className="pointer-events-none absolute right-4 top-[4.5rem] z-20 font-mono text-[0.58rem] tracking-[0.16em] text-[var(--game-success)] sm:right-6 sm:top-20">
-            STAGE CLEARED // SAVE LOADED
-          </p>
         ) : null}
       </div>
 
