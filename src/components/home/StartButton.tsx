@@ -6,7 +6,7 @@ import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const focusStyles =
-  "facility-focus";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030708]";
 
 export function StartButton() {
   const router = useRouter();
@@ -49,10 +49,9 @@ export function StartButton() {
       onClick={handleStart}
       disabled={isCheckingAuth}
       aria-busy={isCheckingAuth}
-      className={`facility-button-primary mt-9 min-h-13 min-w-48 px-9 py-3 sm:mt-11 sm:min-h-14 sm:min-w-52 ${focusStyles}`}
+      className={`mt-9 inline-flex min-h-13 min-w-40 items-center justify-center rounded-md border border-white/65 bg-black/25 px-9 py-3 text-sm font-semibold tracking-[0.24em] text-white backdrop-blur-[2px] transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white/12 active:translate-y-0 active:scale-[0.98] disabled:cursor-wait disabled:translate-y-0 disabled:border-white/35 disabled:text-stone-400 sm:mt-11 sm:min-h-14 sm:min-w-44 ${focusStyles}`}
     >
-      <span className="mr-3 text-[0.62rem] opacity-70">01</span>
-      {isCheckingAuth ? "ACCESS CHECK" : "INITIATE ESCAPE"}
+      {isCheckingAuth ? "확인 중..." : "START"}
     </button>
   );
 }

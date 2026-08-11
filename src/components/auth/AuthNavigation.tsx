@@ -9,7 +9,7 @@ import {
 } from "@/lib/supabase/client";
 
 const focusStyles =
-  "facility-focus";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030708]";
 
 export function AuthNavigation() {
   const configured = isSupabaseConfigured();
@@ -120,7 +120,7 @@ export function AuthNavigation() {
   if (isLoading) {
     return (
       <div
-        className="ml-4 flex min-w-20 justify-end font-mono text-xs text-[var(--game-muted)] sm:min-w-36 sm:text-sm"
+        className="ml-4 flex min-w-20 justify-end text-xs text-stone-500 sm:min-w-36 sm:text-sm"
         aria-label="회원 정보를 불러오는 중"
       >
         ···
@@ -131,9 +131,9 @@ export function AuthNavigation() {
   if (nickname) {
     return (
       <nav aria-label="회원 메뉴" className="ml-4">
-        <div className="flex items-center gap-2 font-mono text-xs sm:gap-4 sm:text-sm">
+        <div className="flex items-center gap-2 text-xs sm:gap-4 sm:text-sm">
           <span
-            className="max-w-24 truncate text-[var(--game-muted)] sm:max-w-52"
+            className="max-w-24 truncate text-stone-400 sm:max-w-52"
             title={nickname}
           >
             {nickname}
@@ -142,7 +142,7 @@ export function AuthNavigation() {
             type="button"
             onClick={handleSignOut}
             disabled={isSigningOut}
-            className={`rounded-[2px] px-1 py-2 font-medium text-[var(--game-text)] transition-colors duration-200 hover:text-[var(--game-warning)] disabled:cursor-wait disabled:text-[var(--game-muted)] ${focusStyles}`}
+            className={`rounded-sm px-1 py-2 font-medium text-stone-200 transition-colors duration-200 hover:text-white disabled:cursor-wait disabled:text-stone-500 ${focusStyles}`}
           >
             {isSigningOut ? "처리 중" : "로그아웃"}
           </button>
@@ -156,11 +156,11 @@ export function AuthNavigation() {
 
   return (
     <nav aria-label="회원 메뉴" className="ml-4">
-      <ul className="flex items-center gap-3 font-mono text-xs font-medium text-[var(--game-text)] sm:gap-6 sm:text-sm">
+      <ul className="flex items-center gap-3 text-xs font-medium text-stone-300 sm:gap-6 sm:text-sm">
         <li>
           <Link
             href="/login"
-            className={`rounded-[2px] px-1 py-2 transition-colors duration-200 hover:text-[var(--game-accent)] ${focusStyles}`}
+            className={`rounded-sm px-1 py-2 transition-colors duration-200 hover:text-white ${focusStyles}`}
           >
             로그인
           </Link>
@@ -168,7 +168,7 @@ export function AuthNavigation() {
         <li>
           <Link
             href="/signup"
-            className={`rounded-[2px] px-1 py-2 transition-colors duration-200 hover:text-[var(--game-accent)] ${focusStyles}`}
+            className={`rounded-sm px-1 py-2 transition-colors duration-200 hover:text-white ${focusStyles}`}
           >
             회원가입
           </Link>

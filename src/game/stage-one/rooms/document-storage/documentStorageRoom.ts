@@ -135,11 +135,11 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
       y: number;
       color: number;
     }[] = [
-      { type: "ago", name: "보안 노드 터미널 [Ago]", x: 260, y: 130, color: 0x315447 },
-      { type: "mathdoku", name: "암호 연산기 [Mathdoku]", x: 500, y: 110, color: 0x29404a },
-      { type: "nqueens", name: "배치 제어반 [N-Queens]", x: 740, y: 130, color: 0x3e505a },
-      { type: "resource", name: "자원 배분반 [Resource]", x: 340, y: 430, color: 0x8b6d3e },
-      { type: "ttf", name: "패턴 해독기 [TTF]", x: 660, y: 430, color: 0x4f7460 },
+      { type: "ago", name: "보안 노드 [Ago]", x: 210, y: 382, color: 0x315447 },
+      { type: "mathdoku", name: "암호 연산 [Mathdoku]", x: 340, y: 382, color: 0x29404a },
+      { type: "nqueens", name: "배치 제어 [N-Queens]", x: 470, y: 382, color: 0x3e505a },
+      { type: "resource", name: "자원 배분 [Resource]", x: 600, y: 382, color: 0x8b6d3e },
+      { type: "ttf", name: "패턴 해독 [TTF]", x: 730, y: 382, color: 0x4f7460 },
     ];
 
     terminals.forEach((term) => {
@@ -192,13 +192,13 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
 
     // 5. 중앙 기밀 문서 금고 (Confidential Safe)
     const safeRect = scene.add
-      .rectangle(500, 270, 70, 70, 0x251517, 0.96)
+      .rectangle(880, 370, 70, 92, 0x251517, 0.96)
       .setStrokeStyle(3, 0xe0a08f)
       .setDepth(10);
     context.track(safeRect);
 
     const safeText = scene.add
-      .text(500, 270, "CONFIDENTIAL\nSAFE", {
+      .text(880, 370, "CONFIDENTIAL\nSAFE", {
         color: "#eef3f5",
         fontSize: "10px",
         fontStyle: "bold",
@@ -211,7 +211,7 @@ export class DocumentStorageRoomModule implements StageOneRoomModule {
 
     context.addInteraction({
       id: "confidential-document-safe",
-      position: { x: 500, y: 270 },
+      position: { x: 880, y: 370 },
       radius: 65,
       prompt: (state) => {
         if (state.confidentialDocumentObtained) {

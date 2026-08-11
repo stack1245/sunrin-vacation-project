@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { FacilityShell } from "@/components/common/FacilityShell";
-import { SiteHeader } from "@/components/common/SiteHeader";
 import { StageEntryView } from "@/components/stages/StageEntryView";
 
 export const metadata: Metadata = {
@@ -23,24 +21,8 @@ export default async function StageEntryPage({
 
   return (
     <FacilityShell>
-      <SiteHeader />
-
-      <main className="relative z-10 flex min-h-[calc(100dvh-4.5rem)] flex-col px-4 py-8 sm:min-h-[calc(100dvh-5rem)] sm:px-6 sm:py-10">
-        <div className="mx-auto mb-6 w-full max-w-6xl">
-          <Link
-            href="/stages"
-            className="facility-back-link facility-focus"
-          >
-            <span aria-hidden="true" className="mr-2">
-              ←
-            </span>
-            STAGES
-          </Link>
-        </div>
-
-        <div className="flex flex-1 items-center justify-center pb-12">
-          <StageEntryView slug={slug} />
-        </div>
+      <main className="relative z-10 flex min-h-dvh items-center justify-center bg-[#03080d] px-1 py-2 sm:px-3 sm:py-3">
+        <StageEntryView slug={slug} />
       </main>
     </FacilityShell>
   );

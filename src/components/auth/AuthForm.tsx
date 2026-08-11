@@ -29,7 +29,7 @@ interface VerificationRequest {
 }
 
 const inputStyles =
-  "facility-input mt-2 px-4 text-sm";
+  "mt-2 min-h-12 w-full rounded-md border border-white/15 bg-black/35 px-4 text-base text-white outline-none transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-stone-600 hover:border-white/25 focus:border-white/60 focus:bg-black/50 focus:ring-2 focus:ring-white/15";
 
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
@@ -193,7 +193,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       {!configured && (
         <p
           role="alert"
-          className="facility-alert mb-5"
+          className="mb-5 rounded-md border border-amber-200/20 bg-amber-200/10 px-4 py-3 text-sm leading-6 text-amber-100"
         >
           현재 회원 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해
           주세요.
@@ -205,7 +205,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           <div>
             <label
               htmlFor={`${mode}-nickname`}
-              className="facility-label"
+              className="text-sm font-medium text-stone-200"
             >
               닉네임
             </label>
@@ -226,7 +226,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <div>
           <label
             htmlFor={`${mode}-email`}
-            className="facility-label"
+            className="text-sm font-medium text-stone-200"
           >
             이메일
           </label>
@@ -245,7 +245,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <div>
           <label
             htmlFor={`${mode}-password`}
-            className="facility-label"
+            className="text-sm font-medium text-stone-200"
           >
             비밀번호
           </label>
@@ -262,7 +262,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           {isSignup && (
             <p
               id={`${mode}-password-hint`}
-              className="mt-2 text-xs text-[var(--game-muted)]"
+              className="mt-2 text-xs text-stone-500"
             >
               8자 이상의 비밀번호를 입력해 주세요.
             </p>
@@ -273,7 +273,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           <div>
             <label
               htmlFor={`${mode}-password-confirmation`}
-              className="facility-label"
+              className="text-sm font-medium text-stone-200"
             >
               비밀번호 확인
             </label>
@@ -292,11 +292,11 @@ export function AuthForm({ mode }: AuthFormProps) {
         {notice && (
           <p
             role={notice.kind === "error" ? "alert" : "status"}
-            className={
+            className={`rounded-md border px-4 py-3 text-sm leading-6 ${
               notice.kind === "error"
-                ? "facility-alert"
-                : "facility-success"
-            }
+                ? "border-red-300/20 bg-red-300/10 text-red-100"
+                : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+            }`}
           >
             {notice.message}
           </p>
@@ -305,7 +305,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <button
           type="submit"
           disabled={isSubmitting || !configured}
-          className="facility-button-primary facility-focus min-h-12 w-full px-6"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-md border border-white/60 bg-white/10 px-6 text-sm font-semibold tracking-[0.12em] text-white transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white/15 active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:border-white/15 disabled:bg-white/5 disabled:text-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030708]"
         >
           {isSubmitting
             ? "처리 중..."
@@ -315,11 +315,11 @@ export function AuthForm({ mode }: AuthFormProps) {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[var(--game-muted)]">
+      <p className="mt-6 text-center text-sm text-stone-400">
         {isSignup ? "이미 계정이 있으신가요?" : "아직 계정이 없으신가요?"}{" "}
         <Link
           href={isSignup ? "/login" : "/signup"}
-          className="facility-focus rounded-[2px] font-medium text-[var(--game-accent)] underline decoration-[#315447] underline-offset-4 transition-colors hover:text-[var(--game-text-strong)]"
+          className="rounded-sm font-medium text-stone-100 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
         >
           {isSignup ? "로그인" : "회원가입"}
         </Link>

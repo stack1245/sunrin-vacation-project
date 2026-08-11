@@ -33,11 +33,11 @@ interface ScienceLabDevicePosition {
 const SCIENCE_LAB_DEVICE_POSITIONS: Readonly<
   Record<ScienceLabStep, ScienceLabDevicePosition>
 > = {
-  symbol: { x: 260, y: 205 },
-  density: { x: 480, y: 205 },
-  oxygen: { x: 700, y: 205 },
-  ignition: { x: 370, y: 365 },
-  heating: { x: 590, y: 365 },
+  symbol: { x: 250, y: 370 },
+  density: { x: 390, y: 370 },
+  oxygen: { x: 530, y: 370 },
+  ignition: { x: 670, y: 370 },
+  heating: { x: 810, y: 370 },
 };
 
 interface ScienceLabRoomOptions {
@@ -240,7 +240,7 @@ export class ScienceLabRoomModule implements StageOneRoomModule {
       const definition = SCIENCE_LAB_STEP_DEFINITIONS[step];
       const position = SCIENCE_LAB_DEVICE_POSITIONS[step];
       const panel = scene.add
-        .rectangle(position.x, position.y, 158, 92, 0x0b1823, 1)
+        .rectangle(position.x, position.y, 124, 104, 0x0b1823, 1)
         .setStrokeStyle(2, 0x4a5f6d, 0.9)
         .setDepth(7);
       const label = scene.add
@@ -335,7 +335,7 @@ export class ScienceLabRoomModule implements StageOneRoomModule {
 
     context.addInteraction({
       id: "science-lab-protocol-board",
-      position: { x: 480, y: 82 },
+      position: { x: 910, y: 370 },
       radius: 95,
       prompt: "E · 확보한 실험 순서 다시 확인",
       onInteract(interaction) {

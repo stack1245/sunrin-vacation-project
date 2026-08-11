@@ -98,14 +98,15 @@ Stage 1 진행 상태는 `src/types/stage-one.ts`의 타입과 정규화 함수�
 
 ## 6. 입력과 모달
 
-- 이동 키는 `WASD`와 방향키, 상호작용은 `E`, 모달 닫기는 `ESC`를 기본으로 한다.
+- 좌우 이동은 `A`·`D` 또는 좌우 방향키, 점프는 `W`·위 방향키·`Space`, 숙이기는 `S`·아래 방향키를 사용한다.
+- 달리기는 `Shift`, 상호작용은 `E`, 일시정지와 모달 닫기는 `ESC`를 기본으로 한다.
 - 모달이 열려 있으면 Phaser 이동과 상호작용 입력을 잠근다.
 - 입력 잠금은 공통 컨텍스트를 통해 처리하며 Room이 전역 키보드 상태를 직접 제어하지 않는다.
 - Room을 나가거나 게임을 종료할 때 이벤트 리스너, 타이머, DOM 모달을 정리한다.
 
 ## 7. 게임 시각 방향
 
-Stage 1은 [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/layer7-kr/2026codegate-layer7-booth)의 절제된 산업 시설 UI를 시각 참고점으로 삼는다. 콘텐츠·게임 규칙·코드를 복제하지 않고 다음 표현 원칙만 공통으로 사용한다.
+Stage 1은 [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/layer7-kr/2026codegate-layer7-booth)의 실제 인게임 UI/UX를 참고점으로 삼는다. 적용 범위는 스테이지 선택 이후이며, 메인·로그인·회원가입 화면은 기존 OutOfBounds 디자인을 유지한다. 콘텐츠·게임 규칙·코드를 복제하지 않고 다음 표현 원칙만 공통으로 사용한다.
 
 - `#050b10`·`#071018`·`#0b1823`의 어두운 청회색 표면
 - `#223341`·`#4a5f6d`의 얇은 구조선과 작은 모서리 반경
@@ -114,14 +115,19 @@ Stage 1은 [2026 CODEGATE Layer7 체험형 웹 방탈출](https://github.com/lay
 - 장소·시간·진행도·장치 상태는 모노스페이스 영문 레이블과 한국어 설명을 함께 사용
 - 배경은 저대비 격자와 시설 패널로 깊이를 만들고 과한 네온·블러·둥근 카드는 피한다.
 - 상태는 색상만으로 구분하지 않고 `잠김`, `조작 가능`, `완료`, 오류 이유 문구를 함께 표시한다.
+- 게임은 옆에서 바라보는 횡스크롤 시점으로 구성하고 캐릭터의 상하 자유 이동을 허용하지 않는다.
+- 시간·장소·진행도·저장 상태는 캔버스 상단의 얇은 일체형 HUD에 배치한다.
+- 목표·조작 안내·메시지·상호작용 프롬프트는 별도 웹 카드가 아니라 게임 화면 안에 겹쳐 표시한다.
+- 플레이어는 `public/character`의 SVG 프레임을 `idle`, `walk`, `jump`, `crouch`, `interact` 상태로 재생한다.
 
-웹 화면은 `src/app/globals.css`의 `--game-*` 토큰과 `.facility-*` 컴포넌트 클래스, `FacilityShell`을 사용한다. Phaser 화면은 같은 색상값과 상태 의미를 적용하고, 공통 HUD·Room·퍼즐 사이에서 다음 기준을 유지한다.
+인게임 화면은 `src/app/globals.css`의 `--game-*` 토큰과 `.facility-*` 컴포넌트 클래스를 사용한다. Phaser 화면은 같은 색상값과 상태 의미를 적용하고, 공통 HUD·Room·퍼즐 사이에서 다음 기준을 유지한다.
 
 | 영역 | 공통 기준 |
 | --- | --- |
-| 메인·인증·스테이지 | `FacilityShell` 배경, `facility-panel`, `facility-input`, `facility-button*` 사용 |
-| Stage HUD·React 모달 | `.game-interface`, `.game-grid-surface`, `--game-*` 토큰 사용 |
-| Phaser Room | `#050b10` 바닥, `#223341` 격자, `#0b1823` 패널, 민트 활성 상태 사용 |
+| 메인·인증 | 기존 배경 이미지·로고·중앙 랜딩·반투명 인증 대화상자 유지 |
+| 스테이지 선택 | `FacilityShell`, `facility-panel`, `facility-button*` 사용 |
+| Stage HUD·React 모달 | `.game-interface`, `.game-grid-surface`, `--game-*` 토큰을 사용하되 모든 정보는 큰 게임 캔버스 안에 배치 |
+| Phaser Room | 횡스크롤 바닥과 산업 시설 패널, SVG 캐릭터 상태 애니메이션, 민트 활성 상태 사용 |
 | Phaser 퍼즐 | Room과 같은 표면·테두리·상태색을 사용하고 퍼즐별 무지개 색상은 사용하지 않음 |
 | 경고·성공 | 경고는 녹슨 적색 표면과 원인 문구, 성공은 민트 표면과 완료 문구를 함께 표시 |
 

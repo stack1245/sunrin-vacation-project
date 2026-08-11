@@ -20,12 +20,27 @@ import type {
   StageOneRoomRegistry,
 } from "../contracts/room";
 import type { StageOneSession } from "./stageOneSession";
-import { calculateStageOneVelocity } from "./movement";
+import {
+  calculateStageOneVelocity,
+  STAGE_ONE_JUMP_VELOCITY,
+} from "./movement";
+import {
+  getStageOnePlayerAnimationKey,
+  getStageOnePlayerTextureKey,
+  STAGE_ONE_PLAYER_ANIMATIONS,
+  type StageOnePlayerAnimation,
+} from "./playerAnimations";
 import {
   STAGE_ONE_WORLD_HEIGHT,
   STAGE_ONE_WORLD_WIDTH,
 } from "./referenceRooms";
 import { StageOneModalInputLock } from "./modalInputLock";
+import {
+  createSideViewRoomBackdrop,
+  STAGE_ONE_SIDE_VIEW_FLOOR_TOP,
+  STAGE_ONE_SIDE_VIEW_PLAYER_Y,
+  STAGE_ONE_SIDE_VIEW_PORTAL_Y,
+} from "./sideViewPresentation";
 
 export const STAGE_ONE_SCENE_KEY = "stage-one";
 
@@ -39,6 +54,7 @@ interface MovementKeys {
   s: Phaser.Input.Keyboard.Key;
   d: Phaser.Input.Keyboard.Key;
   interact: Phaser.Input.Keyboard.Key;
+  jump: Phaser.Input.Keyboard.Key;
   sprint: Phaser.Input.Keyboard.Key;
   pause: Phaser.Input.Keyboard.Key;
 }
@@ -69,7 +85,7 @@ export class StageOneScene extends Phaser.Scene {
   private readonly session: StageOneSession;
   private readonly gameEvents: StageOneGameEvents<StageOneGameEventMap>;
   private readonly rooms: StageOneRoomRegistry;
-  private player!: Phaser.GameObjects.Rectangle;
+  private player!: Phaser.Physics.Arcade.Sprite;
   private playerBody!: Phaser.Physics.Arcade.Body;
   private movementKeys!: MovementKeys;
   private currentRoom!: StageOneRoomModule;
@@ -92,6 +108,19 @@ export class StageOneScene extends Phaser.Scene {
     this.rooms = new Map(rooms.map((room) => [room.id, room]));
   }
 
+  preload(): void {
+    for (const [animation, definition] of Object.entries(
+      STAGE_ONE_PLAYER_ANIMATIONS,
+    ) as [StageOnePlayerAnimation, (typeof STAGE_ONE_PLAYER_ANIMATIONS)[StageOnePlayerAnimation]][]) {
+      definition.frames.forEach((path, frameIndex) => {
+        this.load.svg(getStageOnePlayerTextureKey(animation, frameIndex), path, {
+          width: 72,
+          height: 72,
+        });
+      });
+    }
+  }
+
   create(): void {
     this.physics.world.setBounds(
       0,
@@ -100,14 +129,14 @@ export class StageOneScene extends Phaser.Scene {
       STAGE_ONE_WORLD_HEIGHT,
     );
 
-    this.player = this.add
-      .rectangle(0, 0, 26, 34, 0xb7d8c1)
-      .setStrokeStyle(2, 0xeef3f5, 0.9)
+    this.createPlayerAnimations();
+    this.player = this.physics.add
+      .sprite(0, 0, getStageOnePlayerTextureKey("idle", 0))
       .setDepth(30);
-    this.physics.add.existing(this.player);
     this.playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-    this.playerBody.setSize(22, 30);
+    this.playerBody.setSize(25, 48).setOffset(24, 17);
     this.playerBody.setCollideWorldBounds(true);
+    this.player.play(getStageOnePlayerAnimationKey("idle"));
 
     const keyboard = this.input.keyboard;
 
@@ -125,7 +154,8 @@ export class StageOneScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       interact: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-      sprint: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      jump: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      sprint: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT),
       pause: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
     };
     keyboard.addCapture([
@@ -161,7 +191,7 @@ export class StageOneScene extends Phaser.Scene {
     this.flushDeferredModalInputReleases();
 
     if (isTextInputActive()) {
-      this.playerBody.setVelocity(0, 0);
+      this.playerBody.setVelocityX(0);
       this.updateHud(time);
       return;
     }
@@ -178,7 +208,7 @@ export class StageOneScene extends Phaser.Scene {
       this.interactionRunning ||
       this.modalInputLock.isActive()
     ) {
-      this.playerBody.setVelocity(0, 0);
+      this.playerBody.setVelocityX(0);
       this.updateHud(time);
       return;
     }
@@ -186,16 +216,25 @@ export class StageOneScene extends Phaser.Scene {
     const horizontal =
       (this.movementKeys.right.isDown || this.movementKeys.d.isDown ? 1 : 0) -
       (this.movementKeys.left.isDown || this.movementKeys.a.isDown ? 1 : 0);
-    const vertical =
-      (this.movementKeys.down.isDown || this.movementKeys.s.isDown ? 1 : 0) -
-      (this.movementKeys.up.isDown || this.movementKeys.w.isDown ? 1 : 0);
+    const crouching =
+      this.movementKeys.down.isDown || this.movementKeys.s.isDown;
     const velocity = calculateStageOneVelocity({
       horizontal,
-      vertical,
       sprinting: this.movementKeys.sprint.isDown,
     });
 
-    this.playerBody.setVelocity(velocity.x, velocity.y);
+    this.playerBody.setVelocityX(crouching ? 0 : velocity.x);
+
+    if (
+      this.playerBody.blocked.down &&
+      (Phaser.Input.Keyboard.JustDown(this.movementKeys.up) ||
+        Phaser.Input.Keyboard.JustDown(this.movementKeys.w) ||
+        Phaser.Input.Keyboard.JustDown(this.movementKeys.jump))
+    ) {
+      this.playerBody.setVelocityY(-STAGE_ONE_JUMP_VELOCITY);
+    }
+
+    this.updatePlayerAnimation(horizontal, crouching);
     this.selectActiveInteraction();
 
     if (
@@ -255,11 +294,8 @@ export class StageOneScene extends Phaser.Scene {
     this.currentRoom = room;
     const spawnPoint = room.getSpawnPoint?.(fromRoomId) ?? {
       x: STAGE_ONE_WORLD_WIDTH / 2,
-      y: STAGE_ONE_WORLD_HEIGHT / 2,
+      y: STAGE_ONE_SIDE_VIEW_PLAYER_Y,
     };
-
-    this.player.setPosition(spawnPoint.x, spawnPoint.y);
-    this.playerBody.reset(spawnPoint.x, spawnPoint.y);
 
     const cleanup = room.mount({
       scene: this,
@@ -273,6 +309,19 @@ export class StageOneScene extends Phaser.Scene {
         this.roomObjects.push(gameObject);
       },
     });
+
+    for (const gameObject of createSideViewRoomBackdrop(
+      this,
+      room.id,
+      room.displayName,
+    )) {
+      this.roomObjects.push(gameObject);
+    }
+
+    this.addSideViewFloor();
+    this.player.setPosition(spawnPoint.x, STAGE_ONE_SIDE_VIEW_PLAYER_Y);
+    this.playerBody.reset(spawnPoint.x, STAGE_ONE_SIDE_VIEW_PLAYER_Y);
+    this.player.play(getStageOnePlayerAnimationKey("idle"), true);
 
     this.roomCleanup = cleanup ?? null;
     this.gameEvents.emit("message", {
@@ -304,13 +353,20 @@ export class StageOneScene extends Phaser.Scene {
     }
 
     const marker = this.add
-      .rectangle(definition.position.x, definition.position.y, 112, 58, 0x0b1823, 0.94)
+      .rectangle(
+        definition.position.x,
+        STAGE_ONE_SIDE_VIEW_PORTAL_Y,
+        86,
+        146,
+        0x071018,
+        0.98,
+      )
       .setStrokeStyle(2, 0x4a5f6d, 0.9)
       .setDepth(8);
     const label = this.add
       .text(
         definition.position.x,
-        definition.position.y,
+        STAGE_ONE_SIDE_VIEW_PORTAL_Y - 4,
         target.displayName,
         {
           align: "center",
@@ -325,7 +381,10 @@ export class StageOneScene extends Phaser.Scene {
     this.roomObjects.push(marker, label);
     this.interactions.push({
       id: definition.id,
-      position: definition.position,
+      position: {
+        x: definition.position.x,
+        y: STAGE_ONE_SIDE_VIEW_PLAYER_Y,
+      },
       radius: 90,
       prompt: (state) => {
         const access = target.getAccess?.(state) ?? { allowed: true };
@@ -350,12 +409,7 @@ export class StageOneScene extends Phaser.Scene {
         continue;
       }
 
-      const distance = Phaser.Math.Distance.Between(
-        this.player.x,
-        this.player.y,
-        interaction.position.x,
-        interaction.position.y,
-      );
+      const distance = Math.abs(this.player.x - interaction.position.x);
 
       if (distance <= (interaction.radius ?? 72) && distance < nearestDistance) {
         nearest = interaction;
@@ -377,7 +431,8 @@ export class StageOneScene extends Phaser.Scene {
     }
 
     this.interactionRunning = true;
-    this.playerBody.setVelocity(0, 0);
+    this.playerBody.setVelocityX(0);
+    this.player.play(getStageOnePlayerAnimationKey("interact"), true);
 
     try {
       await interaction.onInteract(this.createInteractionContext());
@@ -404,6 +459,65 @@ export class StageOneScene extends Phaser.Scene {
         this.gameEvents.emit("message", { tone, text });
       },
     };
+  }
+
+  private createPlayerAnimations(): void {
+    for (const [animation, definition] of Object.entries(
+      STAGE_ONE_PLAYER_ANIMATIONS,
+    ) as [StageOnePlayerAnimation, (typeof STAGE_ONE_PLAYER_ANIMATIONS)[StageOnePlayerAnimation]][]) {
+      const key = getStageOnePlayerAnimationKey(animation);
+
+      if (this.anims.exists(key)) {
+        continue;
+      }
+
+      this.anims.create({
+        key,
+        frames: definition.frames.map((_, frameIndex) => ({
+          key: getStageOnePlayerTextureKey(animation, frameIndex),
+        })),
+        frameRate: definition.frameRate,
+        repeat: definition.repeat,
+      });
+    }
+  }
+
+  private updatePlayerAnimation(horizontal: number, crouching: boolean): void {
+    if (!this.playerBody.blocked.down) {
+      this.player.play(getStageOnePlayerAnimationKey("jump"), true);
+      return;
+    }
+
+    if (crouching) {
+      this.player.play(getStageOnePlayerAnimationKey("crouch"), true);
+      return;
+    }
+
+    if (horizontal !== 0) {
+      this.player.setFlipX(horizontal < 0);
+      this.player.play(getStageOnePlayerAnimationKey("walk"), true);
+      return;
+    }
+
+    this.player.play(getStageOnePlayerAnimationKey("idle"), true);
+  }
+
+  private addSideViewFloor(): void {
+    const floorHeight = STAGE_ONE_WORLD_HEIGHT - STAGE_ONE_SIDE_VIEW_FLOOR_TOP;
+    const floor = this.add
+      .rectangle(
+        STAGE_ONE_WORLD_WIDTH / 2,
+        STAGE_ONE_SIDE_VIEW_FLOOR_TOP + floorHeight / 2,
+        STAGE_ONE_WORLD_WIDTH,
+        floorHeight,
+        0x000000,
+        0,
+      )
+      .setDepth(4);
+
+    this.physics.add.existing(floor, true);
+    this.roomObjects.push(floor);
+    this.roomColliders.push(this.physics.add.collider(this.player, floor));
   }
 
   /**
