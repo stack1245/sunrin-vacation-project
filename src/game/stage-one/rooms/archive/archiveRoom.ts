@@ -8,6 +8,7 @@ import {
   describeArchiveClues,
   VIGENERE_PUZZLE,
 } from "../../puzzles/archive/vigenerePuzzle.ts";
+import { STAGE_ONE_ENVIRONMENT_ASSETS } from "../../core/environmentAssets.ts";
 
 const ARCHIVE_EXIT_POSITION = { x: 110, y: 270 };
 const ARCHIVE_SPAWN_FROM_HALLWAY = { x: 220, y: 270 };
@@ -105,6 +106,14 @@ export function createArchiveRoom(): StageOneRoomModule {
         })
         .setOrigin(0.5);
       context.track(title);
+
+      for (const x of [350, 650]) {
+        const cabinet = scene.add
+          .image(x, 348, STAGE_ONE_ENVIRONMENT_ASSETS.archiveCabinet.key)
+          .setDisplaySize(190, 170)
+          .setDepth(6);
+        context.track(cabinet);
+      }
 
       const caesarCipher = scene.add
         .text(350, 330, CAESAR_PUZZLE.cipherText, {
