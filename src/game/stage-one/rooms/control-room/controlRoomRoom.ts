@@ -48,6 +48,7 @@ import {
   CONTROL_ROOM_WORLD_HEIGHT,
   CONTROL_ROOM_WORLD_WIDTH,
 } from "./layout.ts";
+import { STAGE_ONE_ENVIRONMENT_ASSETS } from "../../core/environmentAssets.ts";
 import { ControlRoomTerminalSession } from "./terminalSession.ts";
 
 /** 통제실 Room ID. 저장 계약의 허용 목록과 일치한다. */
@@ -204,26 +205,13 @@ export const controlRoomRoom: StageOneRoomModule = {
 
     // ── 보안 단말 ────────────────────────────────────────────────
     const terminalBody = scene.add
-      .rectangle(
+      .image(
         CONTROL_ROOM_TERMINAL_POSITION.x,
         CONTROL_ROOM_TERMINAL_POSITION.y,
-        96,
-        72,
-        CONTROL_ROOM_COLORS.terminal,
-        1,
+        STAGE_ONE_ENVIRONMENT_ASSETS.securityTerminal.key,
       )
-      .setStrokeStyle(2, 0x8fb49a, 0.9)
+      .setDisplaySize(96, 96)
       .setDepth(6);
-    const terminalScreen = scene.add
-      .rectangle(
-        CONTROL_ROOM_TERMINAL_POSITION.x,
-        CONTROL_ROOM_TERMINAL_POSITION.y - 8,
-        72,
-        40,
-        CONTROL_ROOM_COLORS.terminalScreen,
-        1,
-      )
-      .setDepth(7);
     const terminalLabel = scene.add
       .text(
         CONTROL_ROOM_TERMINAL_POSITION.x,
@@ -237,7 +225,7 @@ export const controlRoomRoom: StageOneRoomModule = {
       )
       .setOrigin(0.5)
       .setDepth(7);
-    track(terminalBody, terminalScreen, terminalLabel);
+    track(terminalBody, terminalLabel);
 
     // ── 봉쇄 제어 패널 ────────────────────────────────────────────
     const released = context.getState().documentStorageUnlocked;
