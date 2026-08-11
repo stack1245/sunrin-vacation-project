@@ -6,6 +6,11 @@ import type { StageOneRoomModule } from "../contracts/room.ts";
 
 const SAFE_FALLBACK_ROOM_ID: StageOneRoomId = "outside";
 
+/** Stage 1을 열 때는 저장된 위치와 관계없이 연구소 외부에서 시작한다. */
+export function getStageOneLaunchRoomId(): StageOneRoomId {
+  return SAFE_FALLBACK_ROOM_ID;
+}
+
 function canEnterRoom(
   room: StageOneRoomModule,
   progress: StageOneProgressResult,
