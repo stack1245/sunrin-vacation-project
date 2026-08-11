@@ -3,7 +3,7 @@
 import * as Phaser from "phaser";
 import { useEffect, useRef } from "react";
 
-import { ResourceAllocationPuzzleScene } from "@/game/stage-one/puzzles/document-storage";
+import { ResourcePuzzleScene } from "@/game/stage-one/puzzles/document-storage";
 
 export default function ResourceAllocationGameHost() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,7 +22,7 @@ export default function ResourceAllocationGameHost() {
       height: 600,
       backgroundColor: "#1e1e2e",
       parent,
-      scene: [ResourceAllocationPuzzleScene],
+      scene: [ResourcePuzzleScene],
     });
 
     return () => {

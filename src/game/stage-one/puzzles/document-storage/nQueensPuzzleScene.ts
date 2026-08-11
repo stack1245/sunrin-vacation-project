@@ -14,7 +14,9 @@ export class NQueensPuzzleScene extends Phaser.Scene {
     private readonly targetQueens: number = 12; 
     
     private readonly tileSize: number = 60;
-    private readonly boardOffset: number = 60;
+    // 🔥 800x600 캔버스 중앙 정렬을 위해 Offset 값 조정
+    private readonly boardOffsetX: number = 160; 
+    private readonly boardOffsetY: number = 60;
     
     private isCleared: boolean = false; 
     
@@ -22,7 +24,6 @@ export class NQueensPuzzleScene extends Phaser.Scene {
     private walls: Position[] = [];
     
     private instructionText!: Phaser.GameObjects.Text;
-    private clearMarkText!: Phaser.GameObjects.Text;
     
     private submitButtonBg!: Phaser.GameObjects.Rectangle;
     private submitButtonText!: Phaser.GameObjects.Text;
@@ -41,29 +42,30 @@ export class NQueensPuzzleScene extends Phaser.Scene {
             this.tiles[i] = [];
         }
 
+        // 상단 타이틀 추가 (선택 사항, 통일감을 위해 추가)
+        this.add.text(
+            400, 
+            25, 
+            'N-Queens 퍼즐', 
+            { fontSize: '24px', color: '#ffffff', fontFamily: 'Arial', fontStyle: 'bold' }
+        ).setOrigin(0.5);
+
         this.drawBoard();
 
-        this.clearMarkText = this.add.text(
-            300, 
-            25, 
-            'clear!', 
-            { fontSize: '32px', color: '#ffcc00', fontFamily: 'Arial', fontStyle: 'bold' }
-        ).setOrigin(0.5);
-        this.clearMarkText.setVisible(this.isCleared);
-
-        const uiY = this.boardOffset + (this.N * this.tileSize) + 40;
+        // 🔥 하단 UI 위치도 캔버스 크기에 맞춰 재조정
+        const uiY = this.boardOffsetY + (this.N * this.tileSize) + 35;
 
         this.instructionText = this.add.text(
-            this.boardOffset, 
+            this.boardOffsetX, 
             uiY, 
             '클릭하여 퀸을 배치하세요', 
-            { fontSize: '20px', color: '#ffffff', fontFamily: 'Arial' }
+            { fontSize: '18px', color: '#aaaaaa', fontFamily: 'Arial' }
         ).setOrigin(0, 0.5);
         
-        const submitX = 300 + 80;
-        this.submitButtonBg = this.add.rectangle(submitX, uiY, 120, 40, 0x555555).setOrigin(0.5);
-        this.submitButtonText = this.add.text(submitX, uiY, '정답 확인', { 
-            fontSize: '18px', color: '#aaaaaa', fontFamily: 'Arial' 
+        const submitX = 400 + 100;
+        this.submitButtonBg = this.add.rectangle(submitX, uiY, 100, 36, 0x555555).setOrigin(0.5);
+        this.submitButtonText = this.add.text(submitX, uiY, '정답', { 
+            fontSize: '16px', color: '#aaaaaa', fontFamily: 'Arial', fontStyle: 'bold' 
         }).setOrigin(0.5);
         
         this.createSuccessWindow();
@@ -71,7 +73,6 @@ export class NQueensPuzzleScene extends Phaser.Scene {
         this.submitButtonBg.on('pointerdown', () => {
             if (this.submitButtonBg.input?.enabled && !this.isCleared) {
                 this.isCleared = true;
-                this.clearMarkText.setVisible(true);
                 this.successWindow.setVisible(true);
 
                 this.queens.forEach(q => q.sprite.destroy());
@@ -80,10 +81,10 @@ export class NQueensPuzzleScene extends Phaser.Scene {
             }
         });
 
-        const resetX = submitX + 120 + 10; 
-        const resetButtonBg = this.add.rectangle(resetX, uiY, 100, 40, 0x883333).setOrigin(0.5);
+        const resetX = submitX + 110; 
+        const resetButtonBg = this.add.rectangle(resetX, uiY, 90, 36, 0x883333).setOrigin(0.5);
         this.add.text(resetX, uiY, '초기화', {
-            fontSize: '18px', color: '#ffffff', fontFamily: 'Arial' 
+            fontSize: '16px', color: '#ffffff', fontFamily: 'Arial' 
         }).setOrigin(0.5);
         
         resetButtonBg.setInteractive({ useHandCursor: true });
@@ -101,7 +102,6 @@ export class NQueensPuzzleScene extends Phaser.Scene {
         this.updateGameState();
 
         if (this.isCleared) {
-            this.clearMarkText.setVisible(true);
             this.successWindow.setVisible(true);
         }
     }
@@ -109,16 +109,18 @@ export class NQueensPuzzleScene extends Phaser.Scene {
     private createSuccessWindow(): void {
         this.successWindow = this.add.container(0, 0);
         
-        const overlay = this.add.rectangle(300, 325, 600, 650, 0x000000, 0.7);
+        // 🔥 800x600 캔버스 정중앙(400, 300)으로 팝업 위치 수정
+        const overlay = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
         overlay.setInteractive(); 
 
-        const panel = this.add.rectangle(300, 325, 350, 150, 0x222222).setStrokeStyle(4, 0xffcc00);
+        const panel = this.add.rectangle(400, 300, 350, 150, 0x222222).setStrokeStyle(4, 0xffcc00);
         
-        const successText = this.add.text(300, 325, '$ : o', { 
+        const successText = this.add.text(400, 300, '$ : o', { 
             fontSize: '28px', 
             color: '#ffffff', 
             fontFamily: 'Arial',
-            align: 'center'
+            align: 'center',
+            fontStyle: 'bold'
         }).setOrigin(0.5);
 
         this.successWindow.add([overlay, panel, successText]);
@@ -140,22 +142,21 @@ export class NQueensPuzzleScene extends Phaser.Scene {
     }
 
     private drawBoard(): void {
-        const boardOffsetY = 70;
-
         for (let r: number = 0; r < this.N; r++) {
             for (let c: number = 0; c < this.N; c++) {
                 const isLight: boolean = (r + c) % 2 === 0;
                 const color: number = isLight ? 0xffffff : 0x222222;
                 
-                const x: number = this.boardOffset + (c * this.tileSize) + (this.tileSize / 2);
-                const y: number = boardOffsetY + (r * this.tileSize) + (this.tileSize / 2);
+                const x: number = this.boardOffsetX + (c * this.tileSize) + (this.tileSize / 2);
+                const y: number = this.boardOffsetY + (r * this.tileSize) + (this.tileSize / 2);
 
                 const tile: Phaser.GameObjects.Rectangle = this.add.rectangle(x, y, this.tileSize, this.tileSize, color);
                 this.tiles[r][c] = tile; 
                 
                 if (this.isWall(r, c)) {
-                    this.add.text(x, y, '■', { fontSize: '35px', color: '#ffffff' }).setOrigin(0.5);
-                    tile.setFillStyle(0x666666);
+                    // 🔥 깨지는 텍스트 대신, 사각형 2개를 겹쳐서 단단한 벽(블록)처럼 표현
+                    tile.setFillStyle(0x44475a);
+                    this.add.rectangle(x, y, this.tileSize - 20, this.tileSize - 20, 0x282a36);
                 } else {
                     tile.setInteractive({ useHandCursor: true });
                     tile.on('pointerdown', () => this.handleTileClick(r, c, x, y));

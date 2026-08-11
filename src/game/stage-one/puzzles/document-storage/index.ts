@@ -1,3 +1,3 @@
 export { MathdokuPuzzleScene } from "./mathdokuPuzzleScene";
-export { NQueensPuzzleScene } from "./nQueensPuzzleScene";
-export { ResourceAllocationPuzzleScene } from "./resourceAllocationPuzzleScene";
+export { NQueensPuzzleScene } from "./nqueensPuzzleScene";
+export { ResourcePuzzleScene } from "./resourcePuzzleScene";

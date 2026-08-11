@@ -73,7 +73,6 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
 
     private titleText!: Phaser.GameObjects.Text;
     private instructionText!: Phaser.GameObjects.Text;
-    private clearMarkText!: Phaser.GameObjects.Text;
 
     private submitButtonBg!: Phaser.GameObjects.Rectangle;
     private submitButtonText!: Phaser.GameObjects.Text;
@@ -111,7 +110,6 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
 
         // 🔥 처음 시작 시 isCleared 상태를 감지하여 클리어 처리
         if (this.isCleared) {
-            this.clearMarkText.setVisible(true);
             this.successWindow.setVisible(true);
             
             // 보드판을 빈칸으로 초기화
@@ -140,7 +138,6 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         
         // 외부에서 isCleared를 true로 세팅했을 수 있으므로 강제 false 처리를 조건부로 변경
         if (!this.isCleared) {
-            if (this.clearMarkText) this.clearMarkText.setVisible(false);
             if (this.successWindow) this.successWindow.setVisible(false);
         }
 
@@ -156,14 +153,6 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
             '연산 스도쿠 (6x6)',
             { fontSize: '24px', color: '#ffffff', fontFamily: 'Arial', fontStyle: 'bold' }
         ).setOrigin(0, 0.5);
-
-        this.clearMarkText = this.add.text(
-            480,
-            20,
-            'CLEAR!',
-            { fontSize: '24px', color: '#ffcc00', fontFamily: 'Arial', fontStyle: 'bold' }
-        ).setOrigin(0.5);
-        this.clearMarkText.setVisible(this.isCleared);
     }
 
     private drawBoard(): void {
@@ -299,7 +288,7 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         const resetX = 360; 
 
         this.submitButtonBg = this.add.rectangle(submitX, btnY, 100, 36, 0x555555).setOrigin(0.5);
-        this.submitButtonText = this.add.text(submitX, btnY, '정답 확인', {
+        this.submitButtonText = this.add.text(submitX, btnY, '정답', {
             fontSize: '15px', color: '#aaaaaa', fontFamily: 'Arial', fontStyle: 'bold'
         }).setOrigin(0.5);
 
@@ -519,7 +508,6 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
 
         if (isCorrect) {
             this.isCleared = true;
-            this.clearMarkText.setVisible(true);
             this.successWindow.setVisible(true);
             
             this.currentBoard = Array.from({ length: this.N }, () => Array(this.N).fill(0));
@@ -536,10 +524,6 @@ export class MathdokuPuzzleScene extends Phaser.Scene {
         this.currentBoard = Array.from({ length: this.N }, () => Array(this.N).fill(0));
         this.selectedCell = null;
         this.isCleared = false;
-        
-        if (this.clearMarkText) {
-            this.clearMarkText.setVisible(false);
-        }
         
         this.refreshTextDisplay();
         this.updateGameState();
