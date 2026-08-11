@@ -193,11 +193,11 @@ export function StageEntryView({ stageId }: StageEntryViewProps) {
   if (state.status === "loading") {
     return (
       <div
-        className="mx-auto w-full max-w-xl rounded-lg border border-white/10 bg-black/40 p-8 text-center backdrop-blur-md sm:p-12"
+        className="facility-panel mx-auto w-full max-w-xl p-8 text-center sm:p-12"
         aria-live="polite"
       >
-        <p className="text-sm tracking-[0.12em] text-stone-400">
-          입장 권한을 확인하고 있습니다…
+        <p className="font-mono text-sm tracking-[0.12em] text-[var(--game-muted)]">
+          ACCESS VALIDATION IN PROGRESS…
         </p>
       </div>
     );
@@ -207,12 +207,12 @@ export function StageEntryView({ stageId }: StageEntryViewProps) {
     return (
       <div
         role="alert"
-        className="mx-auto w-full max-w-xl rounded-lg border border-red-200/15 bg-black/45 p-8 text-center backdrop-blur-md sm:p-12"
+        className="facility-panel mx-auto w-full max-w-xl border-[#8b514d] p-8 text-center sm:p-12"
       >
-        <p className="text-sm leading-6 text-red-100">{state.message}</p>
+        <p className="text-sm leading-6 text-[var(--game-warning)]">{state.message}</p>
         <Link
           href="/stages"
-          className="mt-6 inline-flex min-h-11 items-center justify-center rounded-md border border-white/40 bg-white/10 px-5 text-sm font-medium text-white transition-colors hover:border-white/70 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+          className="facility-button facility-focus mt-6 px-5"
         >
           스테이지 목록으로
         </Link>
@@ -233,25 +233,25 @@ export function StageEntryView({ stageId }: StageEntryViewProps) {
   }
 
   return (
-    <section className="mx-auto w-full max-w-xl rounded-lg border border-white/15 bg-black/50 p-7 text-center shadow-2xl shadow-black/25 backdrop-blur-md sm:p-12">
-      <p className="text-[0.68rem] font-semibold tracking-[0.3em] text-stone-500">
+    <section className="facility-panel-raised mx-auto w-full max-w-xl p-7 text-center sm:p-12">
+      <p className="facility-kicker text-[var(--game-muted)]">
         STAGE {String(state.stageOrder).padStart(2, "0")}
       </p>
-      <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
+      <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[var(--game-text-strong)] sm:text-4xl">
         {state.title}
       </h1>
-      <p className="mt-5 text-sm leading-6 text-stone-400">
+      <p className="mt-5 text-sm leading-6 text-[var(--game-muted)]">
         스테이지 입장이 완료되었습니다.
         <br />
         퍼즐 콘텐츠는 현재 준비 중입니다.
       </p>
-      <p className="mt-5 text-xs text-stone-500">
+      <p className="mt-5 font-mono text-xs text-[var(--game-muted)]">
         현재 상태:{" "}
         {state.progressStatus === "cleared" ? "클리어" : "진행 중"}
       </p>
       <Link
         href="/stages"
-        className="mt-8 inline-flex min-h-11 items-center justify-center rounded-md border border-white/50 bg-white/10 px-6 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+        className="facility-button facility-focus mt-8 px-6"
       >
         스테이지 목록으로 돌아가기
       </Link>

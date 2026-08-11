@@ -20,15 +20,31 @@ import type {
   StageOneRoomRegistry,
 } from "../contracts/room";
 import type { StageOneSession } from "./stageOneSession";
-import { calculateStageOneVelocity } from "./movement";
 import {
-  STAGE_ONE_WORLD_HEIGHT,
-  STAGE_ONE_WORLD_WIDTH,
-} from "./referenceRooms";
+  calculateStageOneVelocity,
+  STAGE_ONE_JUMP_VELOCITY,
+} from "./movement";
+import {
+  getStageOnePlayerAnimationKey,
+  getStageOnePlayerTextureKey,
+  STAGE_ONE_PLAYER_ANIMATIONS,
+  type StageOnePlayerAnimation,
+} from "./playerAnimations";
 import {
   preloadStageOneEnvironmentAssets,
   STAGE_ONE_ENVIRONMENT_ASSETS,
 } from "./environmentAssets";
+import {
+  STAGE_ONE_WORLD_HEIGHT,
+  STAGE_ONE_WORLD_WIDTH,
+} from "./referenceRooms";
+import { StageOneModalInputLock } from "./modalInputLock";
+import {
+  createSideViewRoomBackdrop,
+  STAGE_ONE_SIDE_VIEW_FLOOR_TOP,
+  STAGE_ONE_SIDE_VIEW_PLAYER_Y,
+  STAGE_ONE_SIDE_VIEW_PORTAL_Y,
+} from "./sideViewPresentation";
 import {
   getInteractionActionLabel,
   getInteractionMarkerPosition,
@@ -48,6 +64,7 @@ interface MovementKeys {
   s: Phaser.Input.Keyboard.Key;
   d: Phaser.Input.Keyboard.Key;
   interact: Phaser.Input.Keyboard.Key;
+  jump: Phaser.Input.Keyboard.Key;
   sprint: Phaser.Input.Keyboard.Key;
   pause: Phaser.Input.Keyboard.Key;
 }
@@ -78,16 +95,21 @@ export class StageOneScene extends Phaser.Scene {
   private readonly session: StageOneSession;
   private readonly gameEvents: StageOneGameEvents<StageOneGameEventMap>;
   private readonly rooms: StageOneRoomRegistry;
-  private player!: Phaser.GameObjects.Rectangle;
+  private player!: Phaser.Physics.Arcade.Sprite;
   private playerBody!: Phaser.Physics.Arcade.Body;
   private interactionTargetVisual!: Phaser.GameObjects.Container;
   private interactionPromptVisual!: Phaser.GameObjects.Container;
   private interactionActionLabel!: Phaser.GameObjects.Text;
+  private interactionFeedbackVisible = false;
+  private lastInteractionFeedbackId: string | null = null;
+  private lastInteractionFeedbackLabel: string | null = null;
   private movementKeys!: MovementKeys;
   private currentRoom!: StageOneRoomModule;
   private activeInteraction: StageOneInteractionDefinition | null = null;
   private interactionRunning = false;
   private paused = false;
+  private readonly modalInputLock = new StageOneModalInputLock();
+  private readonly deferredModalInputReleases = new Set<() => void>();
   private roomCleanup: (() => void) | null = null;
   private readonly roomObjects: Phaser.GameObjects.GameObject[] = [];
   private readonly roomColliders: Phaser.Physics.Arcade.Collider[] = [];
@@ -104,6 +126,17 @@ export class StageOneScene extends Phaser.Scene {
 
   preload(): void {
     preloadStageOneEnvironmentAssets(this);
+
+    for (const [animation, definition] of Object.entries(
+      STAGE_ONE_PLAYER_ANIMATIONS,
+    ) as [StageOnePlayerAnimation, (typeof STAGE_ONE_PLAYER_ANIMATIONS)[StageOnePlayerAnimation]][]) {
+      definition.frames.forEach((path, frameIndex) => {
+        this.load.svg(getStageOnePlayerTextureKey(animation, frameIndex), path, {
+          width: 72,
+          height: 72,
+        });
+      });
+    }
   }
 
   create(): void {
@@ -114,14 +147,14 @@ export class StageOneScene extends Phaser.Scene {
       STAGE_ONE_WORLD_HEIGHT,
     );
 
-    this.player = this.add
-      .rectangle(0, 0, 26, 34, 0xd8cbff)
-      .setStrokeStyle(2, 0xffffff, 0.9)
+    this.createPlayerAnimations();
+    this.player = this.physics.add
+      .sprite(0, 0, getStageOnePlayerTextureKey("idle", 0))
       .setDepth(30);
-    this.physics.add.existing(this.player);
     this.playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-    this.playerBody.setSize(22, 30);
+    this.playerBody.setSize(25, 48).setOffset(24, 17);
     this.playerBody.setCollideWorldBounds(true);
+    this.player.play(getStageOnePlayerAnimationKey("idle"));
     this.createInteractionFeedback();
 
     const keyboard = this.input.keyboard;
@@ -140,7 +173,8 @@ export class StageOneScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       interact: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-      sprint: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      jump: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      sprint: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT),
       pause: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
     };
     keyboard.addCapture([
@@ -173,19 +207,28 @@ export class StageOneScene extends Phaser.Scene {
   }
 
   update(time: number): void {
+    this.flushDeferredModalInputReleases();
+
     if (isTextInputActive()) {
-      this.playerBody.setVelocity(0, 0);
+      this.playerBody.setVelocityX(0);
       this.hideInteractionFeedback();
       this.updateHud(time);
       return;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.movementKeys.pause)) {
+    if (
+      Phaser.Input.Keyboard.JustDown(this.movementKeys.pause) &&
+      !this.modalInputLock.isActive()
+    ) {
       this.setPaused(!this.paused);
     }
 
-    if (this.paused || this.interactionRunning) {
-      this.playerBody.setVelocity(0, 0);
+    if (
+      this.paused ||
+      this.interactionRunning ||
+      this.modalInputLock.isActive()
+    ) {
+      this.playerBody.setVelocityX(0);
       this.hideInteractionFeedback();
       this.updateHud(time);
       return;
@@ -194,16 +237,25 @@ export class StageOneScene extends Phaser.Scene {
     const horizontal =
       (this.movementKeys.right.isDown || this.movementKeys.d.isDown ? 1 : 0) -
       (this.movementKeys.left.isDown || this.movementKeys.a.isDown ? 1 : 0);
-    const vertical =
-      (this.movementKeys.down.isDown || this.movementKeys.s.isDown ? 1 : 0) -
-      (this.movementKeys.up.isDown || this.movementKeys.w.isDown ? 1 : 0);
+    const crouching =
+      this.movementKeys.down.isDown || this.movementKeys.s.isDown;
     const velocity = calculateStageOneVelocity({
       horizontal,
-      vertical,
       sprinting: this.movementKeys.sprint.isDown,
     });
 
-    this.playerBody.setVelocity(velocity.x, velocity.y);
+    this.playerBody.setVelocityX(crouching ? 0 : velocity.x);
+
+    if (
+      this.playerBody.blocked.down &&
+      (Phaser.Input.Keyboard.JustDown(this.movementKeys.up) ||
+        Phaser.Input.Keyboard.JustDown(this.movementKeys.w) ||
+        Phaser.Input.Keyboard.JustDown(this.movementKeys.jump))
+    ) {
+      this.playerBody.setVelocityY(-STAGE_ONE_JUMP_VELOCITY);
+    }
+
+    this.updatePlayerAnimation(horizontal, crouching);
     this.selectActiveInteraction();
     this.updateInteractionFeedback();
 
@@ -265,11 +317,8 @@ export class StageOneScene extends Phaser.Scene {
     this.currentRoom = room;
     const spawnPoint = room.getSpawnPoint?.(fromRoomId) ?? {
       x: STAGE_ONE_WORLD_WIDTH / 2,
-      y: STAGE_ONE_WORLD_HEIGHT / 2,
+      y: STAGE_ONE_SIDE_VIEW_PLAYER_Y,
     };
-
-    this.player.setPosition(spawnPoint.x, spawnPoint.y);
-    this.playerBody.reset(spawnPoint.x, spawnPoint.y);
 
     const cleanup = room.mount({
       scene: this,
@@ -284,6 +333,19 @@ export class StageOneScene extends Phaser.Scene {
       },
     });
 
+    for (const gameObject of createSideViewRoomBackdrop(
+      this,
+      room.id,
+      room.displayName,
+    )) {
+      this.roomObjects.push(gameObject);
+    }
+
+    this.addSideViewFloor();
+    this.player.setPosition(spawnPoint.x, STAGE_ONE_SIDE_VIEW_PLAYER_Y);
+    this.playerBody.reset(spawnPoint.x, STAGE_ONE_SIDE_VIEW_PLAYER_Y);
+    this.player.play(getStageOnePlayerAnimationKey("idle"), true);
+
     this.roomCleanup = cleanup ?? null;
     this.gameEvents.emit("message", {
       tone: "info",
@@ -292,7 +354,7 @@ export class StageOneScene extends Phaser.Scene {
     this.publishHud();
   }
 
-  private addWall(bounds: StageOneRectangle, color = 0x151a24): void {
+  private addWall(bounds: StageOneRectangle, color = 0x0b1823): void {
     const wall = this.add
       .rectangle(bounds.x, bounds.y, bounds.width, bounds.height, color)
       .setDepth(5);
@@ -316,19 +378,19 @@ export class StageOneScene extends Phaser.Scene {
     const marker = this.add
       .image(
         definition.position.x,
-        definition.position.y,
+        STAGE_ONE_SIDE_VIEW_PORTAL_Y,
         STAGE_ONE_ENVIRONMENT_ASSETS.securityDoor.key,
       )
-      .setDisplaySize(72, 112)
+      .setDisplaySize(86, 146)
       .setDepth(8);
     const label = this.add
       .text(
         definition.position.x,
-        definition.position.y,
+        STAGE_ONE_SIDE_VIEW_PORTAL_Y - 4,
         target.displayName,
         {
           align: "center",
-          color: "#ddd6fe",
+          color: "#d4dde1",
           fontFamily: "Pretendard, Noto Sans KR, sans-serif",
           fontSize: "13px",
         },
@@ -339,7 +401,10 @@ export class StageOneScene extends Phaser.Scene {
     this.roomObjects.push(marker, label);
     this.interactions.push({
       id: definition.id,
-      position: definition.position,
+      position: {
+        x: definition.position.x,
+        y: STAGE_ONE_SIDE_VIEW_PLAYER_Y,
+      },
       radius: 90,
       prompt: (state) => {
         const access = target.getAccess?.(state) ?? { allowed: true };
@@ -360,7 +425,6 @@ export class StageOneScene extends Phaser.Scene {
       this.interactions,
       state,
       this.player.x,
-      this.player.y,
     );
 
     if (nearest !== this.activeInteraction) {
@@ -377,7 +441,8 @@ export class StageOneScene extends Phaser.Scene {
     }
 
     this.interactionRunning = true;
-    this.playerBody.setVelocity(0, 0);
+    this.playerBody.setVelocityX(0);
+    this.player.play(getStageOnePlayerAnimationKey("interact"), true);
     this.hideInteractionFeedback();
 
     try {
@@ -456,7 +521,12 @@ export class StageOneScene extends Phaser.Scene {
   }
 
   private updateInteractionFeedback(): void {
-    if (!this.activeInteraction || this.paused || this.interactionRunning) {
+    if (
+      !this.activeInteraction ||
+      this.paused ||
+      this.interactionRunning ||
+      this.modalInputLock.isActive()
+    ) {
       this.hideInteractionFeedback();
       return;
     }
@@ -468,22 +538,48 @@ export class StageOneScene extends Phaser.Scene {
     const markerPosition = getInteractionMarkerPosition(
       this.activeInteraction,
     );
+    const actionLabel = getInteractionActionLabel(prompt);
 
-    this.interactionTargetVisual
-      .setPosition(
+    if (
+      !this.interactionFeedbackVisible ||
+      this.lastInteractionFeedbackId !== this.activeInteraction.id
+    ) {
+      this.interactionTargetVisual.setPosition(
         this.activeInteraction.position.x,
         this.activeInteraction.position.y,
-      )
-      .setVisible(true);
-    this.interactionPromptVisual
-      .setPosition(markerPosition.x, markerPosition.y)
-      .setVisible(true);
-    this.interactionActionLabel.setText(getInteractionActionLabel(prompt));
+      );
+      this.interactionPromptVisual.setPosition(
+        markerPosition.x,
+        markerPosition.y,
+      );
+      this.lastInteractionFeedbackId = this.activeInteraction.id;
+    }
+
+    if (
+      !this.interactionFeedbackVisible ||
+      this.lastInteractionFeedbackLabel !== actionLabel
+    ) {
+      this.interactionActionLabel.setText(actionLabel);
+      this.lastInteractionFeedbackLabel = actionLabel;
+    }
+
+    if (!this.interactionFeedbackVisible) {
+      this.interactionTargetVisual.setVisible(true);
+      this.interactionPromptVisual.setVisible(true);
+      this.interactionFeedbackVisible = true;
+    }
   }
 
   private hideInteractionFeedback(): void {
-    this.interactionTargetVisual?.setVisible(false);
-    this.interactionPromptVisual?.setVisible(false);
+    if (!this.interactionFeedbackVisible) {
+      return;
+    }
+
+    this.interactionTargetVisual.setVisible(false);
+    this.interactionPromptVisual.setVisible(false);
+    this.interactionFeedbackVisible = false;
+    this.lastInteractionFeedbackId = null;
+    this.lastInteractionFeedbackLabel = null;
   }
 
   private createInteractionContext(): StageOneInteractionContext {
@@ -493,10 +589,111 @@ export class StageOneScene extends Phaser.Scene {
         this.updateProgress(patch, successMessage),
       transitionTo: (roomId) => this.transitionTo(roomId),
       completeEscape: () => this.completeEscape(),
+      acquireModalInputLock: () => this.acquireModalInputLock(),
       showMessage: (text, tone = "info") => {
         this.gameEvents.emit("message", { tone, text });
       },
     };
+  }
+
+  private createPlayerAnimations(): void {
+    for (const [animation, definition] of Object.entries(
+      STAGE_ONE_PLAYER_ANIMATIONS,
+    ) as [StageOnePlayerAnimation, (typeof STAGE_ONE_PLAYER_ANIMATIONS)[StageOnePlayerAnimation]][]) {
+      const key = getStageOnePlayerAnimationKey(animation);
+
+      if (this.anims.exists(key)) {
+        continue;
+      }
+
+      this.anims.create({
+        key,
+        frames: definition.frames.map((_, frameIndex) => ({
+          key: getStageOnePlayerTextureKey(animation, frameIndex),
+        })),
+        frameRate: definition.frameRate,
+        repeat: definition.repeat,
+      });
+    }
+  }
+
+  private updatePlayerAnimation(horizontal: number, crouching: boolean): void {
+    if (!this.playerBody.blocked.down) {
+      this.player.play(getStageOnePlayerAnimationKey("jump"), true);
+      return;
+    }
+
+    if (crouching) {
+      this.player.play(getStageOnePlayerAnimationKey("crouch"), true);
+      return;
+    }
+
+    if (horizontal !== 0) {
+      this.player.setFlipX(horizontal < 0);
+      this.player.play(getStageOnePlayerAnimationKey("walk"), true);
+      return;
+    }
+
+    this.player.play(getStageOnePlayerAnimationKey("idle"), true);
+  }
+
+  private addSideViewFloor(): void {
+    const floorHeight = STAGE_ONE_WORLD_HEIGHT - STAGE_ONE_SIDE_VIEW_FLOOR_TOP;
+    const floor = this.add
+      .rectangle(
+        STAGE_ONE_WORLD_WIDTH / 2,
+        STAGE_ONE_SIDE_VIEW_FLOOR_TOP + floorHeight / 2,
+        STAGE_ONE_WORLD_WIDTH,
+        floorHeight,
+        0x000000,
+        0,
+      )
+      .setDepth(4);
+
+    this.physics.add.existing(floor, true);
+    this.roomObjects.push(floor);
+    this.roomColliders.push(this.physics.add.collider(this.player, floor));
+  }
+
+  /**
+   * Room 모달이 열려 있는 동안 게임 입력을 잠근다.
+   *
+   * Esc로 모달을 닫으면 같은 키 입력이 게임 일시정지까지 전달될 수 있으므로,
+   * Esc 키가 올라올 때까지 실제 잠금 해제를 미룬다.
+   */
+  private acquireModalInputLock(): () => void {
+    const releaseLock = this.modalInputLock.acquire();
+    let released = false;
+
+    this.playerBody.setVelocity(0, 0);
+
+    return () => {
+      if (released) {
+        return;
+      }
+
+      released = true;
+
+      if (this.movementKeys.pause.isDown) {
+        this.deferredModalInputReleases.add(releaseLock);
+        return;
+      }
+
+      releaseLock();
+    };
+  }
+
+  /** Esc 키가 올라온 뒤 보류된 모달 잠금을 해제한다. */
+  private flushDeferredModalInputReleases(): void {
+    if (this.movementKeys.pause.isDown) {
+      return;
+    }
+
+    for (const release of this.deferredModalInputReleases) {
+      release();
+    }
+
+    this.deferredModalInputReleases.clear();
   }
 
   private async updateProgress(
@@ -618,6 +815,13 @@ export class StageOneScene extends Phaser.Scene {
   private clearRoom(): void {
     this.roomCleanup?.();
     this.roomCleanup = null;
+
+    for (const release of this.deferredModalInputReleases) {
+      release();
+    }
+
+    this.deferredModalInputReleases.clear();
+    this.modalInputLock.clear();
 
     for (const collider of this.roomColliders.splice(0)) {
       collider.destroy();

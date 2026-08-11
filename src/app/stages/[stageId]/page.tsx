@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { FacilityShell } from "@/components/common/FacilityShell";
 import { StageEntryView } from "@/components/stages/StageEntryView";
 import { parseStageIdPathSegment } from "@/utils/stageRoute";
 
@@ -26,8 +27,10 @@ export default async function StageEntryPage({
   }
 
   return (
-    <main className="flex h-dvh w-full items-center justify-center overflow-hidden bg-[#030708]">
-      <StageEntryView stageId={stageId} />
-    </main>
+    <FacilityShell>
+      <main id="main-content" className="relative z-10 flex h-dvh w-full items-center justify-center overflow-hidden bg-[#03080d]">
+        <StageEntryView stageId={stageId} />
+      </main>
+    </FacilityShell>
   );
 }

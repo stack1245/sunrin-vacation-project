@@ -6,9 +6,9 @@ import type {
 
 const DEFAULT_INTERACTION_RADIUS = 72;
 const MARKER_HORIZONTAL_MARGIN = 145;
-const MARKER_MIN_Y = 80;
-const MARKER_MAX_Y = 460;
-const MARKER_Y_OFFSET = 86;
+const MARKER_MIN_Y = 108;
+const MARKER_MAX_Y = 390;
+const MARKER_Y_OFFSET = 104;
 const STAGE_ONE_WORLD_WIDTH = 960;
 
 export function resolveInteractionPrompt(
@@ -29,7 +29,6 @@ export function selectNearestInteraction(
   interactions: readonly StageOneInteractionDefinition[],
   state: StageOneSaveState,
   playerX: number,
-  playerY?: number,
 ): StageOneInteractionDefinition | null {
   let nearest: StageOneInteractionDefinition | null = null;
   let nearestDistance = Number.POSITIVE_INFINITY;
@@ -39,11 +38,7 @@ export function selectNearestInteraction(
       continue;
     }
 
-    const horizontalDistance = playerX - interaction.position.x;
-    const distance =
-      playerY === undefined
-        ? Math.abs(horizontalDistance)
-        : Math.hypot(horizontalDistance, playerY - interaction.position.y);
+    const distance = Math.abs(playerX - interaction.position.x);
 
     if (
       distance <= (interaction.radius ?? DEFAULT_INTERACTION_RADIUS) &&

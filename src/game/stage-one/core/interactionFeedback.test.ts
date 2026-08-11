@@ -35,19 +35,6 @@ test("활성 범위 안에서 플레이어와 가장 가까운 상호작용을 �
   assert.equal(selectNearestInteraction(interactions, state, 500), null);
 });
 
-test("2차원 이동 장면에서는 세로 거리까지 포함해 대상을 선택한다", () => {
-  const state = createDefaultStageOneSaveState();
-  const interactions = [
-    interaction("위쪽", 200, { position: { x: 200, y: 200 }, radius: 100 }),
-    interaction("아래쪽", 210, { position: { x: 210, y: 350 }, radius: 100 }),
-  ];
-
-  assert.equal(
-    selectNearestInteraction(interactions, state, 205, 330)?.id,
-    "아래쪽",
-  );
-});
-
 test("현재 상태에서 비활성화된 상호작용은 표시 대상에서 제외한다", () => {
   const state = createDefaultStageOneSaveState();
   const disabled = interaction("비활성", 200, {
@@ -84,10 +71,10 @@ test("떠 있는 배지에서는 중복된 E 접두사를 제거한다", () => {
 test("화면 가장자리 상호작용의 배지가 잘리지 않도록 위치를 제한한다", () => {
   assert.deepEqual(
     getInteractionMarkerPosition(interaction("왼쪽", 30)),
-    { x: 145, y: 274 },
+    { x: 145, y: 256 },
   );
   assert.deepEqual(
     getInteractionMarkerPosition(interaction("오른쪽", 930)),
-    { x: 815, y: 274 },
+    { x: 815, y: 256 },
   );
 });

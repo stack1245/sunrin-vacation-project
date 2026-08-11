@@ -1,297 +1,462 @@
-import type { Scene } from "phaser";
+import type Phaser from "phaser";
 
 import type { StageOneSaveState } from "@/types/stage-one";
-import type { StageOneRoomAccess, StageOneRoomModule } from "../../contracts/room";
+import type {
+  StageOneInteractionContext,
+  StageOneRoomAccess,
+  StageOneRoomModule,
+  StageOneRoomMountContext,
+} from "../../contracts/room.ts";
 import {
+  requestScienceLabStep,
   SCIENCE_LAB_SECURITY_CODE,
-  checkSymbolAnswer,
-  checkDensityAnswer,
-  checkOxygenAnswer,
-  checkIgnitionAnswer,
-  readLabAnswerLine,
-} from "../../puzzles/science-lab/scienceLabPuzzle";
-import {
-  getStageOneBackdropTextureKey,
-  STAGE_ONE_ENVIRONMENT_ASSETS,
-} from "../../core/environmentAssets";
+  SCIENCE_LAB_STEP_DEFINITIONS,
+  SCIENCE_LAB_STEPS,
+  ScienceLabPuzzle,
+  type ScienceLabStep,
+  type ScienceLabStepRequester,
+} from "../../puzzles/science-lab/index.ts";
+import { STAGE_ONE_ENVIRONMENT_ASSETS } from "../../core/environmentAssets.ts";
 
-const SCIENCE_LAB_SPAWN_FROM_HALLWAY = { x: 220, y: 150 };
+const WORLD_WIDTH = 960;
+const WORLD_HEIGHT = 540;
+const SCIENCE_LAB_EXIT_POSITION = { x: 110, y: 270 };
+const SCIENCE_LAB_SPAWN_FROM_HALLWAY = { x: 220, y: 270 };
 const SCIENCE_LAB_DEFAULT_SPAWN = { x: 480, y: 270 };
+const SCIENCE_LAB_SEQUENCE_TEXT =
+  "화학 기호 → 용액 밀도 → 산소 공급 → 점화 → 가열";
 
-/**
- * 선행 조건 검증: 입구 및 자료실 단서(archiveClueFound)가 해금되어야 입장/진행 가능 (D-LAB-001)
- */
-function requiresArchiveClue(state: StageOneSaveState): StageOneRoomAccess {
+interface ScienceLabDevicePosition {
+  readonly x: number;
+  readonly y: number;
+}
+
+const SCIENCE_LAB_DEVICE_POSITIONS: Readonly<
+  Record<ScienceLabStep, ScienceLabDevicePosition>
+> = {
+  symbol: { x: 250, y: 370 },
+  density: { x: 390, y: 370 },
+  oxygen: { x: 530, y: 370 },
+  ignition: { x: 670, y: 370 },
+  heating: { x: 810, y: 370 },
+};
+
+interface ScienceLabRoomOptions {
+  readonly requestStep?: ScienceLabStepRequester;
+  readonly playHeatingSequence?: (scene: Phaser.Scene) => Promise<boolean>;
+}
+
+function getScienceLabAccess(state: StageOneSaveState): StageOneRoomAccess {
   if (!state.entranceUnlocked) {
-    return { allowed: false, reason: "입구 잠금장치가 해제되지 않았습니다." };
+    return {
+      allowed: false,
+      reason: "입구 잠금장치를 먼저 해제하세요.",
+    };
   }
+
   if (!state.archiveClueFound) {
-    return { allowed: false, reason: "연구 자료실의 단서를 먼저 확보해야 합니다." };
+    return {
+      allowed: false,
+      reason: "연구 자료실에서 실험 장치 순서 단서를 먼저 확보하세요.",
+    };
   }
+
   return { allowed: true };
 }
 
-export function createScienceLabRoom(): StageOneRoomModule {
-  let currentStep: "SYMBOL" | "DENSITY" | "OXYGEN" | "IGNITION" | "HEATING" | "SOLVED" = "SYMBOL";
-  let isProcessingHeating = false;
+function playDefaultHeatingSequence(scene: Phaser.Scene): Promise<boolean> {
+  scene.cameras.main.flash(420, 183, 216, 193, false);
+  scene.cameras.main.shake(1_200, 0.008);
 
-  return {
-    id: "science-lab",
-    displayName: "과학 실험실",
-    getObjective(state) {
-      if (state.scienceLabPuzzleSolved) {
-        return "획득한 보안 코드를 가지고 보안 통제실로 이동하세요.";
-      }
-      switch (currentStep) {
-        case "SYMBOL":
-          return "1단계: 올바른 화학 기호를 선택하여 입력하세요.";
-        case "DENSITY":
-          return "2단계: 용액 밀도를 알맞게 조절하세요.";
-        case "OXYGEN":
-          return "3단계: 안전 산소 공급 농도를 설정하세요.";
-        case "IGNITION":
-          return "4단계: 점화 장치를 활성화하세요.";
-        case "HEATING":
-          return "5단계: 가열 장치를 가동하여 반응을 완료하세요.";
-        default:
-          return "실험 장치를 안전한 순서대로 작동시키세요.";
-      }
+  return new Promise((resolve) => {
+    scene.time.delayedCall(1_500, () => resolve(true));
+  });
+}
+
+function addScienceLabBase(context: StageOneRoomMountContext): void {
+  const { scene } = context;
+  const floor = scene.add.graphics();
+
+  floor.fillStyle(0x050b10, 1);
+  floor.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  floor.lineStyle(1, 0x223341, 0.65);
+
+  for (let x = 0; x <= WORLD_WIDTH; x += 48) {
+    floor.lineBetween(x, 0, x, WORLD_HEIGHT);
+  }
+
+  for (let y = 0; y <= WORLD_HEIGHT; y += 48) {
+    floor.lineBetween(0, y, WORLD_WIDTH, y);
+  }
+
+  floor.setDepth(-20);
+  context.track(floor);
+
+  context.addWall(
+    { x: WORLD_WIDTH / 2, y: 16, width: WORLD_WIDTH, height: 32 },
+    0x0b1823,
+  );
+  context.addWall(
+    {
+      x: WORLD_WIDTH / 2,
+      y: WORLD_HEIGHT - 16,
+      width: WORLD_WIDTH,
+      height: 32,
     },
-    getAccess: requiresArchiveClue,
-    getSpawnPoint(fromRoomId) {
-      return fromRoomId === "hallway" ? SCIENCE_LAB_SPAWN_FROM_HALLWAY : SCIENCE_LAB_DEFAULT_SPAWN;
+    0x0b1823,
+  );
+  context.addWall(
+    { x: 16, y: WORLD_HEIGHT / 2, width: 32, height: WORLD_HEIGHT },
+    0x0b1823,
+  );
+  context.addWall(
+    {
+      x: WORLD_WIDTH - 16,
+      y: WORLD_HEIGHT / 2,
+      width: 32,
+      height: WORLD_HEIGHT,
     },
-    mount(context) {
-      const { scene } = context;
-      const isAlreadySolved = context.getState().scienceLabPuzzleSolved;
+    0x0b1823,
+  );
+}
 
-      const backdrop = scene.add
-        .image(0, 0, getStageOneBackdropTextureKey("science-lab"))
-        .setOrigin(0)
-        .setDepth(-20);
-      context.track(backdrop);
+export class ScienceLabRoomModule implements StageOneRoomModule {
+  readonly id = "science-lab" as const;
+  readonly displayName = "과학 실험실";
 
-      if (isAlreadySolved) {
-        currentStep = "SOLVED";
-      }
+  private readonly puzzle = new ScienceLabPuzzle();
+  private readonly requestStep: ScienceLabStepRequester;
+  private readonly playHeatingSequence: (
+    scene: Phaser.Scene,
+  ) => Promise<boolean>;
 
-      // 맵 벽면 경계 설정
-      context.addWall({ x: 480, y: 16, width: 960, height: 32 }, 0x151a24);
-      context.addWall({ x: 480, y: 524, width: 960, height: 32 }, 0x151a24);
-      context.addWall({ x: 16, y: 270, width: 32, height: 540 }, 0x151a24);
-      context.addWall({ x: 944, y: 270, width: 32, height: 540 }, 0x151a24);
+  constructor(options: ScienceLabRoomOptions = {}) {
+    this.requestStep = options.requestStep ?? requestScienceLabStep;
+    this.playHeatingSequence =
+      options.playHeatingSequence ?? playDefaultHeatingSequence;
+  }
 
-      // 복도 귀환 포탈
-      context.addPortal({
-        id: "science-lab-to-hallway",
-        targetRoomId: "hallway",
-        position: { x: 220, y: 150 },
-      });
+  getAccess(state: StageOneSaveState): StageOneRoomAccess {
+    return getScienceLabAccess(state);
+  }
 
-      // 타이틀
-      const title = scene.add
-        .text(480, 50, "과학 실험실 - 순차 실험 장치", {
-          color: "#f5f5f4",
+  getSpawnPoint(fromRoomId: StageOneRoomModule["id"] | null) {
+    return fromRoomId === "hallway"
+      ? { ...SCIENCE_LAB_SPAWN_FROM_HALLWAY }
+      : { ...SCIENCE_LAB_DEFAULT_SPAWN };
+  }
+
+  getObjective(state: StageOneSaveState): string {
+    if (state.scienceLabPuzzleSolved) {
+      return "실험동 승인 코드를 확인하고 보안 통제실로 이동하세요.";
+    }
+
+    const currentStep = this.puzzle.getSnapshot().currentStep;
+
+    if (!currentStep) {
+      return "가열 반응이 끝날 때까지 장치에서 떨어져 기다리세요.";
+    }
+
+    const definition = SCIENCE_LAB_STEP_DEFINITIONS[currentStep];
+    return `${definition.order}단계: ${definition.title} 장치를 조작하세요.`;
+  }
+
+  mount(context: StageOneRoomMountContext): () => void {
+    const { scene } = context;
+    const completedOnEntry = context.getState().scienceLabPuzzleSolved;
+    let mounted = true;
+    let heatingInProgress = false;
+
+    this.puzzle.reset(completedOnEntry);
+    addScienceLabBase(context);
+
+    context.addPortal({
+      id: "science-lab-to-hallway",
+      targetRoomId: "hallway",
+      position: { ...SCIENCE_LAB_EXIT_POSITION },
+    });
+
+    const title = scene.add
+      .text(48, 38, "과학 실험실 · 순차 안전 제어", {
+        color: "#eef3f5",
+        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        fontSize: "26px",
+        fontStyle: "bold",
+      })
+      .setDepth(-5);
+    const sequenceBoard = scene.add
+      .text(480, 82, SCIENCE_LAB_SEQUENCE_TEXT, {
+        align: "center",
+        color: "#b7d8c1",
+        fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+        fontSize: "15px",
+      })
+      .setOrigin(0.5)
+      .setDepth(-5);
+    const statusText = scene.add
+      .text(
+        480,
+        470,
+        completedOnEntry
+          ? "실험 완료 · 장치가 안전 정지 상태입니다."
+          : "연구 자료실의 순서대로 장치를 작동시키세요.",
+        {
+          align: "center",
+          color: "#d4dde1",
           fontFamily: "Pretendard, Noto Sans KR, sans-serif",
-          fontSize: "24px",
+          fontSize: "15px",
+        },
+      )
+      .setOrigin(0.5)
+      .setDepth(12);
+    const securityCodeText = scene.add
+      .text(
+        480,
+        503,
+        completedOnEntry
+          ? `실험동 승인 코드 · ${SCIENCE_LAB_SECURITY_CODE}`
+          : "",
+        {
+          align: "center",
+          color: "#f0cf72",
+          fontFamily: "Consolas, monospace",
+          fontSize: "17px",
+          fontStyle: "bold",
+        },
+      )
+      .setOrigin(0.5)
+      .setDepth(12);
+    context.track(title);
+    context.track(sequenceBoard);
+    context.track(statusText);
+    context.track(securityCodeText);
+
+    const devicePanels = new Map<
+      ScienceLabStep,
+      Phaser.GameObjects.Image
+    >();
+    const deviceStates = new Map<ScienceLabStep, Phaser.GameObjects.Text>();
+
+    for (const step of SCIENCE_LAB_STEPS) {
+      const definition = SCIENCE_LAB_STEP_DEFINITIONS[step];
+      const position = SCIENCE_LAB_DEVICE_POSITIONS[step];
+      const panel = scene.add
+        .image(position.x, position.y, STAGE_ONE_ENVIRONMENT_ASSETS.labConsole.key)
+        .setDisplaySize(124, 104)
+        .setDepth(7);
+      const label = scene.add
+        .text(position.x, position.y - 8, definition.title, {
+          align: "center",
+          color: "#d4dde1",
+          fontFamily: "Pretendard, Noto Sans KR, sans-serif",
+          fontSize: "14px",
           fontStyle: "bold",
         })
-        .setOrigin(0.5);
-      context.track(title);
-
-      // 상태 안내 문구 UI
-      const statusText = scene.add
-        .text(480, 100, isAlreadySolved ? "실험 완료 - 안전 상태 유지 중" : "장치 가동 준비 완료", {
-          color: "#a7f3d0",
+        .setOrigin(0.5)
+        .setDepth(8);
+      const stateLabel = scene.add
+        .text(position.x, position.y + 22, "순서 대기", {
+          align: "center",
+          color: "#6f838f",
           fontFamily: "Pretendard, Noto Sans KR, sans-serif",
-          fontSize: "16px",
+          fontSize: "12px",
         })
-        .setOrigin(0.5);
-      context.track(statusText);
+        .setOrigin(0.5)
+        .setDepth(8);
 
-      const inputDisplay = scene.add
-        .text(480, 140, "", {
-          color: "#ddd6fe",
-          fontFamily: "Consolas, monospace",
-          fontSize: "20px",
-        })
-        .setOrigin(0.5);
-      context.track(inputDisplay);
+      devicePanels.set(step, panel);
+      deviceStates.set(step, stateLabel);
+      context.track(panel);
+      context.track(label);
+      context.track(stateLabel);
+    }
 
-      const securityCodeDisplay = scene.add
-        .text(480, 450, isAlreadySolved ? `보안 통제실 코드: ${SCIENCE_LAB_SECURITY_CODE}` : "", {
-          color: "#f43f5e",
-          fontFamily: "Consolas, monospace",
-          fontSize: "22px",
-          fontStyle: "bold",
-        })
-        .setOrigin(0.5);
-      context.track(securityCodeDisplay);
+    const updateDeviceStates = () => {
+      const snapshot = this.puzzle.getSnapshot();
 
-      for (const position of [
-        { x: 250, y: 250 },
-        { x: 400, y: 250 },
-        { x: 550, y: 250 },
-        { x: 700, y: 250 },
-        { x: 480, y: 370 },
-      ]) {
-        const console = scene.add
-          .image(position.x, position.y, STAGE_ONE_ENVIRONMENT_ASSETS.labConsole.key)
-          .setDisplaySize(112, 94)
-          .setDepth(6);
-        context.track(console);
+      for (const step of SCIENCE_LAB_STEPS) {
+        const panel = devicePanels.get(step);
+        const stateLabel = deviceStates.get(step);
+
+        if (!panel || !stateLabel) {
+          continue;
+        }
+
+        if (snapshot.completedSteps.includes(step)) {
+          panel.setTint(0x5dbd8b);
+          stateLabel.setText("완료");
+        } else if (snapshot.currentStep === step) {
+          panel.setTint(0xb7d8c1);
+          stateLabel.setText("조작 가능");
+        } else {
+          panel.setTint(0x6f838f);
+          stateLabel.setText("순서 대기");
+        }
       }
+    };
 
-      // [1단계] 화학 기호 선택
+    updateDeviceStates();
+
+    for (const step of SCIENCE_LAB_STEPS) {
+      const definition = SCIENCE_LAB_STEP_DEFINITIONS[step];
+      const position = SCIENCE_LAB_DEVICE_POSITIONS[step];
+
       context.addInteraction({
-        id: "lab-step-symbol",
-        position: { x: 250, y: 250 },
-        radius: 70,
-        enabled: (state) => !state.scienceLabPuzzleSolved && !isProcessingHeating,
-        prompt: () => (currentStep === "SYMBOL" ? "E · [1단계] 화학 기호 입력" : "1. 화학 기호 단말기"),
-        async onInteract(interactionContext) {
-          if (currentStep !== "SYMBOL") {
-            interactionContext.showMessage("순서가 올바르지 않습니다. 현재 단계를 먼저 해결하세요.", "warning");
-            return;
+        id: `science-lab-step-${step}`,
+        position: { ...position },
+        radius: 88,
+        enabled: (state) =>
+          !state.scienceLabPuzzleSolved && !heatingInProgress,
+        prompt: () => {
+          const snapshot = this.puzzle.getSnapshot();
+
+          if (snapshot.completedSteps.includes(step)) {
+            return `${definition.order}. ${definition.shortLabel} · 완료`;
           }
-          statusText.setText("화학 기호를 입력하세요 (단서 참고):");
-          const input = await readLabAnswerLine(scene as Scene, inputDisplay);
-          if (checkSymbolAnswer(input)) {
-            currentStep = "DENSITY";
-            inputDisplay.setText("");
-            statusText.setText("1단계 완료: 화학 기호가 확인되었습니다.");
-            interactionContext.showMessage("화학 기호 승인 완료. 다음: 용액 밀도 조절", "success");
-          } else {
-            inputDisplay.setText("");
-            interactionContext.showMessage("올바르지 않은 화학 기호입니다.", "warning");
-          }
+
+          return snapshot.currentStep === step
+            ? `E · [${definition.order}/5] ${definition.title}`
+            : `${definition.order}. ${definition.shortLabel} · 순서 대기`;
         },
+        onInteract: (interaction) =>
+          this.runDeviceInteraction({
+            context: interaction,
+            scene,
+            step,
+            statusText,
+            securityCodeText,
+            updateDeviceStates,
+            isMounted: () => mounted,
+            setHeatingInProgress: (value) => {
+              heatingInProgress = value;
+            },
+          }),
       });
+    }
 
-      // [2단계] 용액 밀도 조절
-      context.addInteraction({
-        id: "lab-step-density",
-        position: { x: 400, y: 250 },
-        radius: 70,
-        enabled: (state) => !state.scienceLabPuzzleSolved && !isProcessingHeating,
-        prompt: () => (currentStep === "DENSITY" ? "E · [2단계] 용액 밀도 조절" : "2. 밀도 조절 장치"),
-        async onInteract(interactionContext) {
-          if (currentStep !== "DENSITY") {
-            const reason = currentStep === "SYMBOL" ? "1단계(화학 기호)를 먼저 완료하세요." : "순서가 올바르지 않습니다.";
-            interactionContext.showMessage(reason, "warning");
-            return;
-          }
-          statusText.setText("목표 밀도 값을 입력하세요:");
-          const input = await readLabAnswerLine(scene as Scene, inputDisplay);
-          if (checkDensityAnswer(input)) {
-            currentStep = "OXYGEN";
-            inputDisplay.setText("");
-            statusText.setText("2단계 완료: 용액 밀도가 정상 범위에 도달했습니다.");
-            interactionContext.showMessage("밀도 설정 완료. 다음: 산소 공급 조절", "success");
-          } else {
-            inputDisplay.setText("");
-            interactionContext.showMessage("밀도 설정 실패. 정확한 수치를 입력하세요.", "warning");
-          }
-        },
+    context.addInteraction({
+      id: "science-lab-protocol-board",
+      position: { x: 910, y: 370 },
+      radius: 95,
+      prompt: "E · 확보한 실험 순서 다시 확인",
+      onInteract(interaction) {
+        interaction.showMessage(
+          `연구 자료실 단서 · ${SCIENCE_LAB_SEQUENCE_TEXT}`,
+          "info",
+        );
+      },
+    });
+
+    context.addInteraction({
+      id: "science-lab-security-terminal",
+      position: { x: 800, y: 455 },
+      radius: 85,
+      enabled: (state) => state.scienceLabPuzzleSolved,
+      prompt: "E · 실험동 승인 코드 다시 확인",
+      onInteract(interaction) {
+        interaction.showMessage(
+          `실험동 승인 코드: ${SCIENCE_LAB_SECURITY_CODE}`,
+          "success",
+        );
+      },
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }
+
+  private async runDeviceInteraction({
+    context,
+    scene,
+    step,
+    statusText,
+    securityCodeText,
+    updateDeviceStates,
+    isMounted,
+    setHeatingInProgress,
+  }: {
+    context: StageOneInteractionContext;
+    scene: Phaser.Scene;
+    step: ScienceLabStep;
+    statusText: Phaser.GameObjects.Text;
+    securityCodeText: Phaser.GameObjects.Text;
+    updateDeviceStates(): void;
+    isMounted(): boolean;
+    setHeatingInProgress(value: boolean): void;
+  }): Promise<void> {
+    const snapshot = this.puzzle.getSnapshot();
+
+    if (snapshot.currentStep !== step) {
+      const expectedStep = snapshot.currentStep;
+      const expectedMessage = expectedStep
+        ? `${SCIENCE_LAB_STEP_DEFINITIONS[expectedStep].title} 장치를 먼저 조작하세요.`
+        : "이미 모든 실험 절차를 완료했습니다.";
+
+      context.showMessage(expectedMessage, "warning");
+      return;
+    }
+
+    const releaseInputLock = context.acquireModalInputLock();
+    let dialogResult;
+
+    try {
+      dialogResult = await this.requestStep({
+        step,
+        definition: SCIENCE_LAB_STEP_DEFINITIONS[step],
+        submit: (value) => this.puzzle.submit(step, value),
       });
+    } finally {
+      releaseInputLock();
+    }
 
-      // [3단계] 산소 공급 장치
-      context.addInteraction({
-        id: "lab-step-oxygen",
-        position: { x: 550, y: 250 },
-        radius: 70,
-        enabled: (state) => !state.scienceLabPuzzleSolved && !isProcessingHeating,
-        prompt: () => (currentStep === "OXYGEN" ? "E · [3단계] 산소 농도 설정" : "3. 산소 공급 장치"),
-        async onInteract(interactionContext) {
-          if (currentStep !== "OXYGEN") {
-            interactionContext.showMessage("이전 단계를 먼저 올바르게 완료해야 합니다.", "warning");
-            return;
-          }
-          statusText.setText("안전 산소 농도(%)를 입력하세요:");
-          const input = await readLabAnswerLine(scene as Scene, inputDisplay);
-          if (checkOxygenAnswer(input)) {
-            currentStep = "IGNITION";
-            inputDisplay.setText("");
-            statusText.setText("3단계 완료: 산소 공급 제어 정상화.");
-            interactionContext.showMessage("산소 농도 설정 완료. 다음: 점화 장치 활성화", "success");
-          } else {
-            inputDisplay.setText("");
-            interactionContext.showMessage("산소 농도 범위를 벗어났습니다.", "warning");
-          }
-        },
-      });
+    if (dialogResult.status === "cancelled" || !isMounted()) {
+      context.showMessage("장치 설정을 취소했습니다.", "info");
+      return;
+    }
 
-      // [4단계] 점화 장치
-      context.addInteraction({
-        id: "lab-step-ignition",
-        position: { x: 700, y: 250 },
-        radius: 70,
-        enabled: (state) => !state.scienceLabPuzzleSolved && !isProcessingHeating,
-        prompt: () => (currentStep === "IGNITION" ? "E · [4단계] 점화 (ON 입력)" : "4. 점화 장치"),
-        async onInteract(interactionContext) {
-          if (currentStep !== "IGNITION") {
-            interactionContext.showMessage("점화 전 선행 절차를 모두 완수해야 합니다.", "warning");
-            return;
-          }
-          statusText.setText("점화 명령을 입력하세요 (ON):");
-          const input = await readLabAnswerLine(scene as Scene, inputDisplay);
-          if (checkIgnitionAnswer(input)) {
-            currentStep = "HEATING";
-            inputDisplay.setText("");
-            statusText.setText("4단계 완료: 점화 성공. 가열 반응 준비 완료.");
-            interactionContext.showMessage("점화 완료. 이제 가열 스위치를 가동하세요.", "success");
-          } else {
-            inputDisplay.setText("");
-            interactionContext.showMessage("점화 실패. 명령어를 확인하세요.", "warning");
-          }
-        },
-      });
+    updateDeviceStates();
+    statusText.setText(dialogResult.result.message);
 
-      // [5단계] 가열 스위치 및 폭파 연출 (D-LAB-005)
-      context.addInteraction({
-        id: "lab-step-heating",
-        position: { x: 480, y: 370 },
-        radius: 80,
-        enabled: (state) => !state.scienceLabPuzzleSolved && !isProcessingHeating,
-        prompt: () => (currentStep === "HEATING" ? "E · [최종] 가열 스위치 작동" : "5. 가열 반응 장치"),
-        async onInteract(interactionContext) {
-          if (currentStep !== "HEATING") {
-            interactionContext.showMessage("모든 안전 제어 단계를 완료한 후 가열할 수 있습니다.", "warning");
-            return;
-          }
+    if (!dialogResult.result.solved) {
+      context.showMessage(dialogResult.result.message, "success");
+      return;
+    }
 
-          isProcessingHeating = true;
-          statusText.setText("가열 장치 작동 중... 화학 반응 진행 중...");
-          interactionContext.showMessage("가열을 시작합니다. 반응을 기다리세요.", "info");
+    setHeatingInProgress(true);
+    context.showMessage(
+      "가열 반응을 시작합니다. 안전 연출이 끝날 때까지 기다리세요.",
+      "info",
+    );
 
-          scene.cameras.main.shake(1500, 0.01);
+    let reactionCompleted = false;
 
-          scene.time.delayedCall(2000, async () => {
-            isProcessingHeating = false;
-            currentStep = "SOLVED";
+    try {
+      reactionCompleted = await this.playHeatingSequence(scene);
+    } finally {
+      setHeatingInProgress(false);
+    }
 
-            statusText.setText("반응 완료! 보안 통제실 코드가 실린더에 표시됩니다.");
-            securityCodeDisplay.setText(`보안 통제실 코드: ${SCIENCE_LAB_SECURITY_CODE}`);
+    if (!reactionCompleted || !isMounted()) {
+      return;
+    }
 
-            await interactionContext.updateProgress(
-              { scienceLabPuzzleSolved: true },
-              `과학 실험실 퍼즐을 해결했습니다! 보안 통제실 코드 [${SCIENCE_LAB_SECURITY_CODE}]를 획득했습니다.`,
-            );
-          });
-        },
-      });
+    const nextState = await context.updateProgress(
+      { scienceLabPuzzleSolved: true },
+      `과학 실험실을 완료했습니다. 실험동 승인 코드 [${SCIENCE_LAB_SECURITY_CODE}]를 확보했습니다.`,
+    );
 
-      // 완료 후 코드 다시 확인 (D-SAVE-002)
-      context.addInteraction({
-        id: "lab-solved-terminal",
-        position: { x: 480, y: 450 },
-        radius: 80,
-        enabled: (state) => state.scienceLabPuzzleSolved,
-        prompt: () => "보안 코드 다시 확인",
-        async onInteract(interactionContext) {
-          interactionContext.showMessage(`보안 통제실 접속 코드: ${SCIENCE_LAB_SECURITY_CODE}`, "info");
-        },
-      });
-    },
-  };
+    if (nextState.scienceLabPuzzleSolved) {
+      statusText.setText("실험 완료 · 장치가 안전 정지 상태입니다.");
+      securityCodeText.setText(
+        `실험동 승인 코드 · ${SCIENCE_LAB_SECURITY_CODE}`,
+      );
+    }
+  }
+}
+
+export function createScienceLabRoom(
+  options: ScienceLabRoomOptions = {},
+): ScienceLabRoomModule {
+  return new ScienceLabRoomModule(options);
 }
