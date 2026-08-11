@@ -128,7 +128,7 @@ D Room과 퍼즐은 공통 Room 조립 지점에 실제 구현으로 등록되�
 | 환경변수 구조 | `npm run env:check` | 통과. 실제 파일과 예제 파일은 값 외 구조가 일치 |
 | 타입 검사 | `npm run typecheck` | 통과 |
 | 린트 | `npm run lint` | 통과 |
-| 프로덕션 빌드 | `npm run build` | 성공. `/stages/[slug]` 포함 전체 라우트 생성 |
+| 프로덕션 빌드 | `npm run build` | 성공. 숫자 ID 기반 `/stages/[stageId]` 포함 전체 라우트 생성 |
 | 변경 공백 검사 | `git diff --check` | 통과 |
 | 브라우저 QA | 메인 랜딩·횡스크롤 공통 HUD·연구소 외부 | 메인은 기존 디자인을 유지하고, 인게임은 큰 단일 캔버스·상단 HUD·옆 시점 바닥·SVG 캐릭터·화면 내 프롬프트로 렌더링되는 것을 확인. 인증된 실제 D 플레이는 미실행 |
 
