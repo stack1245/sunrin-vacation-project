@@ -22,6 +22,11 @@ interface FakeText {
   setOrigin(value: number): FakeText;
 }
 
+interface FakeImage {
+  setDisplaySize(width: number, height: number): FakeImage;
+  setDepth(value: number): FakeImage;
+}
+
 function createFakeText(initialValue: string): FakeText {
   const fakeText: FakeText = {
     value: initialValue,
@@ -37,6 +42,19 @@ function createFakeText(initialValue: string): FakeText {
   return fakeText;
 }
 
+function createFakeImage(): FakeImage {
+  const image: FakeImage = {
+    setDisplaySize() {
+      return image;
+    },
+    setDepth() {
+      return image;
+    },
+  };
+
+  return image;
+}
+
 function mountArchive(initialState: StageOneSaveState) {
   let state = initialState;
   let keyHandler: ((event: KeyboardEvent) => void) | null = null;
@@ -49,6 +67,7 @@ function mountArchive(initialState: StageOneSaveState) {
 
   const scene = {
     add: {
+      image: () => createFakeImage(),
       text(_x: number, _y: number, value: string) {
         return createFakeText(value);
       },
