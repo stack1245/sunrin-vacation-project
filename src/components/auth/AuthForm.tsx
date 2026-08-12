@@ -6,6 +6,10 @@ import { type FormEvent, useState } from "react";
 
 import { EmailVerificationNotice } from "@/components/auth/EmailVerificationNotice";
 import { getEmailConfirmationUrl } from "@/lib/auth/email-redirect";
+import {
+  EXISTING_EMAIL_SIGNUP_MESSAGE,
+  isExistingEmailSignup,
+} from "@/lib/auth/signup-result";
 import { getAuthErrorMessage } from "@/lib/supabase/auth-errors";
 import {
   getSupabaseBrowserClient,
@@ -115,6 +119,15 @@ export function AuthForm({ mode }: AuthFormProps) {
               error,
               "인증 메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
             ),
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (isExistingEmailSignup(data.user)) {
+          setNotice({
+            kind: "error",
+            message: EXISTING_EMAIL_SIGNUP_MESSAGE,
           });
           setIsSubmitting(false);
           return;
